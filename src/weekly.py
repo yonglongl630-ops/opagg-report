@@ -71,6 +71,7 @@ def build_weekly(anchor: str | None = None, cfg: Dict[str, Any] | None = None) -
             name = up.get("name", "")
             u = up_by_name.setdefault(name, {
                 "name": name,
+                "mid": up.get("mid", ""),
                 "url": up.get("url", ""),
                 "avatar": up.get("avatar_remote") or up.get("avatar_local") or up.get("avatar", ""),
                 "avatar_local": up.get("avatar_local", ""),
@@ -88,6 +89,10 @@ def build_weekly(anchor: str | None = None, cfg: Dict[str, Any] | None = None) -
             u["days"][ds] = {"stance": up.get("stance", "中性"), "score": up.get("stance_score", 0)}
             for q in (up.get("quotes", []) or [])[:2]:
                 u["quotes"].append(q)
+    # 只保留当前配置中的 up主（历史日报里可能残留已移除的博主）
+    cfg_mids = {str(x.get("mid") or x.get("uid")) for x in cfg.get("bilibili", {}).get("upmasters", [])}
+    if cfg_mids:
+        up_by_name = {k: v for k, v in up_by_name.items() if str(v.get("mid", "")) in cfg_mids}
     for u in up_by_name.values():
         u["quotes"] = sorted(u["quotes"], key=lambda q: q.get("likes", 0), reverse=True)[:6]
 
@@ -148,64 +153,19 @@ def fmt_num(v: Any) -> str:
 
 
 def render_weekly_html(w: Dict[str, Any]) -> str:
-    senti = w.get("sentiment", {})
-    score = senti.get("score", 0)
-    senti_color = "#d93026" if score >= 0.15 else ("#0f8a4d" if score <= -0.15 else "#777")
-    kw_html = "".join(
-        f'<div class="kw"><b>{esc(k["text"])}</b><span class="muted">{k["freq"]}次 · {"、".join(k.get("sources", []))}</span></div>'
-        for k in (w.get("keywords") or [])[:14]
-    )
-    meme_html = "".join(
-        f'<div class="kw"><b>{esc(m["text"])}</b><span class="muted">{m["freq"]}次</span>'
-        f'<div class="muted">{esc(m.get("example", ""))[:80]}</div></div>'
-        for m in (w.get("memes") or [])[:10]
-    )
-    topics_html = ""
-    for t in (w.get("topics") or [])[:8]:
-        posts = "".join(
-            f'<li><a href="{esc(p.get("url", "#"))}" target="_blank" rel="noopener">[{esc(p.get("source", ""))}] {esc(p.get("title", ""))}</a></li>'
-            for p in t.get("top_posts", [])[:3]
-        )
-        topics_html += (
-            f'<div class="card"><div class="th"><b>{esc(t.get("label", ""))}</b>'
-            f'<span class="muted">{t.get("count", 0)}条 · {esc(t.get("sentiment", ""))}</span></div>'
-            f'<ul class="pl">{posts}</ul></div>'
-        )
-    senti_rows = ""
-    if w.get("daily_sentiment"):
-        maxv = max(0.01, max(abs(x["score"]) for x in w["daily_sentiment"]))
-        for x in w["daily_sentiment"]:
-            wdt = abs(x["score"]) / maxv * 100
-            color = "#d93026" if x["score"] >= 0 else "#0f8a4d"
-            senti_rows += (
-                f'<div class="srow"><span class="sdate">{x["date"][5:]}</span>'
-                f'<div class="sbar"><div style="width:{wdt:.0f}%;background:{color}" class="sfill"></div></div>'
-                f'<span class="muted">{x["score"]:+.2f} {esc(x["label"])}</span></div>'
-            )
-    up_html = ""
-    for u in (w.get("upmasters") or []):
-        avatar_local = u.get("avatar_local") or ""
-        avatar = ("../" + avatar_local.lstrip("/")) if avatar_local else (u.get("avatar") or "")
-        av = f'<img class="avatar" src="{esc(avatar)}" alt="">' if avatar else '<div class="avatar"></div>'
-        trend = "".join(
-            f'<span class="td" title="{ds}">{esc(d.get("stance", "中性")[0])}</span>'
-            for ds, d in sorted((u.get("days") or {}).items())
-        )
-        quotes = "".join(
-            f'<div class="quote">“{esc(q.get("text", ""))}”<span class="muted">—— {fmt_num(q.get("likes"))}赞</span></div>'
-            for q in (u.get("quotes") or [])[:4]
-        )
-        up_html += f"""
-        <div class="card">
-          <div class="uhead">{av}<div><b>{esc(u.get("name", ""))}</b>
-          <div class="muted">周观点 {esc(u.get("stance", "中性"))}（{u.get("stance_score", 0):+.2f}）· 周播放 {fmt_num(u.get("total_views"))} · 动态 {u.get("total_dynamics", 0)}</div>
-          <div class="muted">每日观点：{trend}</div></div></div>
-          <div class="quotes">{quotes or '<div class="muted">本周暂无高赞金句</div>'}</div>
-        </div>"""
+    days = (w.get("day_reports") or [])
     day_links = "".join(
         f'<a class="daylink" href="{esc(d.get("html", ""))}">{esc(d.get("date", ""))[5:]}</a>'
-        for d in (w.get("day_reports") or [])
+        for d in days
     )
+    day_blocks = "".join(
+        f"""
+        <details class="day-detail" open>
+          <summary>日报 {esc(d.get("date", ""))} · {esc(d.get("summary", ""))[:60]}…</summary>
+          <iframe class="day-frame" src="{esc(d.get("html", ""))}" loading="lazy"></iframe>
+        </details>"""
+        for d in sorted(days, key=lambda x: x.get("date", ""), reverse=True)
+    ) or '<div class="card muted">本周暂无日报</div>'
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -218,61 +178,37 @@ def render_weekly_html(w: Dict[str, Any]) -> str:
   .wrap {{ max-width: 1080px; margin: 0 auto; padding: 24px 18px 60px; }}
   h1 {{ font-size: 24px; }}
   .sub {{ color: #6a737d; font-size: 13px; margin-top: 4px; }}
-  .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 20px 0; }}
+  .daylinks {{ margin: 12px 0 18px; }}
+  .daylink {{ display: inline-block; background: #fff; border: 1px solid #d0d7de; border-radius: 999px; padding: 5px 14px; font-size: 13px; color: #0969da; text-decoration: none; margin-right: 8px; }}
+  .cards {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin: 0 0 18px; }}
   .stat {{ background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }}
   .stat b {{ font-size: 24px; display: block; }}
   .stat span {{ color: #6a737d; font-size: 12px; }}
-  .card {{ background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px; }}
-  .sec-title {{ font-size: 15px; font-weight: 700; margin-bottom: 10px; }}
-  .grid2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }}
-  @media (max-width: 800px) {{ .grid2 {{ grid-template-columns: 1fr; }} }}
-  .kw {{ padding: 6px 0; border-bottom: 1px dashed #eaecef; font-size: 13px; }}
-  .kw:last-child {{ border-bottom: 0; }}
+  .summary-box {{ background: linear-gradient(135deg,#eef4ff,#fff); border: 1px solid #cfe0ff; border-radius: 10px; padding: 16px; margin-bottom: 18px; }}
+  .sec-title {{ font-size: 15px; font-weight: 700; margin: 18px 0 10px; }}
+  .day-detail {{ background: #fff; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 14px; }}
+  .day-detail summary {{ cursor: pointer; font-size: 15px; font-weight: 700; color: #0969da; }}
+  .day-frame {{ width: 100%; height: 2400px; border: 0; margin-top: 10px; background: #fff; border-radius: 8px; }}
   .muted {{ color: #6a737d; font-size: 12px; }}
-  .th {{ display: flex; align-items: baseline; gap: 8px; }}
-  .pl {{ list-style: none; margin-top: 6px; }}
-  .pl li {{ padding: 3px 0; font-size: 13px; }}
-  .pl a {{ color: #0969da; text-decoration: none; }}
-  .srow {{ display: flex; align-items: center; gap: 8px; padding: 4px 0; }}
-  .sdate {{ width: 42px; font-size: 12px; }}
-  .sbar {{ flex: 1; background: #f0f1f3; height: 10px; border-radius: 5px; overflow: hidden; }}
-  .sfill {{ height: 100%; }}
-  .avatar {{ width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #f0f1f3; }}
-  .uhead {{ display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }}
-  .td {{ display: inline-block; min-width: 18px; text-align: center; border-radius: 4px; background: #f0f1f3; color: #57606a; font-size: 11px; margin-right: 3px; }}
-  .quote {{ padding: 4px 0; font-size: 13px; }}
-  .daylink {{ display: inline-block; background: #fff; border: 1px solid #d0d7de; border-radius: 999px; padding: 4px 12px; font-size: 12px; color: #0969da; text-decoration: none; margin-right: 6px; }}
-  .summary-box {{ background: linear-gradient(135deg,#eef4ff,#fff); border: 1px solid #cfe0ff; border-radius: 10px; padding: 16px; margin-bottom: 20px; }}
   footer {{ color: #8b949e; font-size: 12px; margin-top: 30px; text-align: center; }}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>舆论蒸馏周报</h1>
-  <div class="sub">{esc(w["monday"])} ~ {esc(w["sunday"])} · 生成于 {esc(w.get("generated_at", ""))} · 覆盖 {w.get("days_count", 0)} 个交易日报告</div>
-  <div class="daylinks" style="margin-top:10px">{day_links or '<span class="muted">本周暂无日报</span>'}</div>
+  <div class="sub">{esc(w["monday"])} ~ {esc(w["sunday"])} · 生成于 {esc(w.get("generated_at", ""))} · 汇总本周 {w.get("days_count", 0)} 份日报</div>
+  <div class="daylinks">{day_links or '<span class="muted">本周暂无日报</span>'}</div>
 
   <div class="cards">
+    <div class="stat"><b>{w.get("days_count", 0)}</b><span>覆盖日报天数</span></div>
     <div class="stat"><b>{w.get("total_posts", 0)}</b><span>本周聚合内容</span></div>
-    <div class="stat"><b style="color:{senti_color}">{esc(senti.get("label", "中性"))}</b><span>周度情绪（{score:+.2f}）</span></div>
-    <div class="stat"><b>{len(w.get("keywords", []))}</b><span>热词</span></div>
     <div class="stat"><b>{len(w.get("upmasters", []))}</b><span>跟踪 up主</span></div>
   </div>
 
   <div class="summary-box"><div class="sec-title">周报摘要</div><p>{esc(w.get("summary", ""))}</p></div>
 
-  <div class="grid2">
-    <div class="card"><div class="sec-title">周度热词</div>{kw_html or '<div class="muted">暂无</div>'}</div>
-    <div class="card"><div class="sec-title">周度高频短语 / 梗</div>{meme_html or '<div class="muted">暂无</div>'}</div>
-  </div>
-
-  <div class="card"><div class="sec-title">每日情绪走势</div>{senti_rows or '<div class="muted">暂无数据</div>'}</div>
-
-  <div class="sec-title" style="margin-top:6px">周度主题</div>
-  <div class="grid2">{topics_html or '<div class="card muted">暂无主题</div>'}</div>
-
-  <div class="sec-title" style="margin-top:6px">up主周报</div>
-  {up_html or '<div class="card muted">未配置 up主</div>'}
+  <div class="sec-title">本周日报（逐日全文，与日报界面一致，点击标题可展开/收起）</div>
+  {day_blocks}
 
   <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口 · 生成于 {esc(w.get("generated_at", ""))}</footer>
 </div>

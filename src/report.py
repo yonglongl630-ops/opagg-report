@@ -356,7 +356,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
           </div>
         </div>"""
         up_details += f"""
-        <details class="up-detail" open>
+        <details class="up-detail">
           <summary><b>{esc(u.get('name', ''))}</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
           <div class="up-tabs">视频分析（窗口内近期视频）</div>
           <div class="up-grid">
@@ -583,15 +583,18 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             "meta": _pct_badge((c.get("extra") or {}).get("pct")),
             "example": f"领涨股 {leader}",
         })
-    board_html = "".join(
-        f'<span class="board-chip" title="{esc(b.get("example", ""))}">'
-        f'{esc(b["text"])}{_plat_chips(b["platforms"])}{b.get("meta", "")}</span>'
-        for b in official_boards[:30]
+    # 板块/热榜合并汇总：同内容去重（seen_board），展示前 20 条编号列表
+    board_rows = "".join(
+        f'<div class="hrow" title="{esc(b.get("example", ""))}">'
+        f'<span class="hrow-idx">{i + 1}</span>'
+        f'<span class="hrow-name">{esc(b["text"])}</span>'
+        f'<span class="hrow-meta">{_plat_chips(b["platforms"])}{b.get("meta", "")}</span></div>'
+        for i, b in enumerate(official_boards[:20])
     ) or '<div class="muted">暂无官方板块数据</div>'
     board_section = f"""
     <div class="card board-panel">
       <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
-      <div class="board-row">{board_html}</div>
+      <div class="board-list">{board_rows}</div>
       <div class="muted" style="margin-top:6px">口径：雪球官方热股/热门话题 + 同花顺官方板块热榜 + 财联社官方热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜</div>
     </div>"""
 
@@ -783,6 +786,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   .topic-chip {{ padding: 7px 0; border-bottom: 1px dashed #eaecef; }}
   .topic-chip:last-child {{ border-bottom: 0; }}
   .board-row {{ display: flex; flex-wrap: wrap; gap: 8px; }}
+  .board-list {{ margin-top: 4px; }}
   .board-chip {{ display: inline-flex; align-items: baseline; gap: 6px; background: #f0f4ff; border: 1px solid #d9e2ff; border-radius: 8px; padding: 5px 10px; font-size: 12px; }}
   .up-summary-row {{ display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eaecef; }}
   .up-summary-row:last-child {{ border-bottom: 0; }}
@@ -819,14 +823,6 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   <div class="header-cards">{header_cards}</div>
 
   {board_section}
-
-  <div class="cards">
-    <div class="stat"><b style="color:{senti_color}">{senti.get('label', '中性')}</b><span>整体情绪（{senti_score:+.2f}）</span>
-      <div class="sentibar"><div class="pos" style="width:{pos_w:.1f}%"></div><div class="neu" style="width:{neu_w:.1f}%"></div><div class="neg" style="width:{neg_w:.1f}%"></div></div>
-      <span>看多 {pos_n} / 中性 {neu_n} / 看空 {neg_n}</span>
-    </div>
-    <div class="stat"><b>{len(topics)}</b><span>热点主题簇</span></div>
-  </div>
 
   {merged_panel_html}
 
