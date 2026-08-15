@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import html as html_mod
+import base64
 import math as _math
+import os
 import re
 from collections import Counter as _Counter
 from typing import Any, Dict, List
 
 from .aggregate import SOURCE_LABELS
+from .config import ROOT
 
 
 PLAT_COLORS = {
@@ -43,6 +46,26 @@ def _src_chips(keys: List[str]) -> str:
             f'<span class="plat-chip" style="background:{PLAT_COLORS.get(label, "#888")}">{esc(label)}</span>'
         )
     return "".join(out)
+
+
+def _avatar_data_uri(path: str) -> str:
+    """把本地头像读成 base64 data URI，避免 file:// 下相对路径子资源被浏览器拦截。"""
+    if not path:
+        return ""
+    p = path if os.path.isabs(path) else os.path.join(ROOT, path)
+    try:
+        with open(p, "rb") as f:
+            raw = f.read()
+    except OSError:
+        return ""
+    low = path.lower()
+    if low.endswith(".webp"):
+        mime = "image/webp"
+    elif low.endswith(".png"):
+        mime = "image/png"
+    else:
+        mime = "image/jpeg"
+    return f"data:{mime};base64,{base64.b64encode(raw).decode('ascii')}"
 
 
 def esc(v: Any) -> str:
@@ -171,7 +194,6 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     date_str = report.get("date", "")
     senti = d.get("sentiment", {})
     keywords = d.get("keywords", [])
-    memes = d.get("memes", [])
     topics = d.get("topics", [])
     upmasters = d.get("upmasters", [])
     items = report.get("items", {}) or {}
@@ -207,15 +229,6 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         </div>"""
         for k in sorted(keywords, key=lambda x: x.get("freq", 0), reverse=True)[:16]
     )
-    meme_html = "".join(
-        f"""
-        <div class="meme-item">
-          <div class="meme-head"><b>{esc(m['text'])}</b><span class="meme-meta">{m['freq']}次 · {_src_chips(m.get('sources', []))}</span></div>
-          <div class="meme-ex">{esc(m.get('example', ''))}</div>
-        </div>"""
-        for m in sorted(memes, key=lambda x: x.get("freq", 0), reverse=True)[:16]
-    )
-
     guba_hot_topics = ((items.get("guba", {}) or {}).get("hot_topics", []) or [])
 
     # 分平台
@@ -270,7 +283,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             for q in u.get("quotes", [])[:4]
         )
         avatar_local = u.get("avatar_local") or ""
-        avatar_src = ("../" + avatar_local.lstrip("/")) if avatar_local else (u.get("avatar_remote") or u.get("avatar") or "")
+        avatar_src = _avatar_data_uri(avatar_local) or (u.get("avatar_remote") or u.get("avatar") or "")
         avatar_html = f'<img class="up-avatar" src="{esc(avatar_src)}" alt="">' if avatar_src else '<div class="up-avatar"></div>'
         tags_html = "".join(f'<span class="chip" style="border-color:#bbb;color:#555">{esc(t)}</span>' for t in (u.get("tags") or [])[:4])
         dyn_all = sorted(
@@ -497,9 +510,31 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             for p in platforms
         )
 
-    # ---------- 今日热门板块：仅官方板块榜（同花顺板块热榜 + 财联社热门板块） ----------
+    # ---------- 今日热门板块：官方板块榜（同花顺/财联社/东财）+ 雪球热榜 ----------
     official_boards: List[Dict[str, Any]] = []
     seen_board = set()
+    for s in xq_stocks[:3]:
+        n = str(s.get("title", "") or "").strip()
+        if not n or n in seen_board:
+            continue
+        seen_board.add(n)
+        official_boards.append({
+            "text": n,
+            "platforms": ["雪球"],
+            "meta": f"热度 {fmt_num(s.get('views'))}",
+            "example": "雪球官方热股榜",
+        })
+    for t in xq_topics_raw[:3]:
+        n = str(t.get("title", "") or "").strip()
+        if not n or n in seen_board:
+            continue
+        seen_board.add(n)
+        official_boards.append({
+            "text": n[:20],
+            "platforms": ["雪球"],
+            "meta": f"{fmt_num(t.get('views'))}讨论",
+            "example": t.get("content", "")[:80],
+        })
     for t in ths_topics_raw[:8]:
         n = str(t.get("name", "") or "").strip()
         if not n or n in seen_board:
@@ -551,13 +586,13 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     board_html = "".join(
         f'<span class="board-chip" title="{esc(b.get("example", ""))}">'
         f'{esc(b["text"])}{_plat_chips(b["platforms"])}{b.get("meta", "")}</span>'
-        for b in official_boards[:24]
+        for b in official_boards[:30]
     ) or '<div class="muted">暂无官方板块数据</div>'
     board_section = f"""
     <div class="card board-panel">
-      <div class="sec-title">今日热门板块（官方板块榜）</div>
+      <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
       <div class="board-row">{board_html}</div>
-      <div class="muted" style="margin-top:6px">口径：同花顺官方板块热榜 + 财联社官方热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜</div>
+      <div class="muted" style="margin-top:6px">口径：雪球官方热股/热门话题 + 同花顺官方板块热榜 + 财联社官方热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜</div>
     </div>"""
 
     # ---------- 综合热榜：五平台 热股/话题 跨平台合并去重 ----------
@@ -789,23 +824,16 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
       <div class="sentibar"><div class="pos" style="width:{pos_w:.1f}%"></div><div class="neu" style="width:{neu_w:.1f}%"></div><div class="neg" style="width:{neg_w:.1f}%"></div></div>
       <span>看多 {pos_n} / 中性 {neu_n} / 看空 {neg_n}</span>
     </div>
-    <div class="stat"><b>{len(memes)}</b><span>今日高频梗</span></div>
     <div class="stat"><b>{len(topics)}</b><span>热点主题簇</span></div>
   </div>
 
   {merged_panel_html}
 
-  <div class="grid2">
-    <div class="card">
-      <div class="sec-title">今日综合热词（全文蒸馏 + 五大平台热词）</div>
-      {kw_html}
-      <div class="sec-title" style="margin-top:12px">五大平台热词（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
-      <div class="board-row">{plat_hot_words}</div>
-    </div>
-    <div class="card">
-      <div class="sec-title">今日梗 / 高频短语（按次数从大到小）</div>
-      {meme_html or '<div class="muted">暂无</div>'}
-    </div>
+  <div class="card">
+    <div class="sec-title">今日综合热词（全文蒸馏 + 五大平台热词）</div>
+    {kw_html}
+    <div class="sec-title" style="margin-top:12px">五大平台热词（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
+    <div class="board-row">{plat_hot_words}</div>
   </div>
 
   <div class="card">
@@ -818,7 +846,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
 
   {error_detail and f'<div class="card"><div class="sec-title">数据源异常</div>{error_detail}</div>'}
 
-  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 {esc(report.get('collected_at', ''))}</footer>
+  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 {esc(report.get('collected_at', ''))} · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
   <script>
   function refreshBase() {{
     return (location.protocol === 'http:' || location.protocol === 'https:') ? location.origin : 'http://127.0.0.1:8651';
