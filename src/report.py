@@ -808,7 +808,8 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     <h1>当日舆论蒸馏日报</h1>
     <div style="margin-top:8px">
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
-      <span class="muted" style="margin-left:8px">停止定时任务后，点击可实时重采集全部平台并更新日报</span>
+      <button class="refresh-btn" id="publish-btn" onclick="publishOnline()" style="margin-left:8px">☁️ 发布在线版</button>
+      <span class="muted" style="margin-left:8px">「立即刷新」实时重采集并更新日报；「发布在线版」把本地最新日报推送到 GitHub 网址</span>
     </div>
     <div class="sub">{esc(date_str)} · 采集于 {esc(report.get('collected_at', ''))} · 数据源 {ok_sources}/{total_sources} 正常</div>
     <div class="sub" style="color:#9a6b1f">统计窗口：{esc((report.get('window') or {}).get('since', ''))} → {esc((report.get('window') or {}).get('until', ''))}（{esc((report.get('window') or {}).get('mode', ''))}）</div>
@@ -866,6 +867,33 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         alert('无法连接刷新服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
         resetRefreshBtns();
       }});
+  }}
+  function publishOnline() {{
+    var btn = document.getElementById('publish-btn');
+    if (btn) {{ btn.disabled = true; btn.textContent = '发布中…（约10-30秒）'; }}
+    fetch(refreshBase() + '/api/publish', {{ method: 'POST' }})
+      .then(function (r) {{ return r.json(); }})
+      .then(function (j) {{
+        if (j && j.ok) {{ pollPublish(btn); }}
+        else {{ alert('发布启动失败：' + (j && j.error ? j.error : '未知错误')); if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }} }}
+      }})
+      .catch(function () {{
+        alert('无法连接发布服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
+        if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }}
+      }});
+  }}
+  function pollPublish(btn) {{
+    var base = refreshBase();
+    var t = setInterval(function () {{
+      fetch(base + '/api/publish-status').then(function (r) {{ return r.json(); }}).then(function (j) {{
+        if (j && !j.running) {{
+          clearInterval(t);
+          if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }}
+          if (j.error) {{ alert('发布失败：' + j.error); }}
+          else {{ alert('已发布到 https://yonglongl630-ops.github.io/opagg-report/（CDN 1-2 分钟生效）'); }}
+        }}
+      }}).catch(function () {{ clearInterval(t); if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }} }});
+    }}, 2000);
   }}
   function pollRefresh() {{
     var base = refreshBase();

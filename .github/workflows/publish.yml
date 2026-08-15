@@ -1,20 +1,13 @@
-name: 舆论蒸馏日报/周报自动生成
+name: 舆论蒸馏周报自动生成
 
 on:
-  push:
-    branches: [main]
   schedule:
     # GitHub Actions 使用 UTC 时间；北京时间 = UTC+8
     # 周日 15:00（北京时间）= 7:00 UTC 生成周报
     - cron: '0 7 * * 0'
+    # 15 分钟后兜底
     - cron: '15 7 * * 0'
-  workflow_dispatch:
-    inputs:
-      weekly:
-        description: '只生成周报'
-        required: false
-        default: 'false'
-        type: boolean
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -24,7 +17,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  report:
+  weekly:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -36,29 +29,21 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: 拉取历史数据（供周报汇总与日报缓存）
+      - name: 保留既有日报并拉取历史数据（gh-pages）
         run: |
-          mkdir -p data/raw data/summary
-          curl -sfL "https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/data.tar.gz" -o /tmp/data.tar.gz || true
-          tar -xzf /tmp/data.tar.gz -C . 2>/dev/null || true
-
-      - name: 生成日报（仅推送 / 手动触发时，日常请用本地「立即刷新」）
-        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && inputs.weekly != 'true' }}
-        env:
-          XUEQIU_COOKIE: ${{ secrets.XUEQIU_COOKIE }}
-          BILI_COOKIE: ${{ secrets.BILI_COOKIE }}
-        run: python3 scheduler.py --once --force --no-cache
-
-      - name: 生成周报（周日 15:00 或手动触发）
-        env:
-          XUEQIU_COOKIE: ${{ secrets.XUEQIU_COOKIE }}
-          BILI_COOKIE: ${{ secrets.BILI_COOKIE }}
-        run: |
-          if [ "${{ inputs.weekly }}" = "true" ] || [ "$(date -u +%w)" = "0" ]; then
-            python3 scheduler.py --weekly
-          else
-            echo "今天不是周日，跳过周报"
+          rm -rf _gh
+          git clone --depth 1 --branch gh-pages "https://github.com/${{ github.repository }}.git" _gh || true
+          mkdir -p output data/raw data/summary
+          if [ -d _gh ]; then
+            cp -f _gh/report_*.html output/ 2>/dev/null || true
+            tar -xzf _gh/data.tar.gz -C . 2>/dev/null || true
           fi
+
+      - name: 生成周报（周日自动 / 手动触发）
+        env:
+          XUEQIU_COOKIE: ${{ secrets.XUEQIU_COOKIE }}
+          BILI_COOKIE: ${{ secrets.BILI_COOKIE }}
+        run: python3 scheduler.py --weekly
 
       - name: 生成站点首页
         run: python3 src/site.py --dir output
@@ -73,4 +58,3 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./output
           publish_branch: gh-pages
-          force_orphan: true

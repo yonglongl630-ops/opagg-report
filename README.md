@@ -151,8 +151,8 @@ launchctl list | grep opagg
 
 ## 公网网址（GitHub Pages，与「破线监控」同款）
 
-利用 GitHub 免费提供的 Actions + Pages：GitHub 云端按调度自动生成日报/周报，发布到公网网址，
-任何设备浏览器直接访问，Mac 关机也不影响；本地 `python3 -m src.serve` 仍可用于「立即刷新」。
+利用 GitHub 免费提供的 Actions + Pages：**日报在本地生成后一键发布**，**周报由 GitHub 云端周日自动生成**，
+任何设备浏览器直接访问网址即可，Mac 关机也不影响周报。
 
 部署步骤：
 
@@ -184,9 +184,10 @@ https://yonglongl630-ops.github.io/opagg-report/
 
 `.github/workflows/publish.yml` 已内置调度：
 
-- 周日 15:00（北京时间）自动生成周报（15 分钟后兜底）
-- **日报不设定时**：日常打开日报页点击「立即刷新」实时生成（本地 `python3 -m src.serve`）；
-  推送代码或手动 `workflow_dispatch` 时，云端会顺带生成一份最新日报同步到网址，方便手机查看
+- 周日 15:00（北京时间）云端自动生成周报（15 分钟后兜底），并保留 gh-pages 上已有的日报
+- **日报不设定时、也不由云端生成**（GitHub 服务器 IP 会被雪球 WAF 拦截）：本地打开日报页
+  点击「🔄 立即刷新」实时采集（`python3 -m src.serve`），再点「☁️ 发布在线版」一键推到网址，
+  手机即可查看；本地数据（含雪球热帖/热股）会一起打包进 gh-pages 存档，供周报汇总使用
 
 若希望云端也采集雪球热帖/B站动态，在仓库 **Settings → Secrets and variables → Actions** 添加：
 
@@ -195,8 +196,8 @@ https://yonglongl630-ops.github.io/opagg-report/
 | `XUEQIU_COOKIE` | 雪球登录 cookie（可选；没有则雪球降级） |
 | `BILI_COOKIE` | B站登录 cookie（可选；改善动态/评论采集） |
 
-工作流每次会先拉取 gh-pages 上的 `data.tar.gz`（历史原始数据/摘要），跑完日报/周报后重新打包发布，
-保证周报能汇总一周数据、日报能复用缓存。
+工作流每次会先拉取 gh-pages 上的 `data.tar.gz`（历史原始数据/摘要）与既有日报，跑完周报后重新打包发布，
+保证周报能汇总一周数据、日报文件不被覆盖。
 
 ## 配置（config.json）
 
