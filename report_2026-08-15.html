@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>当日舆论蒸馏日报 · 2026-08-15</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #24292f; line-height: 1.55; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 18px 60px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 24px; }
+  .sub { color: #6a737d; font-size: 13px; margin-top: 4px; }
+  .chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-chip { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .refresh-btn { border: 1px solid #5b6ee8; color: #5b6ee8; background: #fff; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer; }
+  .refresh-btn:hover { background: #f0f4ff; }
+  .refresh-btn:disabled { opacity: .6; cursor: wait; }
+  .refresh-link { color: #5b6ee8; text-decoration: none; font-weight: 700; }
+  .chip { display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
+  .badge { display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }
+  .header-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 1100px) { .header-cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .header-cards { grid-template-columns: 1fr; } }
+  .hcard { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); min-height: 240px; display: flex; flex-direction: column; }
+  .hcard-title { font-size: 13px; font-weight: 700; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid; display: flex; align-items: center; gap: 6px; }
+  .hcard-body { flex: 1; font-size: 12px; max-height: 380px; overflow-y: auto; }
+  .hcard-sub { font-size: 11px; font-weight: 700; color: #57606a; margin: 8px 0 4px; padding-top: 6px; border-top: 1px dashed #eaecef; }
+  .hcard-sub:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .hcard-foot { color: #8b949e; font-size: 10px; margin-top: 8px; border-top: 1px dashed #eaecef; padding-top: 6px; }
+  .hrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow.dim { opacity: .72; }
+  .hrow-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hrow-idx { color: #8b949e; font-size: 11px; min-width: 18px; text-align: right; }
+  .hrow-meta { color: #57606a; font-size: 11px; text-align: right; white-space: nowrap; }
+  .topic-block { margin: 6px 0; padding: 7px 9px; background: #fafbfc; border: 1px solid #eef0f2; border-radius: 8px; }
+  .topic-block .hrow { padding: 3px 0; border-bottom: 0; }
+  .pct { font-weight: 700; font-size: 12px; min-width: 52px; text-align: right; }
+  .imp { color: #e8a33d; font-size: 11px; min-width: 22px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .stat b { font-size: 24px; display: block; }
+  .stat span { color: #6a737d; font-size: 12px; }
+  .sentibar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+  .pos { background: #d93026; } .neu { background: #c8c8c8; } .neg { background: #0f8a4d; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rank-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .rank-name { width: 96px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-bar { flex: 1; background: #f0f1f3; border-radius: 4px; height: 12px; }
+  .rank-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg,#f6a05f,#e6532a); }
+  .rank-num { width: 56px; font-size: 12px; color: #6a737d; text-align: right; }
+  .meme-item { padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .meme-item:last-child { border-bottom: 0; }
+  .meme-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .meme-meta { font-size: 12px; color: #6a737d; }
+  .meme-ex { font-size: 12px; color: #6a737d; margin-top: 2px; }
+  .topic-head { display: flex; align-items: center; gap: 8px; }
+  .topic-phrases { color: #57606a; font-size: 12px; margin: 4px 0 8px; }
+  .post-list { list-style: none; }
+  .post-list li { padding: 4px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .post-list a { color: #0969da; text-decoration: none; }
+  .hot-row { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .hot-idx { color: #e6532a; font-weight: 700; width: 20px; }
+  .muted { color: #6a737d; font-size: 12px; }
+  .mini-card { margin-bottom: 10px; padding: 12px; }
+  .topic-sum { font-size: 12px; color: #57606a; margin-top: 4px; }
+  .up-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 800px) { .up-grid { grid-template-columns: 1fr; } }
+  .up-video { padding: 6px 0; border-bottom: 1px dashed #eaecef; }
+  .up-video-title a { color: #0969da; text-decoration: none; font-size: 13px; }
+  .up-video-meta { margin-top: 2px; }
+  .quote { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #eaecef; }
+  .quote-q { color: #24292f; }
+  .up-head-row { display: flex; align-items: center; gap: 10px; }
+  .up-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #f0f1f3; }
+  .up-meta { color: #6a737d; font-size: 12px; margin-top: 2px; }
+  .dyn-item { padding: 6px 0; border-bottom: 1px dashed #eaecef; font-size: 13px; }
+  .dyn-item:last-child { border-bottom: 0; }
+  .dyn-meta { color: #6a737d; font-size: 11px; margin-top: 2px; }
+  .dyn-body { color: #57606a; font-size: 12px; margin-top: 3px; }
+  .cc-users { margin-top: 8px; }
+  .cc-user { padding: 5px 0; border-bottom: 1px dashed #eaecef; font-size: 12px; }
+  .cc-user:last-child { border-bottom: 0; }
+  .up-tabs { display: flex; gap: 12px; margin: 10px 0 4px; font-size: 13px; font-weight: 700; color: #57606a; }
+  .topic-chip { padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-chip:last-child { border-bottom: 0; }
+  .board-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .board-chip { display: inline-flex; align-items: baseline; gap: 6px; background: #f0f4ff; border: 1px solid #d9e2ff; border-radius: 8px; padding: 5px 10px; font-size: 12px; }
+  .up-summary-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .up-summary-row:last-child { border-bottom: 0; }
+  .up-summary-main { flex: 1; }
+  .up-detail { background: #fff; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .up-detail summary { cursor: pointer; font-size: 14px; color: #24292f; }
+  .up-detail[open] summary { margin-bottom: 6px; }
+  .merge-panel { background: linear-gradient(180deg,#fff, #fbfcff); }
+  .merge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 800px) { .merge-grid { grid-template-columns: 1fr; } }
+  .plat-chip { display: inline-block; border-radius: 4px; color: #fff; font-size: 10px; padding: 1px 5px; margin-right: 3px; }
+  .hrow-meta .plat-chip { margin-left: 2px; }
+  .topic-summary-row { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-summary-row:last-child { border-bottom: 0; }
+  .topic-summary-main { flex: 1; }
+  .src-error { color: #c0392b; font-size: 12px; margin-top: 6px; }
+  footer { color: #8b949e; font-size: 12px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>当日舆论蒸馏日报</h1>
+    <div style="margin-top:8px">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
+      <span class="muted" style="margin-left:8px">停止定时任务后，点击可实时重采集全部平台并更新日报</span>
+    </div>
+    <div class="sub">2026-08-15 · 采集于 2026-08-15 15:04:25 · 数据源 6/7 正常</div>
+    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-15 00:00:00 → 2026-08-15 15:01:42（当天 00:00 起）</div>
+    <div class="chips"><span class="src-chip" style="border-color:#fb7299">B站 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e6532a">股吧 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#3a8ee6">雪球 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#f0a020">同花顺 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e8a33d">金十 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#1f9d8a">财联社 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e0322b">东方财富 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span></div>
+  </header>
+
+  <div class="header-cards">
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#3a8ee6">雪球热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=雪球官方热股榜；话题=雪球官网右侧「热门话题」(hot_event)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#f0a020">同花顺热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="hrow" title="煤化工概念、国企改革"><span class="hrow-idx">1</span><span class="hrow-name">金牛化工</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-9.90%</span></span></div><div class="hrow" title="超级品牌、高股息精选"><span class="hrow-idx">2</span><span class="hrow-name">公牛集团</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-0.84%</span></span></div><div class="hrow" title="首板涨停、光纤概念、F5G概念"><span class="hrow-idx">3</span><span class="hrow-name">亨通光电</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.01%</span></span></div><div class="hrow" title="3天3板、新型城镇化、光伏建筑一体化"><span class="hrow-idx">4</span><span class="hrow-name">金螳螂</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+9.98%</span></span></div><div class="hrow" title="算力租赁、国资云"><span class="hrow-idx">5</span><span class="hrow-name">铜牛信息</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+3.70%</span></span></div><div class="hrow" title="首板涨停、算力租赁、东数西算(算力)"><span class="hrow-idx">6</span><span class="hrow-name">莲花控股</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+9.97%</span></span></div><div class="hrow" title="首板涨停、算力租赁、英伟达概念"><span class="hrow-idx">7</span><span class="hrow-name">利通电子</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.00%</span></span></div><div class="hrow" title="2天2板、F5G概念、WiFi 6"><span class="hrow-idx">8</span><span class="hrow-name">共进股份</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.03%</span></span></div><div class="hrow" title="光纤概念、共封装光学(CPO)"><span class="hrow-idx">9</span><span class="hrow-name">中天科技</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+8.05%</span></span></div><div class="hrow" title="存储芯片、先进封装"><span class="hrow-idx">10</span><span class="hrow-name">太极实业</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-3.49%</span></span></div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="9家涨停 · 连续270天上榜 · 热度2.8万"><span class="hrow-idx">1</span><span class="hrow-name">共封装光学(CPO)</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.95%</span></span></div><div class="hrow" title="5家涨停 · 连续100天上榜 · 热度2.6万"><span class="hrow-idx">2</span><span class="hrow-name">创新药</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-0.27%</span></span></div><div class="hrow" title="5家涨停 · 连续134天上榜 · 热度2.1万"><span class="hrow-idx">3</span><span class="hrow-name">算力租赁</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+0.69%</span></span></div><div class="hrow" title="5家涨停 · 连续130天上榜 · 热度1.6万"><span class="hrow-idx">4</span><span class="hrow-name">通信设备</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.33%</span></span></div><div class="hrow" title="2家涨停 · 连续906天上榜 · 热度1.5万"><span class="hrow-idx">5</span><span class="hrow-name">半导体</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+1.86%</span></span></div><div class="hrow" title="连续147天上榜 · 热度1.4万"><span class="hrow-idx">6</span><span class="hrow-name">电力</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-2.65%</span></span></div><div class="hrow" title="3家涨停 · 连续93天上榜 · 热度1.3万"><span class="hrow-idx">7</span><span class="hrow-name">PCB概念</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.08%</span></span></div><div class="hrow" title="2家涨停 · 连续223天上榜 · 热度1.2万"><span class="hrow-idx">8</span><span class="hrow-name">存储芯片</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.27%</span></span></div><div class="hrow" title="连续906天上榜 · 热度1.1万"><span class="hrow-idx">9</span><span class="hrow-name">证券</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-1.31%</span></span></div><div class="hrow" title="2家涨停 · 5天3次上榜 · 热度9651"><span class="hrow-idx">10</span><span class="hrow-name">电子化学品</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+4.07%</span></span></div></div>
+      <div class="hcard-foot">同花顺官方热股榜 / 板块热榜（实时，A股）</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e8a33d">金十快讯</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="贝森特预告下周对伊祭出“史无前例”经济打击，赫格塞斯称海上封锁“无限期”"><span class="hrow-idx">1</span><span class="hrow-name">贝森特预告下周对伊祭出“史无前例”经济打击，赫格</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="一周热榜精选：美联储加息预期骤降，通胀降温为何救不了长债？"><span class="hrow-idx">2</span><span class="hrow-name">一周热榜精选：美联储加息预期骤降，通胀降温为何救</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="美参议员沃伦质询贝森特：必须披露干预日元的全部内幕！"><span class="hrow-idx">3</span><span class="hrow-name">美参议员沃伦质询贝森特：必须披露干预日元的全部内</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="美军弹药快要打光、伊朗咬死海峡不放，美伊跌入“无胜者”死局"><span class="hrow-idx">4</span><span class="hrow-name">美军弹药快要打光、伊朗咬死海峡不放，美伊跌入“无</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="顶级经济学家：油价守住80美元，美联储9月大概率不加息"><span class="hrow-idx">5</span><span class="hrow-name">顶级经济学家：油价守住80美元，美联储9月大概率</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="美国消费突然“刹车”！零售销售创一年多最大跌幅"><span class="hrow-idx">6</span><span class="hrow-name">美国消费突然“刹车”！零售销售创一年多最大跌幅</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="以色列多次警告伊朗要刺杀特朗普，美国中情局：没法核实"><span class="hrow-idx">7</span><span class="hrow-name">以色列多次警告伊朗要刺杀特朗普，美国中情局：没法</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="818·就要发,享3重好礼！"><span class="hrow-idx">8</span><span class="hrow-name">818·就要发,享3重好礼！</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="最高100%关税！特朗普突然对无人机下狠手，俄乌冲突让美国警醒"><span class="hrow-idx">9</span><span class="hrow-name">最高100%关税！特朗普突然对无人机下狠手，俄乌</span><span class="hrow-meta">热点头条</span></div><div class="hrow" title="黄金摊牌时刻到来？43XX有资金护盘，44XX藏着上行大目标——增强版同步发布！"><span class="hrow-idx">10</span><span class="hrow-name">黄金摊牌时刻到来？43XX有资金护盘，44XX藏</span><span class="hrow-meta">热点头条</span></div></div>
+      <div class="hcard-foot">热股=快讯关联股；话题=金十热点头条 TOP10 (xnews.jin10.com)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#1f9d8a">财联社热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="①这是2026年以来沪深交易所公开监管动态中，第一次对外披露针对券商研报业务违规实施的交易所层面自律监管动作； ②在交易所现行规定内，因研究"><span class="hrow-idx">1</span><span class="hrow-name">研报违规，交易所罕见对两券商口头警示，业绩预测出</span><span class="hrow-meta">87.5万阅</span></div><div class="hrow" title="①服务对象主要为中小企业，算力金融已经从硬件的算力贷，扩展到针对人工智能应用型企业的信贷产品。 ②随着地方政府在人工智能应用场景的政策鼓励，"><span class="hrow-idx">2</span><span class="hrow-name">中行落地全国首个算力“Token贷”，算力金融跨</span><span class="hrow-meta">86.3万阅</span></div><div class="hrow" title="央行将发行江泽民诞辰100周年纪念币"><span class="hrow-idx">3</span><span class="hrow-name">央行将发行江泽民诞辰100周年纪念币</span><span class="hrow-meta">82.8万阅</span></div><div class="hrow" title="①据业内人士看到的文件显示，Anthropic PBC向潜在投资者透露，公司第二季度的营业收入较去年同期实现了约14倍的巨幅增长； ②文件显"><span class="hrow-idx">4</span><span class="hrow-name">太炸裂！Anthropic二季度营收达逾115亿</span><span class="hrow-meta">82.2万阅</span></div><div class="hrow" title="①科达制造因重组未获上交所重组委审核通过。 ②汇金股份、开勒股份因交易双方未就核心条款达成一致，均终止相关交易。"><span class="hrow-idx">5</span><span class="hrow-name">4家A股公司公告：终止资产重组事项</span><span class="hrow-meta">71.5万阅</span></div><div class="hrow" title="美国总统特朗普在接受媒体采访时表示，美国将在经济上对伊朗实施严厉打击。此外，特朗普在谈及伊朗时表示，他“很快将宣布霍尔木兹海峡成为美国领土”"><span class="hrow-idx">6</span><span class="hrow-name">特朗普称“很快将宣布霍尔木兹海峡为美国领土”</span><span class="hrow-meta">67.9万阅</span></div><div class="hrow" title="①希捷科技涨5.6%，西部数据涨4.4%； ②多只光通信股走高，AAOI涨超15%； ③英伟达披露持有210亿美元SpaceX股份； ④特斯"><span class="hrow-idx">7</span><span class="hrow-name">美股收盘：三大指数小幅收低 存储概念逆市走强 闪</span><span class="hrow-meta">57.3万阅</span></div><div class="hrow" title="①7月金融数据出炉②油价下调，加满一箱油能少花9元③美存储板块走强④中行落地全国首个算力“Token贷”⑤贵州茅台、生益科技发布半年报。"><span class="hrow-idx">8</span><span class="hrow-name">【早报】中行落地全国首个算力“Token贷”；贵</span><span class="hrow-meta">52.2万阅</span></div><div class="hrow" title="①两个月前，SpaceX正式同意收购Cursor。这笔交易估值为600亿美元，使其成为科技行业规模较大的一宗收购案； ②本月早些时候，马斯克"><span class="hrow-idx">9</span><span class="hrow-name">600亿美元科技收购落地 马斯克正式杀入“Vib</span><span class="hrow-meta">51.7万阅</span></div><div class="hrow" title="①半年报显示，多家CRO公司经营业绩和在手订单均恢复快速增长，客户需求端强劲复苏； ②Q2基金对于医药板块整体仓位降至历史低位，但创新药和C"><span class="hrow-idx">10</span><span class="hrow-name">CRO八月跑赢CPO，“光宗”之后是“药祖”行情</span><span class="hrow-meta">51.1万阅</span></div></div>
+      <div class="hcard-foot">热股=暂无（App 热股榜为签名私有接口，公开渠道无个股热股榜）；话题=财联社热门文章 TOP10</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e0322b">东方财富热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="hrow" title="东方财富人气榜第1名"><span class="hrow-idx">1</span><span class="hrow-name">亨通光电</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.01%</span></span></div><div class="hrow" title="东方财富人气榜第2名"><span class="hrow-idx">2</span><span class="hrow-name">贵州茅台</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-0.98%</span></span></div><div class="hrow" title="东方财富人气榜第3名"><span class="hrow-idx">3</span><span class="hrow-name">网宿科技</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+20.01%</span></span></div><div class="hrow" title="东方财富人气榜第4名"><span class="hrow-idx">4</span><span class="hrow-name">莲花控股</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+9.97%</span></span></div><div class="hrow" title="东方财富人气榜第5名"><span class="hrow-idx">5</span><span class="hrow-name">中天科技</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+8.05%</span></span></div><div class="hrow" title="东方财富人气榜第6名"><span class="hrow-idx">6</span><span class="hrow-name">共进股份</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.03%</span></span></div><div class="hrow" title="东方财富人气榜第7名"><span class="hrow-idx">7</span><span class="hrow-name">东方财富</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-1.57%</span></span></div><div class="hrow" title="东方财富人气榜第8名"><span class="hrow-idx">8</span><span class="hrow-name">金 螳 螂</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+9.98%</span></span></div><div class="hrow" title="东方财富人气榜第9名"><span class="hrow-idx">9</span><span class="hrow-name">利通电子</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.00%</span></span></div><div class="hrow" title="东方财富人气榜第10名"><span class="hrow-idx">10</span><span class="hrow-name">金牛化工</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-9.90%</span></span></div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="领涨股 天洋新材"><span class="hrow-idx">1</span><span class="hrow-name">CPO概念</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+3.18%</span></span></div><div class="hrow" title="领涨股 共进股份"><span class="hrow-idx">2</span><span class="hrow-name">F5G概念</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+3.09%</span></span></div><div class="hrow" title="领涨股 富信科技"><span class="hrow-idx">3</span><span class="hrow-name">光通信模块</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.93%</span></span></div><div class="hrow" title="领涨股 大唐电信"><span class="hrow-idx">4</span><span class="hrow-name">IPv6</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.75%</span></span></div><div class="hrow" title="领涨股 行云科技"><span class="hrow-idx">5</span><span class="hrow-name">纳米银</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.70%</span></span></div><div class="hrow" title="领涨股 杭电股份"><span class="hrow-idx">6</span><span class="hrow-name">光纤概念</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.60%</span></span></div><div class="hrow" title="领涨股 九州一轨"><span class="hrow-idx">7</span><span class="hrow-name">噪声防治</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.49%</span></span></div><div class="hrow" title="领涨股 中石科技"><span class="hrow-idx">8</span><span class="hrow-name">AI手机</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.38%</span></span></div><div class="hrow" title="领涨股 中巨芯-U"><span class="hrow-idx">9</span><span class="hrow-name">高带宽内存</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.34%</span></span></div><div class="hrow" title="领涨股 金田股份"><span class="hrow-idx">10</span><span class="hrow-name">稀土永磁</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.30%</span></span></div></div>
+      <div class="hcard-foot">热股=东财人气榜TOP10；话题=领涨概念TOP10(so.eastmoney.com)</div>
+    </div></div>
+
+  
+    <div class="card board-panel">
+      <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
+      <div class="board-row"><span class="board-chip" title="9家涨停 · 连续270天上榜">共封装光学(CPO)<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.95%</span></span><span class="board-chip" title="5家涨停 · 连续100天上榜">创新药<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-0.27%</span></span><span class="board-chip" title="5家涨停 · 连续134天上榜">算力租赁<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+0.69%</span></span><span class="board-chip" title="5家涨停 · 连续130天上榜">通信设备<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.33%</span></span><span class="board-chip" title="2家涨停 · 连续906天上榜">半导体<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+1.86%</span></span><span class="board-chip" title="连续147天上榜">电力<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-2.65%</span></span><span class="board-chip" title="3家涨停 · 连续93天上榜">PCB概念<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.08%</span></span><span class="board-chip" title="2家涨停 · 连续223天上榜">存储芯片<span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.27%</span></span><span class="board-chip" title="主力净流出 1.7亿 · 领涨股 中石科技">电子化学品<span class="plat-chip" style="background:#1f9d8a">财联社</span><span class="pct" style="color:#d93026">+0.03%</span></span><span class="board-chip" title="主力净流入 7969万 · 领涨股 金戈新材">非金属材料<span class="plat-chip" style="background:#1f9d8a">财联社</span><span class="pct" style="color:#d93026">+0.03%</span></span><span class="board-chip" title="主力净流入 132.1亿 · 领涨股 阿莱德">通信<span class="plat-chip" style="background:#1f9d8a">财联社</span><span class="pct" style="color:#d93026">+0.02%</span></span><span class="board-chip" title="主力净流出 58.1亿 · 领涨股 中石科技">电子<span class="plat-chip" style="background:#1f9d8a">财联社</span><span class="pct" style="color:#d93026">+0.02%</span></span><span class="board-chip" title="主力净流入 15.1亿 · 领涨股 金田股份">有色金属<span class="plat-chip" style="background:#1f9d8a">财联社</span><span class="pct" style="color:#d93026">+0.01%</span></span><span class="board-chip" title="主力净流入 3.2亿 · 领涨股 中石科技">电磁屏蔽<span class="plat-chip" style="background:#1f9d8a">财联社</span><span class="pct" style="color:#d93026">+0.04%</span></span><span class="board-chip" title="领涨股 天洋新材">CPO概念<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+3.18%</span></span><span class="board-chip" title="领涨股 共进股份">F5G概念<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+3.09%</span></span><span class="board-chip" title="领涨股 富信科技">光通信模块<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+2.93%</span></span><span class="board-chip" title="领涨股 大唐电信">IPv6<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+2.75%</span></span><span class="board-chip" title="领涨股 行云科技">纳米银<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+2.70%</span></span><span class="board-chip" title="领涨股 杭电股份">光纤概念<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+2.60%</span></span><span class="board-chip" title="领涨股 九州一轨">噪声防治<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+2.49%</span></span><span class="board-chip" title="领涨股 中石科技">AI手机<span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+2.38%</span></span></div>
+      <div class="muted" style="margin-top:6px">口径：雪球官方热股/热门话题 + 同花顺官方板块热榜 + 财联社官方热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜</div>
+    </div>
+
+  <div class="cards">
+    <div class="stat"><b style="color:#d93026">看多</b><span>整体情绪（+0.15）</span>
+      <div class="sentibar"><div class="pos" style="width:29.8%"></div><div class="neu" style="width:57.6%"></div><div class="neg" style="width:12.6%"></div></div>
+      <span>看多 78 / 中性 151 / 看空 33</span>
+    </div>
+    <div class="stat"><b>8</b><span>热点主题簇</span></div>
+  </div>
+
+  
+    <div class="card merge-panel">
+      <div class="sec-title">综合热榜（雪球 / 同花顺 / 金十 / 财联社 / 东方财富 汇总）</div>
+      <div class="merge-grid">
+        <div>
+          <div class="hcard-sub">热股 TOP10（跨平台合并去重）</div>
+          <div class="hrow" title="首板涨停、光纤概念、F5G概念"><span class="hrow-idx">1</span><span class="hrow-name">亨通光电</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+10.01%</span></span></div><div class="hrow" title="首板涨停、算力租赁、东数西算(算力)"><span class="hrow-idx">2</span><span class="hrow-name">莲花控股</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+9.97%</span></span></div><div class="hrow" title="煤化工概念、国企改革"><span class="hrow-idx">3</span><span class="hrow-name">金牛化工</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-9.90%</span></span></div><div class="hrow" title="超级品牌、高股息精选"><span class="hrow-idx">4</span><span class="hrow-name">公牛集团</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-0.84%</span></span></div><div class="hrow" title="2天2板、F5G概念、WiFi 6"><span class="hrow-idx">5</span><span class="hrow-name">共进股份</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+10.03%</span></span></div><div class="hrow" title="光纤概念、共封装光学(CPO)"><span class="hrow-idx">6</span><span class="hrow-name">中天科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+8.05%</span></span></div><div class="hrow" title="东方财富人气榜第2名"><span class="hrow-idx">7</span><span class="hrow-name">贵州茅台</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#0f8a4d">-0.98%</span></span></div><div class="hrow" title="东方财富人气榜第3名"><span class="hrow-idx">8</span><span class="hrow-name">网宿科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+20.01%</span></span></div><div class="hrow" title="3天3板、新型城镇化、光伏建筑一体化"><span class="hrow-idx">9</span><span class="hrow-name">金螳螂</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+9.98%</span></span></div><div class="hrow" title="首板涨停、算力租赁、英伟达概念"><span class="hrow-idx">10</span><span class="hrow-name">利通电子</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+10.00%</span></span></div>
+        </div>
+        <div>
+          <div class="hcard-sub">热门话题 TOP10（跨平台合并去重）</div>
+          <div class="hrow" title="9家涨停 · 连续270天上榜 · 热度2.8万"><span class="hrow-idx">1</span><span class="hrow-name">共封装光学(CPO)</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.95%</span></span></div><div class="hrow" title="贝森特预告下周对伊祭出“史无前例”经济打击，赫格塞斯称海上封锁“无限期”"><span class="hrow-idx">2</span><span class="hrow-name">贝森特预告下周对伊祭出“史无前例”经济打击，赫格</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span></div><div class="hrow" title="①这是2026年以来沪深交易所公开监管动态中，第一次对外披露针对券商研报业务违规实施的交易所层面自律监管动作； ②在交易所现行规定内，因研究"><span class="hrow-idx">3</span><span class="hrow-name">研报违规，交易所罕见对两券商口头警示，业绩预测出</span><span class="hrow-meta"><span class="plat-chip" style="background:#1f9d8a">财联社</span>87.5万阅</span></div><div class="hrow" title="领涨股 天洋新材"><span class="hrow-idx">4</span><span class="hrow-name">CPO概念</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+3.18%</span></span></div><div class="hrow" title="东方财富搜索框热门关键词"><span class="hrow-idx">5</span><span class="hrow-name">电子化学品板块领涨</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span>热门搜索</span></div><div class="hrow" title="5家涨停 · 连续100天上榜 · 热度2.6万"><span class="hrow-idx">6</span><span class="hrow-name">创新药</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-0.27%</span></span></div><div class="hrow" title="一周热榜精选：美联储加息预期骤降，通胀降温为何救不了长债？"><span class="hrow-idx">7</span><span class="hrow-name">一周热榜精选：美联储加息预期骤降，通胀降温为何救</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span></div><div class="hrow" title="①服务对象主要为中小企业，算力金融已经从硬件的算力贷，扩展到针对人工智能应用型企业的信贷产品。 ②随着地方政府在人工智能应用场景的政策鼓励，"><span class="hrow-idx">8</span><span class="hrow-name">中行落地全国首个算力“Token贷”，算力金融跨</span><span class="hrow-meta"><span class="plat-chip" style="background:#1f9d8a">财联社</span>86.3万阅</span></div><div class="hrow" title="领涨股 共进股份"><span class="hrow-idx">9</span><span class="hrow-name">F5G概念</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span><span class="pct" style="color:#d93026">+3.09%</span></span></div><div class="hrow" title="东方财富搜索框热门关键词"><span class="hrow-idx">10</span><span class="hrow-name">稀土板块走强</span><span class="hrow-meta"><span class="plat-chip" style="background:#e0322b">东方财富</span>热门搜索</span></div>
+        </div>
+      </div>
+    </div>
+
+  <div class="card">
+    <div class="sec-title">今日综合热词（全文蒸馏 + 五大平台热词）</div>
+    
+        <div class="rank-row">
+          <div class="rank-name">茅台</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100.0%"></div></div>
+          <div class="rank-num">136次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">比亚迪</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:70.6%"></div></div>
+          <div class="rank-num">96次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">板块</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:50.0%"></div></div>
+          <div class="rank-num">68次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">平安银行</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:50.0%"></div></div>
+          <div class="rank-num">68次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">业绩</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:33.8%"></div></div>
+          <div class="rank-num">46次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">科技</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:32.4%"></div></div>
+          <div class="rank-num">44次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">市场</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:31.6%"></div></div>
+          <div class="rank-num">43次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">半年</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:28.7%"></div></div>
+          <div class="rank-num">39次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">概念</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:26.5%"></div></div>
+          <div class="rank-num">36次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">公司</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:25.7%"></div></div>
+          <div class="rank-num">35次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">个股</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:25.0%"></div></div>
+          <div class="rank-num">34次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">跌停</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:23.5%"></div></div>
+          <div class="rank-num">32次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">算力</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:22.1%"></div></div>
+          <div class="rank-num">30次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">中报</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:20.6%"></div></div>
+          <div class="rank-num">28次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">指数</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:20.6%"></div></div>
+          <div class="rank-num">28次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">营收</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:19.1%"></div></div>
+          <div class="rank-num">26次</div>
+        </div>
+    <div class="sec-title" style="margin-top:12px">五大平台热词（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
+    <div class="board-row"><span class="board-chip">共封装光学(CPO)<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">贝森特预告下周对伊祭出“史无前例”经济打击，赫格<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">研报违规，交易所罕见对两券商口头警示，业绩预测出<span class="plat-chip" style="background:#1f9d8a">财联社</span></span><span class="board-chip">CPO概念<span class="plat-chip" style="background:#e0322b">东方财富</span></span><span class="board-chip">电子化学品板块领涨<span class="plat-chip" style="background:#e0322b">东方财富</span></span><span class="board-chip">创新药<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">一周热榜精选：美联储加息预期骤降，通胀降温为何救<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">中行落地全国首个算力“Token贷”，算力金融跨<span class="plat-chip" style="background:#1f9d8a">财联社</span></span><span class="board-chip">F5G概念<span class="plat-chip" style="background:#e0322b">东方财富</span></span><span class="board-chip">稀土板块走强<span class="plat-chip" style="background:#e0322b">东方财富</span></span></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">各平台聚合 TOP10 话题（雪球 / 同花顺 / 金十 / 财联社 / 东方财富）</div>
+    
+        <div class="topic-summary-row">
+          <span class="hrow-idx">1</span>
+          <div class="topic-summary-main">
+            <div><b>共封装光学(CPO)</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+2.95%</span></span></div>
+            <div class="muted">9家涨停 · 连续270天上榜 · 热度2.8万</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">2</span>
+          <div class="topic-summary-main">
+            <div><b>贝森特预告下周对伊祭出“史无前例”经济打击，赫格</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">贝森特预告下周对伊祭出“史无前例”经济打击，赫格塞斯称海上封锁“无限期”</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">3</span>
+          <div class="topic-summary-main">
+            <div><b>研报违规，交易所罕见对两券商口头警示，业绩预测出</b> <span class="plat-chip" style="background:#1f9d8a">财联社</span> <span class="muted">87.5万阅</span></div>
+            <div class="muted">①这是2026年以来沪深交易所公开监管动态中，第一次对外披露针对券商研报业务违规实施的交易所层面自律监管动作； ②在交易所现行规定内，因研究</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">4</span>
+          <div class="topic-summary-main">
+            <div><b>CPO概念</b> <span class="plat-chip" style="background:#e0322b">东方财富</span> <span class="muted"><span class="pct" style="color:#d93026">+3.18%</span></span></div>
+            <div class="muted">领涨股 天洋新材</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">5</span>
+          <div class="topic-summary-main">
+            <div><b>电子化学品板块领涨</b> <span class="plat-chip" style="background:#e0322b">东方财富</span> <span class="muted">热门搜索</span></div>
+            <div class="muted">东方财富搜索框热门关键词</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">6</span>
+          <div class="topic-summary-main">
+            <div><b>创新药</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#0f8a4d">-0.27%</span></span></div>
+            <div class="muted">5家涨停 · 连续100天上榜 · 热度2.6万</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">7</span>
+          <div class="topic-summary-main">
+            <div><b>一周热榜精选：美联储加息预期骤降，通胀降温为何救</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">一周热榜精选：美联储加息预期骤降，通胀降温为何救不了长债？</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">8</span>
+          <div class="topic-summary-main">
+            <div><b>中行落地全国首个算力“Token贷”，算力金融跨</b> <span class="plat-chip" style="background:#1f9d8a">财联社</span> <span class="muted">86.3万阅</span></div>
+            <div class="muted">①服务对象主要为中小企业，算力金融已经从硬件的算力贷，扩展到针对人工智能应用型企业的信贷产品。 ②随着地方政府在人工智能应用场景的政策鼓励，</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">9</span>
+          <div class="topic-summary-main">
+            <div><b>F5G概念</b> <span class="plat-chip" style="background:#e0322b">东方财富</span> <span class="muted"><span class="pct" style="color:#d93026">+3.09%</span></span></div>
+            <div class="muted">领涨股 共进股份</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">10</span>
+          <div class="topic-summary-main">
+            <div><b>稀土板块走强</b> <span class="plat-chip" style="background:#e0322b">东方财富</span> <span class="muted">热门搜索</span></div>
+            <div class="muted">东方财富搜索框热门关键词</div>
+          </div>
+        </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px">up主动态与观点蒸馏</div>
+  
+    <div class="card up-card">
+      <div class="sec-title">up主动态与观点蒸馏汇总</div>
+      
+        <div class="up-summary-row">
+          <img class="up-avatar" src="https://i1.hdslb.com/bfs/face/f66dd4e51ce99d67107b92efcaa28878c2093b93.jpg" alt="">
+          <div class="up-summary-main">
+            <div><b>笨笨的韭菜</b> <span class="chip" style="border-color:#bbb;color:#555">财经区</span> </div>
+            <div class="up-meta"><span class="badge" style="background:#777">中性</span> 观点指数 +0.00 · 粉丝 28.7万 · 近视频总播放 0 · 动态 0 条</div>
+            <div class="muted">本月充电 <b>4.6万</b> 人次 · 窗口内暂无充电专属动态</div>
+            
+          </div>
+        </div>
+        <div class="up-summary-row">
+          <img class="up-avatar" src="https://i2.hdslb.com/bfs/face/5a9e33bec2c768cc2d56d80f370f5a33faa8d5b0.webp" alt="">
+          <div class="up-summary-main">
+            <div><b>史诗级韭菜</b> <span class="chip" style="border-color:#bbb;color:#555">财经区</span> </div>
+            <div class="up-meta"><span class="badge" style="background:#777">中性</span> 观点指数 +0.00 · 粉丝 36.7万 · 近视频总播放 0 · 动态 0 条</div>
+            <div class="muted">本月充电 <b>1.9万</b> 人次 · 窗口内暂无充电专属动态</div>
+            
+          </div>
+        </div>
+        <div class="up-summary-row">
+          <img class="up-avatar" src="https://i2.hdslb.com/bfs/face/a8b72fceb43527d189e817667c10019d74b42160.jpg" alt="">
+          <div class="up-summary-main">
+            <div><b>海螺复盘</b> <span class="chip" style="border-color:#bbb;color:#555">财经区</span> </div>
+            <div class="up-meta"><span class="badge" style="background:#d93026">看多</span> 观点指数 +1.00 · 粉丝 53.7万 · 近视频总播放 3.5万 · 动态 0 条</div>
+            <div class="muted">本月充电 <b>1103</b> 人次 · 窗口内暂无充电专属动态</div>
+            <div class="muted">风格关键词：茅台、主力、加仓、可乐、价值、手机、电脑、期缺</div>
+          </div>
+        </div>
+        <div class="up-summary-row">
+          <img class="up-avatar" src="https://i1.hdslb.com/bfs/face/9121c29bcd697b79661a84dcc3da37d00aef9ee3.jpg" alt="">
+          <div class="up-summary-main">
+            <div><b>星话大白</b> <span class="chip" style="border-color:#bbb;color:#555">财经区</span> </div>
+            <div class="up-meta"><span class="badge" style="background:#0f8a4d">看空</span> 观点指数 -0.87 · 粉丝 91.3万 · 近视频总播放 4.9万 · 动态 0 条</div>
+            <div class="muted">本月充电 <b>7.6万</b> 人次 · 窗口内暂无充电专属动态</div>
+            <div class="muted">风格关键词：传媒、特朗普传、传媒集团、核聚变业、炒币亏、到这、生意</div>
+          </div>
+        </div>
+    </div>
+    
+        <details class="up-detail" open>
+          <summary><b>笨笨的韭菜</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
+          <div class="up-tabs">视频分析（窗口内近期视频）</div>
+          <div class="up-grid">
+            <div></div>
+            <div><div class="muted">窗口内暂无评论数据</div></div>
+          </div>
+          <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
+          <div class="muted">无</div>
+          <div class="up-tabs">高赞金句</div>
+          <div class="muted">无</div>
+          <div class="up-tabs">充电信息分析</div>
+          <div class="muted">本月充电 <b>4.6万</b> 人次 · 窗口内暂无充电专属动态</div>
+        </details>
+        <details class="up-detail" open>
+          <summary><b>史诗级韭菜</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
+          <div class="up-tabs">视频分析（窗口内近期视频）</div>
+          <div class="up-grid">
+            <div></div>
+            <div><div class="muted">窗口内暂无评论数据</div></div>
+          </div>
+          <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
+          <div class="muted">无</div>
+          <div class="up-tabs">高赞金句</div>
+          <div class="muted">无</div>
+          <div class="up-tabs">充电信息分析</div>
+          <div class="muted">本月充电 <b>1.9万</b> 人次 · 窗口内暂无充电专属动态</div>
+        </details>
+        <details class="up-detail" open>
+          <summary><b>海螺复盘</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
+          <div class="up-tabs">视频分析（窗口内近期视频）</div>
+          <div class="up-grid">
+            <div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV18ybk65ECY" target="_blank" rel="noopener">汇金、证金退出贵州茅台十大股东！</a></div>
+              <div class="muted">播放3.5万 · 2026-08-15 09:23:41</div>
+              <div class="up-video-meta"><span class="badge" style="background:#d93026">看多</span> <span class="muted">可乐、加仓、茅台、哈哈一级</span></div>
+            </div></div>
+            <div><div>评论情绪 <span class="badge" style="background:#d93026">看多</span>（指数 +0.33）</div><div class="sentibar"><div class="pos" style="width:33.3%"></div><div class="neu" style="width:66.7%"></div><div class="neg" style="width:0.0%"></div></div><div class="muted">看多 1 / 中性 2 / 看空 0</div><div class="muted" style="margin-top:6px">评论热点词：加仓、主力、可乐、哈哈一级、级致癌物、多喝使劲、无糖可口、口可乐现</div><div class="cc-users"><div class="cc-user"><b>滑稽连</b> <span class="badge" style="background:#777">中性</span> <span class="muted">1条 · 152赞</span><div class="muted">“二狗说:主力不懂价值投资，复利这一块还不如我呢[doge]”</div></div><div class="cc-user"><b>三千烦恼丝3</b> <span class="badge" style="background:#d93026">看多</span> <span class="muted">1条 · 61赞</span><div class="muted">“加仓了330ml无糖可口可乐现货，我的逻辑很简单，存储再有价值也得放进手机电脑里，而玩手机玩电脑，都得喝可乐。 短期缺薯条，长期缺炸鸡，永远缺可乐[doge]”</div></div><div class="cc-user"><b>带带大师兄孙笑川1</b> <span class="badge" style="background:#777">中性</span> <span class="muted">1条 · 10赞</span><div class="muted">“哈哈 一级致癌物 喜欢的多喝 使劲喝”</div></div></div></div>
+          </div>
+          <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
+          <div class="muted">无</div>
+          <div class="up-tabs">高赞金句</div>
+          <div class="quote"><span class="quote-q">“二狗说:主力不懂价值投资，复利这一块还不如我呢[doge]”</span><span class="muted">—— 152赞 · 汇金、证金退出贵州茅台十大股东！</span></div><div class="quote"><span class="quote-q">“加仓了330ml无糖可口可乐现货，我的逻辑很简单，存储再有价值也得放进手机电脑里，而玩手机玩电脑，都得喝可乐。 短期缺薯条，长期缺炸鸡，永远缺可乐[doge]”</span><span class="muted">—— 61赞 · 汇金、证金退出贵州茅台十大股东！</span></div>
+          <div class="up-tabs">充电信息分析</div>
+          <div class="muted">本月充电 <b>1103</b> 人次 · 窗口内暂无充电专属动态</div>
+        </details>
+        <details class="up-detail" open>
+          <summary><b>星话大白</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
+          <div class="up-tabs">视频分析（窗口内近期视频）</div>
+          <div class="up-grid">
+            <div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1BJg36sEcP" target="_blank" rel="noopener">特朗普传媒进军核聚变，公司炒币亏了想新路子，付费抢先看特朗普帖子</a></div>
+              <div class="muted">播放4.9万 · 2026-08-15 03:30:40</div>
+              <div class="up-video-meta"><span class="badge" style="background:#0f8a4d">看空</span> <span class="muted">美国、个特朗普、连美国总、总统做生</span></div>
+            </div></div>
+            <div><div>评论情绪 <span class="badge" style="background:#0f8a4d">看空</span>（指数 -0.15）</div><div class="sentibar"><div class="pos" style="width:0.0%"></div><div class="neu" style="width:66.7%"></div><div class="neg" style="width:33.3%"></div></div><div class="muted">看多 0 / 中性 2 / 看空 1</div><div class="muted" style="margin-top:6px">评论热点词：美国、连美国总、总统做生、那投资万、开店生意、嘞个特朗、朗普贴文、文优先浏</div><div class="cc-users"><div class="cc-user"><b>独V浊</b> <span class="badge" style="background:#777">中性</span> <span class="muted">1条 · 112赞</span><div class="muted">“这么想来，美国底层甚至中产都挺可怜的。被民主党霍霍了这么多年天天被道德绑架，身份政治恶心。然后有一个美国优先的人跳出来，说我能带领美国再次伟大。最后这批人还是被”</div></div><div class="cc-user"><b>鲨鱼轰炸机_</b> <span class="badge" style="background:#0f8a4d">看空</span> <span class="muted">1条 · 85赞</span><div class="muted">“你看，连美国总统做生意都亏钱，你说你那投资 10 万的开店生意稳赚不赔？”</div></div><div class="cc-user"><b>梦魇大可汗_</b> <span class="badge" style="background:#777">中性</span> <span class="muted">1条 · 74赞</span><div class="muted">“我嘞个特朗普贴文优先浏览权，还得是老牌资本主义会玩啊，我怎么没想到”</div></div></div></div>
+          </div>
+          <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
+          <div class="muted">无</div>
+          <div class="up-tabs">高赞金句</div>
+          <div class="quote"><span class="quote-q">“这么想来，美国底层甚至中产都挺可怜的。被民主党霍霍了这么多年天天被道德绑架，身份政治恶心。然后有一个美国优先的人跳出来，说我能带领美国再次伟大。最后这批人还是被卖了换钱。左右都是一个死，难怪这么多人没冰活不下去。我突然理解了国际歌里那句“从”</span><span class="muted">—— 112赞 · 特朗普传媒进军核聚变，公司炒币亏了想新路子，付费抢先看特朗普帖子</span></div><div class="quote"><span class="quote-q">“你看，连美国总统做生意都亏钱，你说你那投资 10 万的开店生意稳赚不赔？”</span><span class="muted">—— 85赞 · 特朗普传媒进军核聚变，公司炒币亏了想新路子，付费抢先看特朗普帖子</span></div><div class="quote"><span class="quote-q">“我嘞个特朗普贴文优先浏览权，还得是老牌资本主义会玩啊，我怎么没想到”</span><span class="muted">—— 74赞 · 特朗普传媒进军核聚变，公司炒币亏了想新路子，付费抢先看特朗普帖子</span></div>
+          <div class="up-tabs">充电信息分析</div>
+          <div class="muted">本月充电 <b>7.6万</b> 人次 · 窗口内暂无充电专属动态</div>
+        </details>
+
+  <div class="card"><div class="sec-title">数据源异常</div><div class="src-error"><b>雪球</b>：雪球接口仍被 WAF 拦截：登录 cookie 已生效但缺少 acw_sc__v2 （浏览器访问雪球后从 Application→Cookies 复制该值，再用 --set-cookie 更新）</div></div>
+
+  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 2026-08-15 15:04:25 · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
+  <script>
+  function refreshBase() {
+    return (location.protocol === 'http:' || location.protocol === 'https:') ? location.origin : 'http://127.0.0.1:8651';
+  }
+  function refreshData(source) {
+    var btn = document.getElementById('refresh-btn');
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = 'none'; links[i].textContent = '刷新中…'; }
+    if (btn) { btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }
+    fetch(refreshBase() + '/api/refresh?source=' + encodeURIComponent(source || 'all'), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok) { pollRefresh(); }
+        else { alert('刷新启动失败：' + (j && j.error ? j.error : '未知错误')); resetRefreshBtns(); }
+      })
+      .catch(function () {
+        alert('无法连接刷新服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
+        resetRefreshBtns();
+      });
+  }
+  function pollRefresh() {
+    var base = refreshBase();
+    var t = setInterval(function () {
+      fetch(base + '/api/status').then(function (r) { return r.json(); }).then(function (j) {
+        if (j && !j.running) { clearInterval(t); location.reload(); }
+      }).catch(function () { clearInterval(t); resetRefreshBtns(); });
+    }, 2500);
+  }
+  function resetRefreshBtns() {
+    var btn = document.getElementById('refresh-btn');
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 立即刷新'; }
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = ''; links[i].textContent = '🔄 立即刷新'; }
+  }
+  </script>
+</div>
+</body>
+</html>
