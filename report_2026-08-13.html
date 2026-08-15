@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>当日舆论蒸馏日报 · 2026-08-13</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #24292f; line-height: 1.55; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 18px 60px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 24px; }
+  .sub { color: #6a737d; font-size: 13px; margin-top: 4px; }
+  .chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-chip { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .chip { display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
+  .badge { display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }
+  .header-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 1100px) { .header-cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .header-cards { grid-template-columns: 1fr; } }
+  .hcard { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); min-height: 240px; display: flex; flex-direction: column; }
+  .hcard-title { font-size: 13px; font-weight: 700; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid; display: flex; align-items: center; gap: 6px; }
+  .hcard-body { flex: 1; font-size: 12px; }
+  .hcard-foot { color: #8b949e; font-size: 10px; margin-top: 8px; border-top: 1px dashed #eaecef; padding-top: 6px; }
+  .hrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow.dim { opacity: .72; }
+  .hrow-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pct { font-weight: 700; font-size: 12px; min-width: 52px; text-align: right; }
+  .imp { color: #e8a33d; font-size: 11px; min-width: 22px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .stat b { font-size: 24px; display: block; }
+  .stat span { color: #6a737d; font-size: 12px; }
+  .sentibar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+  .pos { background: #d93026; } .neu { background: #c8c8c8; } .neg { background: #0f8a4d; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rank-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .rank-name { width: 96px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-bar { flex: 1; background: #f0f1f3; border-radius: 4px; height: 12px; }
+  .rank-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg,#f6a05f,#e6532a); }
+  .rank-num { width: 56px; font-size: 12px; color: #6a737d; text-align: right; }
+  .meme-item { padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .meme-item:last-child { border-bottom: 0; }
+  .meme-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .meme-meta { font-size: 12px; color: #6a737d; }
+  .meme-ex { font-size: 12px; color: #6a737d; margin-top: 2px; }
+  .topic-head { display: flex; align-items: center; gap: 8px; }
+  .topic-phrases { color: #57606a; font-size: 12px; margin: 4px 0 8px; }
+  .post-list { list-style: none; }
+  .post-list li { padding: 4px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .post-list a { color: #0969da; text-decoration: none; }
+  .hot-row { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .hot-idx { color: #e6532a; font-weight: 700; width: 20px; }
+  .muted { color: #6a737d; font-size: 12px; }
+  .mini-card { margin-bottom: 10px; padding: 12px; }
+  .topic-sum { font-size: 12px; color: #57606a; margin-top: 4px; }
+  .up-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 800px) { .up-grid { grid-template-columns: 1fr; } }
+  .up-video { padding: 6px 0; border-bottom: 1px dashed #eaecef; }
+  .up-video-title a { color: #0969da; text-decoration: none; font-size: 13px; }
+  .up-video-meta { margin-top: 2px; }
+  .quote { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #eaecef; }
+  .quote-q { color: #24292f; }
+  .up-head-row { display: flex; align-items: center; gap: 10px; }
+  .up-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #f0f1f3; }
+  .up-meta { color: #6a737d; font-size: 12px; margin-top: 2px; }
+  .dyn-item { padding: 6px 0; border-bottom: 1px dashed #eaecef; font-size: 13px; }
+  .dyn-item:last-child { border-bottom: 0; }
+  .dyn-meta { color: #6a737d; font-size: 11px; margin-top: 2px; }
+  .up-tabs { display: flex; gap: 12px; margin: 10px 0 4px; font-size: 13px; font-weight: 700; color: #57606a; }
+  .summary-box { background: linear-gradient(135deg,#fff7ef,#fff); border: 1px solid #f4d6bf; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+  .summary-box p { font-size: 14px; }
+  .src-error { color: #c0392b; font-size: 12px; margin-top: 6px; }
+  footer { color: #8b949e; font-size: 12px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>当日舆论蒸馏日报</h1>
+    <div class="sub">2026-08-13 · 采集于 2026-08-13 22:35:48 · 数据源 3/4 正常</div>
+    <div class="chips"><span class="src-chip" style="border-color:#fb7299">B站 124条 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e6532a">股吧 202条 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#3a8ee6">雪球 0条 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#f0a020">同花顺 40条 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span></div>
+  </header>
+
+  <div class="header-cards">
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#5b6ee8">Wind 板块汇总</div>
+      <div class="hcard-body"><div class="muted">无数据</div></div>
+      <div class="hcard-foot">行业 0 / 概念 0 口径·东财公开板块</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#3a8ee6">雪球热榜</div>
+      <div class="hcard-body"><div class="muted">被 WAF 拦截，可配置 cookie</div></div>
+      
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#f0a020">同花顺热榜</div>
+      <div class="hcard-body"><div class="hrow"><span class="hrow-name">公播所提示标的仅供学习参考，不作为买卖依据，</span><span class="muted">0阅</span></div><div class="hrow"><span class="hrow-name">周四市场收跌,早盘指数在映射外围的情况下高开</span><span class="muted">0阅</span></div><div class="hrow"><span class="hrow-name">公播所提示标的不作为买卖依据，任何操作以VI</span><span class="muted">0阅</span></div><div class="hrow"><span class="hrow-name">【大盘如果有效跌破3925，则短期马上创新高</span><span class="muted">0阅</span></div><div class="hrow"><span class="hrow-name">个股跌多涨少，可能还有偏向上的空间，这个过程</span><span class="muted">0阅</span></div><div class="hrow"><span class="hrow-name">人气的好坏，以及信心好坏是散户决定的，因为散</span><span class="muted">0阅</span></div></div>
+      
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e8a33d">金十快讯</div>
+      <div class="hcard-body"><div class="muted">无数据</div></div>
+      
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#1f9d8a">财联社电报</div>
+      <div class="hcard-body"><div class="muted">无数据</div></div>
+      
+    </div></div>
+
+  <div class="cards">
+    <div class="stat"><b>360</b><span>聚合内容条数</span></div>
+    <div class="stat"><b style="color:#777">中性</b><span>整体情绪（+0.10）</span>
+      <div class="sentibar"><div class="pos" style="width:22.3%"></div><div class="neu" style="width:65.1%"></div><div class="neg" style="width:12.5%"></div></div>
+      <span>看多 73 / 中性 213 / 看空 41</span>
+    </div>
+    <div class="stat"><b>16</b><span>今日高频梗</span></div>
+    <div class="stat"><b>8</b><span>热点主题簇</span></div>
+  </div>
+
+  <div class="summary-box">
+    <div class="sec-title">蒸馏摘要</div>
+    <p>今日共聚合 360 条内容（bilibili 120、guba 200、ths 40）。整体情绪中性（指数 +0.10，看多 73 条 / 看空 41 条）。热点主题：大涨（13条，看多）；科技（9条，中性）；反弹（6条，中性）今日高频梗/热词：宁德时代、平安银行、中国平安up主动态：巫师财经 观点看空（-0.33）；饭统戴老板 观点看空（-0.19）；小Lin说 观点看多（+0.50）；半佛仙人 观点看空（-0.33）</p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="sec-title">今日热词</div>
+      
+        <div class="rank-row">
+          <div class="rank-name">银行</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">82次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">市场</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">58次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">科技</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">58次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">中国</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">53次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">茅台</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">64次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">平安</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">82次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">板块</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">47次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">业绩</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">55次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">下跌</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">35次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">宁德</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">48次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">个股</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">35次</div>
+        </div>
+        <div class="rank-row">
+          <div class="rank-name">上市</div>
+          <div class="rank-bar"><div class="rank-fill" style="width:100%"></div></div>
+          <div class="rank-num">27次</div>
+        </div>
+    </div>
+    <div class="card">
+      <div class="sec-title">今日梗 / 高频短语</div>
+      
+        <div class="meme-item">
+          <div class="meme-head"><b>宁德时代</b><span class="meme-meta">30次 · guba</span></div>
+          <div class="meme-ex">宁德时代现2笔大宗交易 合计成交77.59万股</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>平安银行</b><span class="meme-meta">24次 · guba</span></div>
+          <div class="meme-ex">五倍市盈率的平安银行并没有突出的投资价值，前几天行长亲口承认业绩回升基础不稳，从</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>中国平安</b><span class="meme-meta">24次 · guba</span></div>
+          <div class="meme-ex">法国巴黎银行在中国平安的H股好仓比例上升0.20%至8.10%</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>贵州茅台</b><span class="meme-meta">8次 · bilibili、guba</span></div>
+          <div class="meme-ex">贵州茅台酒</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>科技股</b><span class="meme-meta">5次 · guba、ths</span></div>
+          <div class="meme-ex">长鑫市值超越腾讯，“硬科技”春天来了？</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>一步</b><span class="meme-meta">5次 · bilibili、ths</span></div>
+          <div class="meme-ex">王健林现在怎么样了? 万达什么情况?</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>下降</b><span class="meme-meta">4次 · bilibili、ths</span></div>
+          <div class="meme-ex">中国移动中报解读：难得的涉及AI但是资本开支下降的，但营收、息税前利润之类二季度下降明显，自由现金流增长；整体中性偏空，股息不降的情况下仍可持有</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>年月日</b><span class="meme-meta">3次 · bilibili</span></div>
+          <div class="meme-ex">6年，你们童年的愿望，我帮你们实现了！</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>洗稿</b><span class="meme-meta">4次 · bilibili</span></div>
+          <div class="meme-ex">啧啧，抄鲁叔叔的稿子啊，你洗稿也多洗几遍呀[辣眼睛]</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>然大</b><span class="meme-meta">3次 · bilibili、ths</span></div>
+          <div class="meme-ex">大盘下午突然大跳水！什么原因？医药走大牛市！没有见顶！</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>竟然</b><span class="meme-meta">3次 · bilibili、guba</span></div>
+          <div class="meme-ex">特朗普收入曝光，一年狂揽$22亿，竟然是靠…</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>基民</b><span class="meme-meta">3次 · bilibili、ths</span></div>
+          <div class="meme-ex">【B站基民第一课】基金投资入门必看，手把手教你基金怎么买，基金股票定投指南</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>复杂</b><span class="meme-meta">3次 · bilibili、guba</span></div>
+          <div class="meme-ex">王健林现在怎么样了? 万达什么情况?</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>游戏</b><span class="meme-meta">4次 · bilibili</span></div>
+          <div class="meme-ex">《影之刃零》预购开启，11分钟实机预告公开</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>大市值</b><span class="meme-meta">2次 · guba、ths</span></div>
+          <div class="meme-ex">长鑫市值超越腾讯，“硬科技”春天来了？</div>
+        </div>
+        <div class="meme-item">
+          <div class="meme-head"><b>总统</b><span class="meme-meta">3次 · bilibili</span></div>
+          <div class="meme-ex">特朗普收入曝光，一年狂揽$22亿，竟然是靠…</div>
+        </div>
+    </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px">热点主题</div>
+  <div class="grid2">
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>大涨</b>
+            <span class="muted">13条</span>
+            <span class="badge" style="background:#d93026">看多</span>
+          </div>
+          <div class="topic-phrases">大涨 · 稀土 · A股 · 下跌 · 板块</div>
+          <ul class="post-list"><li><a href="https://www.bilibili.com/video/BV1b6gp66E2A" target="_blank" rel="noopener">[bilibili] 全球股市大涨，A股为何冲高回落？</a><span class="muted"> 赞0 阅4.5万</span></li><li><a href="https://www.bilibili.com/video/BV1oCgG6oEBE" target="_blank" rel="noopener">[bilibili] 28岁硕士炒股，科技大涨，消费下跌，难受啊！</a><span class="muted"> 赞0 阅5.8万</span></li><li><a href="https://www.bilibili.com/video/BV1T6gp66Erb" target="_blank" rel="noopener">[bilibili] A股：惨绝人寰！国家队彻底崩盘！恐怖式跳水！2亿股民失眠！4300多家下跌！这么惨要不要跑？</a><span class="muted"> 赞0 阅1.0万</span></li><li><a href="https://www.bilibili.com/video/BV1V4gn6rEpd" target="_blank" rel="noopener">[bilibili] 【股市结算】8月13日，跳水，大跳水！</a><span class="muted"> 赞0 阅1.4万</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>科技</b>
+            <span class="muted">9条</span>
+            <span class="badge" style="background:#777">中性</span>
+          </div>
+          <div class="topic-phrases">AI · 科技 · 算力 · 腾讯 · 题材</div>
+          <ul class="post-list"><li><a href="" target="_blank" rel="noopener">[guba] 长鑫市值超越腾讯，“硬科技”春天来了？</a><span class="muted"> 赞227 阅2.9万</span></li><li><a href="https://www.bilibili.com/video/BV1RA3x6xE3E" target="_blank" rel="noopener">[bilibili] 起底中国烂片：一门合法抢钱的超级生意</a><span class="muted"> 赞0 阅9.1万</span></li><li><a href="https://www.bilibili.com/video/BV1NSgs6GEVz" target="_blank" rel="noopener">[bilibili] 中国移动中报解读：难得的涉及AI但是资本开支下降的，但营收、息税前利润之类二季度下降明显，自由现金流增长；整体中性偏空，股息不降的情况下仍可</a><span class="muted"> 赞0 阅5247</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=675491461" target="_blank" rel="noopener">[ths] 周四市场收跌,早盘指数在映射外围的情况下高开，AI硬件方面的情绪开盘就直接高潮，而前面我们反复跟大家</a><span class="muted"> 赞0 阅0</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>反弹</b>
+            <span class="muted">6条</span>
+            <span class="badge" style="background:#777">中性</span>
+          </div>
+          <div class="topic-phrases">反弹 · 机构 · 科技 · 大跌 · 年线</div>
+          <ul class="post-list"><li><a href="http://t.10jqka.com.cn/circle/?pid=675267333" target="_blank" rel="noopener">[ths] 人气的好坏，以及信心好坏是散户决定的，因为散户具备滞后性！一般都大跌之前都在买，反弹之前都在割，稍微</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=674417231" target="_blank" rel="noopener">[ths] 连续2天在年线未突破，主要还是成交量不能有效放大影响了进攻力度，但总体的回调风险可控。从盘面看，成交</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=673872588" target="_blank" rel="noopener">[ths] 7月的局部股灾换来了主流资金平衡，所以我认为科技大跌对市场整体是大利好！只对接盘韭菜造成巨大利空，</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=673809116" target="_blank" rel="noopener">[ths] 现在除了科技，当然还有更多选择，比如黄金、创新药甚至还有军工都在吸金，酝酿更大的反弹，但是资金重仓的</a><span class="muted"> 赞0 阅0</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>板块</b>
+            <span class="muted">6条</span>
+            <span class="badge" style="background:#777">中性</span>
+          </div>
+          <div class="topic-phrases">板块 · 个股 · 跌停 · 退市 · 银行</div>
+          <ul class="post-list"><li><a href="http://t.10jqka.com.cn/circle/?pid=637255749" target="_blank" rel="noopener">[ths] 2. 板块与个股风险· 领跌板块：贸易（因退市个股跌90%）、半导体、原件、其他电子、贵金属、工业金</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=634968220" target="_blank" rel="noopener">[ths] 周三午间展望：1、个股方面：两市1998家上涨，3440家下跌，72家涨停板，3家跌停板-个股普跌，</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=411827443" target="_blank" rel="noopener">[ths] 微盘股指数从9月24至12月12日累计涨幅近67%，毕竟年度业绩预告将于2025年1月进行披露当前2</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=403097318" target="_blank" rel="noopener">[ths] ST板块盘中持续下挫，ST东时连续4日跌停，*ST工智、ST永悦、ST九芝、ST三圣等二十余股跌停。</a><span class="muted"> 赞0 阅0</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>茅台</b>
+            <span class="muted">5条</span>
+            <span class="badge" style="background:#777">中性</span>
+          </div>
+          <div class="topic-phrases">茅台 · 白酒 · 消费 · 粮 · 日军</div>
+          <ul class="post-list"><li><a href="https://www.bilibili.com/video/BV11tu76JEmD" target="_blank" rel="noopener">[bilibili] 2026年8月12日信息差（早差）日军费破纪录。七月港航高增。美紧缩预警。机械工业超预期。日消费连降。全球粮价抬头。茅台再涨价。也门危机。懂</a><span class="muted"> 赞0 阅1.5万</span></li><li><a href="https://www.bilibili.com/video/BV1RZgE6rERP" target="_blank" rel="noopener">[bilibili] 【茅台拆卡】黑折来了！！再战2025-26 Topps Chrome Update Mega &amp; Value boxes🤑</a><span class="muted"> 赞0 阅2419</span></li><li><a href="https://www.bilibili.com/video/BV15sgp6DEaY" target="_blank" rel="noopener">[bilibili] 26年精品茅台</a><span class="muted"> 赞0 阅275</span></li><li><a href="https://www.bilibili.com/video/BV135u66tEQq" target="_blank" rel="noopener">[bilibili] 茅台白酒口感惊艳回味悠长</a><span class="muted"> 赞0 阅23</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>市场</b>
+            <span class="muted">5条</span>
+            <span class="badge" style="background:#0f8a4d">看空</span>
+          </div>
+          <div class="topic-phrases">缩量 · 市场 · 板块 · 加仓 · 两市</div>
+          <ul class="post-list"><li><a href="https://www.bilibili.com/video/BV1TNgV6CEYF" target="_blank" rel="noopener">[bilibili] 今天市场严重缩量，多少人加仓科技了</a><span class="muted"> 赞0 阅4351</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=674260423" target="_blank" rel="noopener">[ths] 指数跌0.82%，5连阳后出现1根阴线。回踩5日均线。市场还是缩量，说明观望资金还是没有入场。注定了</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=657409919" target="_blank" rel="noopener">[ths] 周四午间展望：1、个股方面：两市842家上涨，4616家下跌，32家涨停，18家跌停-个股普跌，板块</a><span class="muted"> 赞0 阅0</span></li><li><a href="http://t.10jqka.com.cn/circle/?pid=636825019" target="_blank" rel="noopener">[ths] 一是近期我们市场已经提前下跌，美股大跌只会影响我们开盘，但最终走势还是靠自身；二是美股主要大跌的是科</a><span class="muted"> 赞0 阅0</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>跳水</b>
+            <span class="muted">4条</span>
+            <span class="badge" style="background:#0f8a4d">看空</span>
+          </div>
+          <div class="topic-phrases">跳水 · 再度 · 牛市 · 创新 · 新药</div>
+          <ul class="post-list"><li><a href="https://www.bilibili.com/video/BV1dMgW6nEp5" target="_blank" rel="noopener">[bilibili] 【2026年8月13日大A结算】飞流直下三千尺，午后跳水，高开低走！祖训这一块，不是没有道理的（低费率面5或不面都有，投资有风险，理财需谨慎</a><span class="muted"> 赞0 阅3.0万</span></li><li><a href="https://www.bilibili.com/video/BV1E5gn6SE9w" target="_blank" rel="noopener">[bilibili] a股不负众望再度跳水！韩国却再度进入技术性牛市！创新药再度领涨全市场，科技这里有可能出现风险！</a><span class="muted"> 赞0 阅6.1万</span></li><li><a href="https://www.bilibili.com/video/BV13egp6yEfx" target="_blank" rel="noopener">[bilibili] 麻了！放量跳水，超4300股下跌，国家队清仓跑路！这次事闹大了！创新药再度领涨，明天周五很关键，行情完犊子了？</a><span class="muted"> 赞0 阅8249</span></li><li><a href="https://www.bilibili.com/video/BV1E7gp6xEbq" target="_blank" rel="noopener">[bilibili] 大盘下午突然大跳水！什么原因？医药走大牛市！没有见顶！</a><span class="muted"> 赞0 阅1.7万</span></li></ul>
+        </div>
+        <div class="card topic-card">
+          <div class="topic-head">
+            <b>基金</b>
+            <span class="muted">4条</span>
+            <span class="badge" style="background:#777">中性</span>
+          </div>
+          <div class="topic-phrases">基金 · 视频 · 投资 · 定投 · 概念</div>
+          <ul class="post-list"><li><a href="https://www.bilibili.com/video/BV1GK4y1U7v7" target="_blank" rel="noopener">[bilibili] 基金投资入门必看合集，全部免费，建议收藏 / 从基金概念到实用投资策略，一网打尽！</a><span class="muted"> 赞0 阅150.8万</span></li><li><a href="https://www.bilibili.com/video/BV1jNmKBcEZv" target="_blank" rel="noopener">[bilibili] 【B站基民第一课】基金投资入门必看，手把手教你基金怎么买，基金股票定投指南</a><span class="muted"> 赞0 阅180.0万</span></li><li><a href="https://www.bilibili.com/video/BV1gpuvzoECx" target="_blank" rel="noopener">[bilibili] 你了解scp基金会吗？</a><span class="muted"> 赞0 阅46.3万</span></li><li><a href="https://www.bilibili.com/video/BV17Sg56aEMa" target="_blank" rel="noopener">[bilibili] 8月，基金定投最好时期</a><span class="muted"> 赞0 阅1346</span></li></ul>
+        </div></div>
+
+  <div class="sec-title" style="margin-top:6px">分平台当日热点</div>
+  <div class="grid2">
+    <div class="card">
+      <div class="sec-title">B站热搜</div>
+      <div class="hot-row"><span class="hot-idx">1</span><b>BLG战胜TT LPL第三赛段</b><span class="muted">749.0万</span></div><div class="hot-row"><span class="hot-idx">2</span><b>DeepSeek Harness发布</b><span class="muted">524.0万</span></div><div class="hot-row"><span class="hot-idx">3</span><b>DeepSeek API确认涨价</b><span class="muted">227.3万</span></div><div class="hot-row"><span class="hot-idx">4</span><b>平陆运河通航前最后一次大考</b><span class="muted">216.9万</span></div><div class="hot-row"><span class="hot-idx">5</span><b>最后离开的人赢百万豪宅</b><span class="muted">179.4万</span></div><div class="hot-row"><span class="hot-idx">6</span><b>跟着TXT乱闯上海</b><span class="muted">179.3万</span></div><div class="hot-row"><span class="hot-idx">7</span><b>济南RW侠战胜KSG KPL</b><span class="muted">179.0万</span></div><div class="hot-row"><span class="hot-idx">8</span><b>UP主泰拉瑞亚再创新历史</b><span class="muted">178.9万</span></div><div class="hot-row"><span class="hot-idx">9</span><b>臣妾要线上告发熹贵妃</b><span class="muted">178.4万</span></div><div class="hot-row"><span class="hot-idx">10</span><b>日食记探访哔哩哔哩山歌小学</b><span class="muted">176.7万</span></div><div class="hot-row"><span class="hot-idx">11</span><b>LGD战胜TES LPL第三赛段</b><span class="muted">176.3万</span></div><div class="hot-row"><span class="hot-idx">12</span><b>NIP战胜WBG LPL第三赛段</b><span class="muted">175.9万</span></div><div class="hot-row"><span class="hot-idx">13</span><b>云南交警翻唱坏苹果</b><span class="muted">174.7万</span></div><div class="hot-row"><span class="hot-idx">14</span><b>查理斯超长播客爆料TI幕后</b><span class="muted">174.7万</span></div><div class="hot-row"><span class="hot-idx">15</span><b>这盘棋分明是老叟戏顽童</b><span class="muted">174.7万</span></div>
+      <div class="sec-title" style="margin-top:14px">B站全站排行 TOP</div>
+      <ul class="post-list"><li><a href="https://www.bilibili.com/video/BV1mJuB6jEDj" target="_blank" rel="noopener">船新版本新宝岛！这个联动怎么说？</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1EAuk6CEfw" target="_blank" rel="noopener">《顽童戏老叟》</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1sxui6eEGH" target="_blank" rel="noopener">《原神》角色预告-「奥黛塔：天真的挽歌」</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1Hmuv68EWW" target="_blank" rel="noopener">《影之刃零》预购开启，11分钟实机预告公开</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV15HuZ62E6R" target="_blank" rel="noopener">靠这锅沙子烤玉米，他在印度街头撑起了尊严</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1XXu66hEfT" target="_blank" rel="noopener">「直到大地变成一颗烂苹果！！」</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1G2uo66E2J" target="_blank" rel="noopener">百米赛道高难度闯关、只有上过的才知道含金量有多高！</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1nngV6YEzr" target="_blank" rel="noopener">🐧当你打游戏时父母进你房间蹭空调🐧</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV17WgV6hEdX" target="_blank" rel="noopener">这视频等了五年！</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1DFuX6xE4f" target="_blank" rel="noopener">三体IF线：如果维德成为执剑人</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1qVuv6XEBd" target="_blank" rel="noopener">这不是黑历史…是23年 我奋斗的开始…差点gg也得拍视频</a><span class="muted">  · 播放0</span></li><li><a href="https://www.bilibili.com/video/BV1TiuZ6TEQw" target="_blank" rel="noopener">⚡泥 肘⚡</a><span class="muted">  · 播放0</span></li></ul>
+    </div>
+    <div class="card">
+      <div class="sec-title">股吧热帖（自选股）</div>
+      
+        <div class="card mini-card">
+          <div class="topic-head"><b>长鑫市值超越腾讯，“硬科技”春天来了？</b><span class="muted">29498点击 · 227参与</span></div>
+          <div class="topic-sum">8月13日，截至港股收盘，腾讯控股下跌4.46%，市值报4万亿港元，约合3.44万亿人民币。长鑫科技收盘市值为3.54万亿人民币，已超越腾讯控股。随着AI时代的来临，一批“硬科技”股正在成为大市值股票的代表。</div>
+        </div>
+        <div class="card mini-card">
+          <div class="topic-head"><b>长鑫市值超越腾讯，“硬科技”春天来了？</b><span class="muted">29498点击 · 227参与</span></div>
+          <div class="topic-sum">8月13日，截至港股收盘，腾讯控股下跌4.46%，市值报4万亿港元，约合3.44万亿人民币。长鑫科技收盘市值为3.54万亿人民币，已超越腾讯控股。随着AI时代的来临，一批“硬科技”股正在成为大市值股票的代表。</div>
+        </div>
+    </div>
+    <div class="card">
+      <div class="sec-title">同花顺圈子帖流</div>
+      <ul class="post-list"><li><b>公播所提示标的仅供学习参考，不作为买卖依据，实际操作请遵照内参VIP热点群盘中实时指引！</b><div class="muted">联储证券邱松林 · 16:21 · 阅读0</div><div class="muted">公播所提示标的仅供学习参考，不作为买卖依据，实际操作请遵照内参VIP热点群盘中实时指引！</div></li><li><b>周四市场收跌,早盘指数在映射外围的情况下高开，AI硬件方面的情绪开盘就直接高潮，而前面我们反复跟大家</b><div class="muted">首创证券邹俊毅 · 15:29 · 阅读0</div><div class="muted">周四市场收跌,早盘指数在映射外围的情况下高开，AI硬件方面的情绪开盘就直接高潮，而前面我们反复跟大家提到过，有量化资金的环境下，一旦出现利好或利空，日内走势经常不会完全去反映基本面，而是会根据高开低开对应的幅度，被量化引出一致性方向后，走出</div></li><li><b>公播所提示标的不作为买卖依据，任何操作以VIP内部群盘中策略提示为准！</b><div class="muted">大同证券高利伟 · 15:14 · 阅读0</div><div class="muted">公播所提示标的不作为买卖依据，任何操作以VIP内部群盘中策略提示为准！</div></li><li><b>【大盘如果有效跌破3925，则短期马上创新高的可能就没有了。大盘的多空分水岭在下方的3882】</b><div class="muted">首创证券周谦 · 14:45 · 阅读0</div><div class="muted">【大盘如果有效跌破3925，则短期马上创新高的可能就没有了。大盘的多空分水岭在下方的3882】</div></li><li><b>个股跌多涨少，可能还有偏向上的空间，这个过程也容易丢失筹码，好的企业依然是可以坚守的。投资顾问王丁丁</b><div class="muted">东莞证券王丁丁 · 13:24 · 阅读0</div><div class="muted">个股跌多涨少，可能还有偏向上的空间，这个过程也容易丢失筹码，好的企业依然是可以坚守的。投资顾问王丁丁，执业资格编号：S0340618030010。以上内容仅供参考。股市有风险，入市需谨慎。</div></li><li><b>人气的好坏，以及信心好坏是散户决定的，因为散户具备滞后性！一般都大跌之前都在买，反弹之前都在割，稍微</b><div class="muted">华林证券梅松 · 10:01 · 阅读0</div><div class="muted">人气的好坏，以及信心好坏是散户决定的，因为散户具备滞后性！一般都大跌之前都在买，反弹之前都在割，稍微连续反弹后开始重新追，所以这个每天2%的数量多少，主要是散户决定的，成本都在机构后面！</div></li><li><b>腾讯大幅增加算力采购，有助于将模型与应用落地转化为营收，资本支出大幅超出市场预期，算力需求具备持续增</b><div class="muted">首创证券陈正蕾 · 07:47 · 阅读0</div><div class="muted">腾讯大幅增加算力采购，有助于将模型与应用落地转化为营收，资本支出大幅超出市场预期，算力需求具备持续增长空间。</div></li><li><b>跌回3800点，利润全部回吐，不亏钱。没跌回之前，耐心持有，让利润奔跑。</b><div class="muted">首创证券徐永剑 · 13:11 · 阅读0</div><div class="muted">跌回3800点，利润全部回吐，不亏钱。没跌回之前，耐心持有，让利润奔跑。</div></li><li><b>一、上海放大招：1、到2030年把上海软件和信息服务业打造成经济增长“动力源” 产业规模力争达到4万</b><div class="muted">华源证券侯颖 · 08:54 · 阅读0</div><div class="muted">一、上海放大招：1、到2030年把上海软件和信息服务业打造成经济增长“动力源” 产业规模力争达到4万亿元；2、新算力要素市场化改革 ；支持软件企业广泛使用Coding平台；推动自主芯片与主流大模型深度融合。主要利好AI应用3、推动算力、数据</div></li><li><b>连续2天在年线未突破，主要还是成交量不能有效放大影响了进攻力度，但总体的回调风险可控。从盘面看，成交</b><div class="muted">首创证券伍彩云 · 08:42 · 阅读0</div><div class="muted">连续2天在年线未突破，主要还是成交量不能有效放大影响了进攻力度，但总体的回调风险可控。从盘面看，成交量在2.5万亿以下时中小微机会更明显，成交量突破3万亿，大市值的趋势股才有真正的修复窗口。现在市场整体处于良性轮动中，科技和非科技有一定跷跷</div></li><li><b>指数跌0.82%，5连阳后出现1根阴线。回踩5日均线。市场还是缩量，说明观望资金还是没有入场。注定了</b><div class="muted">首创证券徐永剑 · 15:32 · 阅读0</div><div class="muted">指数跌0.82%，5连阳后出现1根阴线。回踩5日均线。市场还是缩量，说明观望资金还是没有入场。注定了各板块只能轮动涨。</div></li><li><b>周二市场收跌，全天指数大幅震荡，板块轮动非常快且没有多少持续性，这里超跌反弹了几天后，开始逐步出现了</b><div class="muted">首创证券邹俊毅 · 15:25 · 阅读0</div><div class="muted">周二市场收跌，全天指数大幅震荡，板块轮动非常快且没有多少持续性，这里超跌反弹了几天后，开始逐步出现了压力，与其说是压力，倒不如说是没有多少增量资金去进行承接。题材情绪端昨晚有一点利空，所以开盘就出现分歧，收盘情绪算勉强顶住了，但这里不少个股</div></li></ul>
+    </div>
+    <div class="card">
+      <div class="sec-title">雪球热帖</div>
+      <ul class="post-list"><li class="muted">无数据（或被 WAF 拦截）</li></ul>
+    </div>
+    <div class="card">
+      <div class="sec-title">金十快讯</div>
+      <ul class="post-list"><li class="muted">无数据</li></ul>
+    </div>
+    <div class="card">
+      <div class="sec-title">财联社电报</div>
+      <ul class="post-list"><li class="muted">无数据</li></ul>
+    </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px">up主动态与观点蒸馏</div>
+  
+        <div class="card up-card">
+          <div class="up-head">
+            <div class="up-head-row"><div class="up-avatar"></div><div>
+              <b>巫师财经</b> 
+              <div class="up-meta"><span class="badge" style="background:#0f8a4d">看空</span> 观点指数 -0.33 · 粉丝 0 · 近视频总播放 329.2万 · 动态 0 条</div>
+            </div></div>
+          </div>
+          <div class="up-tabs">近期视频</div>
+          <div class="up-grid">
+            <div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1hxug6BEL6" target="_blank" rel="noopener">【巫师】万字吃透科技国运暴富机会，以及我是怎么亏的</a></div>
+              <div class="muted">播放71.3万 · 2026-08-09 15:35:00</div>
+              <div class="up-video-meta"><span class="badge" style="background:#777">中性</span> <span class="muted">巫师、科技、亏成、成这</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1uoojBBErj" target="_blank" rel="noopener">【巫师】扒皮Jennie和Lisa收入，背后资本博弈对比</a></div>
+              <div class="muted">播放144.6万 · 2026-04-25 12:00:00</div>
+              <div class="up-video-meta"><span class="badge" style="background:#777">中性</span> <span class="muted">巫师、板块、既然、聊到</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1Htgh6DErU" target="_blank" rel="noopener">【巫师】一字断魂刀，绞杀国家队，中国第一游资徐翔的资本博弈</a></div>
+              <div class="muted">播放113.4万 · 2026-07-24 18:00:00</div>
+              <div class="up-video-meta"><span class="badge" style="background:#0f8a4d">看空</span> <span class="muted">巫师、送转、转股、视频</span></div>
+            </div></div>
+            <div><div class="sec-title">高赞金句</div><div class="quote"><span class="quote-q">“巫师都亏成这样了，巫师的视频也就没必要看了[doge]”</span><span class="muted">—— 334赞 · 【巫师】万字吃透科技国运暴富机会，以及我是怎么亏的</span></div><div class="quote"><span class="quote-q">“省流：1.巫师得了ai科技ptsd。2.可以在下面等着接巫师带血的筹码，而不要追高帮巫师解套。3.以上都是巫师亏出来的幻想，大家该咋赚钱咋赚钱，不要理他。”</span><span class="muted">—— 178赞 · 【巫师】万字吃透科技国运暴富机会，以及我是怎么亏的</span></div><div class="quote"><span class="quote-q">“明面上劝人不要入场 话里话外暗示天大富贵赶快帮你接盘 在青少年为主要群体的B站诱骗玩缅A 大家呸一口再走吧”</span><span class="muted">—— 122赞 · 【巫师】万字吃透科技国运暴富机会，以及我是怎么亏的</span></div><div class="quote"><span class="quote-q">“既然你都聊到kpop了不如出一期张元英vs柳智敏吧[doge]”</span><span class="muted">—— 4345赞 · 【巫师】扒皮Jennie和Lisa收入，背后资本博弈对比</span></div></div>
+          </div>
+          <div class="up-tabs">最近动态</div>
+          <div class="muted">暂无动态（或需配置 B站 cookie）</div>
+          <div class="muted" style="margin-top:6px">风格关键词：巫师、视频、资本、本博、博弈、游资、科技、板块</div>
+        </div>
+        <div class="card up-card">
+          <div class="up-head">
+            <div class="up-head-row"><div class="up-avatar"></div><div>
+              <b>饭统戴老板</b> 
+              <div class="up-meta"><span class="badge" style="background:#0f8a4d">看空</span> 观点指数 -0.19 · 粉丝 0 · 近视频总播放 78.9万 · 动态 0 条</div>
+            </div></div>
+          </div>
+          <div class="up-tabs">近期视频</div>
+          <div class="up-grid">
+            <div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1YbGc6xEiU" target="_blank" rel="noopener">我们把4名同事送进迪士尼，看看普通票和氪金的游玩差异有多大！</a></div>
+              <div class="muted">播放38.5万 · 2026-08-02 17:05:00</div>
+              <div class="up-video-meta"><span class="badge" style="background:#d93026">看多</span> <span class="muted">迪士、士尼、人家、评价</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1RA3x6xE3E" target="_blank" rel="noopener">起底中国烂片：一门合法抢钱的超级生意</a></div>
+              <div class="muted">播放9.1万 · 2026-07-31 17:05:00</div>
+              <div class="up-video-meta"><span class="badge" style="background:#777">中性</span> <span class="muted">烂片、电影、美国、国电</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1Tg3y6eEEP" target="_blank" rel="noopener">拆解长鑫存储：一家万亿公司是如何诞生的？</a></div>
+              <div class="muted">播放31.3万 · 2026-07-29 17:05:00</div>
+              <div class="up-video-meta"><span class="badge" style="background:#0f8a4d">看空</span> <span class="muted">万亿、国内、内科、科技</span></div>
+            </div></div>
+            <div><div class="sec-title">高赞金句</div><div class="quote"><span class="quote-q">“骂不骂的，咱也不是人家，没必要干涉，但我们作为观众还是有评价的权利的，我觉得迪士尼又不是搞慈善的，人家要赚钱，只要合理合法都不过分不用评价，那些骂迪士尼又花钱去迪士尼的，我只能给一个rz的评价，花钱找罪受，让vip获得了优越感，让园区赚到了”</span><span class="muted">—— 69赞 · 我们把4名同事送进迪士尼，看看普通票和氪金的游玩差异有多大！</span></div><div class="quote"><span class="quote-q">“省流：资本是恶心的，UP的批评是克制的。”</span><span class="muted">—— 69赞 · 我们把4名同事送进迪士尼，看看普通票和氪金的游玩差异有多大！</span></div><div class="quote"><span class="quote-q">“迪士尼5年年卡忠告，没钱氪金的话就攒好钱再来，别花了几百块的门票钱进来受大罪。迪士尼不是童话，是赤裸裸的资本主义”</span><span class="muted">—— 53赞 · 我们把4名同事送进迪士尼，看看普通票和氪金的游玩差异有多大！</span></div><div class="quote"><span class="quote-q">“最绝望的不是有烂片，而是有人愿意为烂片买单，为烂片辩护。”</span><span class="muted">—— 54赞 · 起底中国烂片：一门合法抢钱的超级生意</span></div></div>
+          </div>
+          <div class="up-tabs">最近动态</div>
+          <div class="muted">暂无动态（或需配置 B站 cookie）</div>
+          <div class="muted" style="margin-top:6px">风格关键词：烂片、迪士、士尼、评价、合法、电影、散户、市值</div>
+        </div>
+        <div class="card up-card">
+          <div class="up-head">
+            <div class="up-head-row"><div class="up-avatar"></div><div>
+              <b>小Lin说</b> 
+              <div class="up-meta"><span class="badge" style="background:#d93026">看多</span> 观点指数 +0.50 · 粉丝 0 · 近视频总播放 462.2万 · 动态 0 条</div>
+            </div></div>
+          </div>
+          <div class="up-tabs">近期视频</div>
+          <div class="up-grid">
+            <div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1XPuo6uES8" target="_blank" rel="noopener">王健林现在怎么样了? 万达什么情况?</a></div>
+              <div class="muted">播放289.6万 · 2026-08-10 17:35:47</div>
+              <div class="up-video-meta"><span class="badge" style="background:#777">中性</span> <span class="muted">万达、洗稿、啧啧、啧抄</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1N6gD65EMz" target="_blank" rel="noopener">特朗普收入曝光，一年狂揽$22亿，竟然是靠…</a></div>
+              <div class="muted">播放172.6万 · 2026-07-23 18:44:42</div>
+              <div class="up-video-meta"><span class="badge" style="background:#d93026">看多</span> <span class="muted">特朗、朗普、权利、美国</span></div>
+            </div></div>
+            <div><div class="sec-title">高赞金句</div><div class="quote"><span class="quote-q">“老王把儿子保护的很好，不过也确实是扶不起的阿斗”</span><span class="muted">—— 153赞 · 王健林现在怎么样了? 万达什么情况?</span></div><div class="quote"><span class="quote-q">“啧啧，抄鲁叔叔的稿子啊，你洗稿也多洗几遍呀[辣眼睛]”</span><span class="muted">—— 94赞 · 王健林现在怎么样了? 万达什么情况?</span></div><div class="quote"><span class="quote-q">“洗稿？”</span><span class="muted">—— 53赞 · 王健林现在怎么样了? 万达什么情况?</span></div><div class="quote"><span class="quote-q">“优秀的国家会把权利关在制度的笼子里，美国防止权利滥用如同防什么来着[tv_doge]”</span><span class="muted">—— 280赞 · 特朗普收入曝光，一年狂揽$22亿，竟然是靠…</span></div></div>
+          </div>
+          <div class="up-tabs">最近动态</div>
+          <div class="muted">暂无动态（或需配置 B站 cookie）</div>
+          <div class="muted" style="margin-top:6px">风格关键词：万达、美元、特朗、朗普、游戏、暴涨、总统、达商</div>
+        </div>
+        <div class="card up-card">
+          <div class="up-head">
+            <div class="up-head-row"><div class="up-avatar"></div><div>
+              <b>半佛仙人</b> 
+              <div class="up-meta"><span class="badge" style="background:#0f8a4d">看空</span> 观点指数 -0.33 · 粉丝 0 · 近视频总播放 2014.1万 · 动态 0 条</div>
+            </div></div>
+          </div>
+          <div class="up-tabs">近期视频</div>
+          <div class="up-grid">
+            <div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1oUg56wEaQ" target="_blank" rel="noopener">【半佛】足不出户，背刺满屋</a></div>
+              <div class="muted">播放220.0万 · 2026-08-12 18:46:53</div>
+              <div class="up-video-meta"><span class="badge" style="background:#777">中性</span> <span class="muted">依旧、旧无、无广、没广</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1iFMX6aE9b" target="_blank" rel="noopener">【半佛】小米澎程，让行业睡不着了？</a></div>
+              <div class="muted">播放606.2万 · 2026-08-03 12:00:24</div>
+              <div class="up-video-meta"><span class="badge" style="background:#777">中性</span> <span class="muted">取关、半佛、关慢、慢慢</span></div>
+            </div>
+            <div class="up-video">
+              <div class="up-video-title"><a href="https://www.bilibili.com/video/BV1eZ4y1j7kw" target="_blank" rel="noopener">【半佛】5本让你怀疑世界的好书</a></div>
+              <div class="muted">播放1187.9万 · 2020-04-03 10:13:37</div>
+              <div class="up-video-meta"><span class="badge" style="background:#0f8a4d">看空</span> <span class="muted">如何、君主、主论、潜规</span></div>
+            </div></div>
+            <div><div class="sec-title">高赞金句</div><div class="quote"><span class="quote-q">“依旧无广不更”</span><span class="muted">—— 106赞 · 【半佛】足不出户，背刺满屋</span></div><div class="quote"><span class="quote-q">“没广吃什么，但全是广……”</span><span class="muted">—— 25赞 · 【半佛】足不出户，背刺满屋</span></div><div class="quote"><span class="quote-q">“比租房更可怕的是在20年听了某个初生UP的话买了房”</span><span class="muted">—— 8赞 · 【半佛】足不出户，背刺满屋</span></div><div class="quote"><span class="quote-q">“取关慢慢疯了你吧”</span><span class="muted">—— 433赞 · 【半佛】小米澎程，让行业睡不着了？</span></div></div>
+          </div>
+          <div class="up-tabs">最近动态</div>
+          <div class="muted">暂无动态（或需配置 B站 cookie）</div>
+          <div class="muted" style="margin-top:6px">风格关键词：半佛、如何、取关、好书、君主、主论、潜规、规则</div>
+        </div>
+
+  <div class="card"><div class="sec-title">数据源异常</div><div class="src-error"><b>雪球</b>：当前出口 IP 被雪球 WAF 拦截，或需在 config.json 配置 cookie</div></div>
+
+  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 2026-08-13 22:35:48</footer>
+</div>
+</body>
+</html>
