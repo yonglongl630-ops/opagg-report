@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+.DS_Store
+data/logs/
+data/raw/
+data/summary/
+data/upmasters/*/
+output/
+config.json
+data/upmasters/registry.json
+data/secrets.json

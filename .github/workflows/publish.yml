@@ -1,0 +1,76 @@
+name: 舆论蒸馏日报/周报自动生成
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # GitHub Actions 使用 UTC 时间；北京时间 = UTC+8
+    # 周日 15:00（北京时间）= 7:00 UTC 生成周报
+    - cron: '0 7 * * 0'
+    - cron: '15 7 * * 0'
+  workflow_dispatch:
+    inputs:
+      weekly:
+        description: '只生成周报'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: write
+
+concurrency:
+  group: opagg-publish
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 拉取历史数据（供周报汇总与日报缓存）
+        run: |
+          mkdir -p data/raw data/summary
+          curl -sfL "https://raw.githubusercontent.com/${{ github.repository }}/gh-pages/data.tar.gz" -o /tmp/data.tar.gz || true
+          tar -xzf /tmp/data.tar.gz -C . 2>/dev/null || true
+
+      - name: 生成日报（仅推送 / 手动触发时，日常请用本地「立即刷新」）
+        if: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && inputs.weekly != 'true' }}
+        env:
+          XUEQIU_COOKIE: ${{ secrets.XUEQIU_COOKIE }}
+          BILI_COOKIE: ${{ secrets.BILI_COOKIE }}
+        run: python3 scheduler.py --once --force --no-cache
+
+      - name: 生成周报（周日 15:00 或手动触发）
+        env:
+          XUEQIU_COOKIE: ${{ secrets.XUEQIU_COOKIE }}
+          BILI_COOKIE: ${{ secrets.BILI_COOKIE }}
+        run: |
+          if [ "${{ inputs.weekly }}" = "true" ] || [ "$(date -u +%w)" = "0" ]; then
+            python3 scheduler.py --weekly
+          else
+            echo "今天不是周日，跳过周报"
+          fi
+
+      - name: 生成站点首页
+        run: python3 src/site.py --dir output
+
+      - name: 打包数据存档（供下次周报/缓存）
+        run: |
+          tar -czf output/data.tar.gz -C . data/raw data/summary data/trading_calendar.json 2>/dev/null || true
+
+      - name: 发布到 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./output
+          publish_branch: gh-pages
+          force_orphan: true

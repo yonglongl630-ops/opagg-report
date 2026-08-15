@@ -1,0 +1,143 @@
+{
+ "watchlist": [
+  {
+   "code": "600519",
+   "name": "贵州茅台"
+  },
+  {
+   "code": "300750",
+   "name": "宁德时代"
+  },
+  {
+   "code": "601318",
+   "name": "中国平安"
+  },
+  {
+   "code": "000001",
+   "name": "平安银行"
+  },
+  {
+   "code": "002594",
+   "name": "比亚迪"
+  }
+ ],
+ "bilibili": {
+  "enabled": true,
+  "cookie": "",
+  "hot_search_limit": 20,
+  "ranking_limit": 30,
+  "search_keywords": [
+   "茅台",
+   "A股",
+   "股市",
+   "基金",
+   "财经"
+  ],
+  "search_limit": 6,
+  "comment_limit_per_video": 20,
+  "up_video_limit": 3,
+  "up_dynamic_limit": 8,
+  "charging_limit": 10,
+  "time_window": {
+   "mode": "today",
+   "hours": 24
+  },
+  "incremental_updates": false,
+  "upmasters": [
+   {
+    "name": "笨笨的韭菜",
+    "mid": 11473291,
+    "uid": 11473291,
+    "url": "https://space.bilibili.com/11473291",
+    "tags": [
+     "财经区"
+    ],
+    "notes": "Lv.6 | 关注 146 | 简介：景气投资，本金320万，不推荐买卖，只做实盘记录和选股逻辑分享",
+    "enabled": true,
+    "latest_video": "聊聊海内外AI科技股的发展与泡沫（2026-07-23）"
+   },
+   {
+    "name": "史诗级韭菜",
+    "mid": 322005137,
+    "uid": 322005137,
+    "url": "https://space.bilibili.com/322005137",
+    "tags": [
+     "财经区"
+    ],
+    "notes": "Lv.6 | 关注 114",
+    "enabled": true,
+    "latest_video": "第1233日投资记录：长鑫开局3.3万亿，A股极致赚钱效应，怒赚0.01%！（2026-07-27）"
+   },
+   {
+    "name": "海螺复盘",
+    "mid": 471949556,
+    "uid": 471949556,
+    "url": "https://space.bilibili.com/471949556",
+    "tags": [
+     "财经区"
+    ],
+    "notes": "Lv.6 | 关注 41",
+    "enabled": true,
+    "latest_video": "长鑫科技3.28万亿登顶A股，大A迎来5200家普涨（2026-07-27）"
+   },
+   {
+    "name": "星话大白",
+    "mid": 2233213,
+    "uid": 2233213,
+    "url": "https://space.bilibili.com/2233213",
+    "tags": [
+     "财经区"
+    ],
+    "notes": "Lv.6 | 关注 60",
+    "enabled": true,
+    "latest_video": "日本股债汇三杀，KIMI时刻冲击美股，美国长债收益率飙升，日元持续贬值，全球金融风险增大（2026-07-26）"
+   }
+  ]
+ },
+ "guba": {
+  "enabled": true,
+  "post_limit_per_stock": 40,
+  "hot_topic_limit": 5
+ },
+ "xueqiu": {
+  "enabled": true,
+  "hot_limit": 30,
+  "cookie": ""
+ },
+ "ths": {
+  "enabled": true,
+  "feed_limit": 40
+ },
+ "sector": {
+  "enabled": false,
+  "industry_limit": 8,
+  "concept_limit": 6
+ },
+ "jin10": {
+  "enabled": true,
+  "limit": 30
+ },
+ "cls": {
+  "enabled": true,
+  "limit": 30
+ },
+ "em": {
+  "enabled": true,
+  "hot_limit": 10
+ },
+ "scheduler": {
+    "daily_enabled": false,
+  "weekly_enabled": true
+ },
+ "distill": {
+  "top_keywords": 24,
+  "top_memes": 16,
+  "min_meme_freq": 2,
+  "top_posts_per_source": 10,
+  "top_comments_per_video": 8,
+  "top_per_source": 8,
+  "exclude_authors_from_topics": [
+   "巫师财经"
+  ]
+ }
+}

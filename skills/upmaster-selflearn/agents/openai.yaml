@@ -1,0 +1,4 @@
+interface:
+  display_name: "up主素材自学"
+  short_description: "从up主历史视频、动态、评论中蒸馏风格画像并更新档案"
+  default_prompt: "分析指定up主的过往素材，学习其观点风格、金句与常用关键词，生成并更新其风格画像"
