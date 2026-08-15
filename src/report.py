@@ -583,19 +583,43 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             "meta": _pct_badge((c.get("extra") or {}).get("pct")),
             "example": f"领涨股 {leader}",
         })
-    # 板块/热榜合并汇总：同内容去重（seen_board），展示前 20 条编号列表
+    # 金十：快讯关联股 + 热点头条 并入板块/热榜汇总
+    for t in (jin10_stock_rows + jin10_topic_rows)[:10]:
+        n = str(t.get("text", "") or "").strip()
+        if not n or n in seen_board:
+            continue
+        seen_board.add(n)
+        official_boards.append({
+            "text": n,
+            "platforms": ["金十"],
+            "meta": t.get("meta", ""),
+            "example": t.get("example", "")[:80],
+        })
+    # 板块/热榜合并汇总：五大平台各取最多 4 条（同内容已去重），共 20 条编号列表
+    ordered_boards: List[Dict[str, Any]] = []
+    seen_ordered = set()
+    for plat in ("雪球", "同花顺", "金十", "财联社", "东方财富"):
+        picked = 0
+        for b in official_boards:
+            if b["text"] in seen_ordered or b["platforms"][0] != plat:
+                continue
+            seen_ordered.add(b["text"])
+            ordered_boards.append(b)
+            picked += 1
+            if picked >= 4:
+                break
     board_rows = "".join(
         f'<div class="hrow" title="{esc(b.get("example", ""))}">'
         f'<span class="hrow-idx">{i + 1}</span>'
         f'<span class="hrow-name">{esc(b["text"])}</span>'
         f'<span class="hrow-meta">{_plat_chips(b["platforms"])}{b.get("meta", "")}</span></div>'
-        for i, b in enumerate(official_boards[:20])
+        for i, b in enumerate(ordered_boards[:20])
     ) or '<div class="muted">暂无官方板块数据</div>'
     board_section = f"""
     <div class="card board-panel">
       <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
       <div class="board-list">{board_rows}</div>
-      <div class="muted" style="margin-top:6px">口径：雪球官方热股/热门话题 + 同花顺官方板块热榜 + 财联社官方热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜</div>
+      <div class="muted" style="margin-top:6px">口径：雪球热股/热门话题 + 同花顺板块热榜 + 金十快讯关联股/热点头条 + 财联社热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜（跨平台合并去重，TOP 20）</div>
     </div>"""
 
     # ---------- 综合热榜：五平台 热股/话题 跨平台合并去重 ----------
@@ -669,17 +693,9 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
 
     merged_panel_html = f"""
     <div class="card merge-panel">
-      <div class="sec-title">综合热榜（雪球 / 同花顺 / 金十 / 财联社 / 东方财富 汇总）</div>
-      <div class="merge-grid">
-        <div>
-          <div class="hcard-sub">热股 TOP10（跨平台合并去重）</div>
-          {agg_stock_html}
-        </div>
-        <div>
-          <div class="hcard-sub">热门话题 TOP10（跨平台合并去重）</div>
-          {agg_topic_html}
-        </div>
-      </div>
+      <div class="sec-title">综合热榜（雪球 / 同花顺 / 金十 / 财联社 / 东方财富 热股 TOP10 汇总）</div>
+      <div class="hcard-sub">热股 TOP10（跨平台合并去重）</div>
+      {agg_stock_html}
     </div>"""
 
     # ---------- 各平台聚合 TOP10 话题总结（替代逐平台原始帖流） ----------
@@ -812,8 +828,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     <h1>当日舆论蒸馏日报</h1>
     <div style="margin-top:8px">
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
-      <button class="refresh-btn" id="publish-btn" onclick="publishOnline()" style="margin-left:8px">☁️ 发布在线版</button>
-      <span class="muted" style="margin-left:8px">「立即刷新」实时重采集并更新日报；「发布在线版」把本地最新日报推送到 GitHub 网址</span>
+      <span class="muted" style="margin-left:8px">停止定时任务后，点击可实时重采集全部平台并更新日报</span>
     </div>
     <div class="sub">{esc(date_str)} · 采集于 {esc(report.get('collected_at', ''))} · 数据源 {ok_sources}/{total_sources} 正常</div>
     <div class="sub" style="color:#9a6b1f">统计窗口：{esc((report.get('window') or {}).get('since', ''))} → {esc((report.get('window') or {}).get('until', ''))}（{esc((report.get('window') or {}).get('mode', ''))}）</div>
@@ -827,9 +842,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   {merged_panel_html}
 
   <div class="card">
-    <div class="sec-title">今日综合热词（全文蒸馏 + 五大平台热词）</div>
-    {kw_html}
-    <div class="sec-title" style="margin-top:12px">五大平台热词（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
+    <div class="sec-title">五大平台热词 TOP10（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
     <div class="board-row">{plat_hot_words}</div>
   </div>
 
@@ -863,33 +876,6 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         alert('无法连接刷新服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
         resetRefreshBtns();
       }});
-  }}
-  function publishOnline() {{
-    var btn = document.getElementById('publish-btn');
-    if (btn) {{ btn.disabled = true; btn.textContent = '发布中…（约10-30秒）'; }}
-    fetch(refreshBase() + '/api/publish', {{ method: 'POST' }})
-      .then(function (r) {{ return r.json(); }})
-      .then(function (j) {{
-        if (j && j.ok) {{ pollPublish(btn); }}
-        else {{ alert('发布启动失败：' + (j && j.error ? j.error : '未知错误')); if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }} }}
-      }})
-      .catch(function () {{
-        alert('无法连接发布服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
-        if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }}
-      }});
-  }}
-  function pollPublish(btn) {{
-    var base = refreshBase();
-    var t = setInterval(function () {{
-      fetch(base + '/api/publish-status').then(function (r) {{ return r.json(); }}).then(function (j) {{
-        if (j && !j.running) {{
-          clearInterval(t);
-          if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }}
-          if (j.error) {{ alert('发布失败：' + j.error); }}
-          else {{ alert('已发布到 https://yonglongl630-ops.github.io/opagg-report/（CDN 1-2 分钟生效）'); }}
-        }}
-      }}).catch(function () {{ clearInterval(t); if (btn) {{ btn.disabled = false; btn.textContent = '☁️ 发布在线版'; }} }});
-    }}, 2000);
   }}
   function pollRefresh() {{
     var base = refreshBase();
