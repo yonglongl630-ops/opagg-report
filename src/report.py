@@ -152,11 +152,13 @@ def _mention_heat(posts: List[Dict[str, Any]], names: List[str], limit: int = 10
 
 def _hrow(idx: int, name: str, meta: str = "", title: str = "") -> str:
     t = f' title="{esc(title)}"' if title else ""
+    ex = f'<div class="hrow-ex">{esc(title)}</div>' if title else ""
     return (
         f'<div class="hrow"{t}>'
         f'<span class="hrow-idx">{idx}</span>'
         f'<span class="hrow-name">{esc(name)}</span>'
         f'<span class="hrow-meta">{meta}</span>'
+        f"{ex}"
         f"</div>"
     )
 
@@ -612,7 +614,8 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         f'<div class="hrow" title="{esc(b.get("example", ""))}">'
         f'<span class="hrow-idx">{i + 1}</span>'
         f'<span class="hrow-name">{esc(b["text"])}</span>'
-        f'<span class="hrow-meta">{_plat_chips(b["platforms"])}{b.get("meta", "")}</span></div>'
+        f'<span class="hrow-meta">{_plat_chips(b["platforms"])}{b.get("meta", "")}</span>'
+        f'<div class="hrow-ex">{esc(b.get("example", ""))}</div></div>'
         for i, b in enumerate(ordered_boards[:20])
     ) or '<div class="muted">暂无官方板块数据</div>'
     board_section = f"""
@@ -675,14 +678,16 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         f'<div class="hrow" title="{esc(s.get("example", ""))}">'
         f'<span class="hrow-idx">{i + 1}</span>'
         f'<span class="hrow-name">{esc(s["text"])}</span>'
-        f'<span class="hrow-meta">{_plat_chips(s["platforms"])}{s.get("meta", "")}</span></div>'
+        f'<span class="hrow-meta">{_plat_chips(s["platforms"])}{s.get("meta", "")}</span>'
+        f'<div class="hrow-ex">{esc(s.get("example", ""))}</div></div>'
         for i, s in enumerate(agg_stocks)
     ) or '<div class="muted">暂无</div>'
     agg_topic_html = "".join(
         f'<div class="hrow" title="{esc(t.get("example", ""))}">'
         f'<span class="hrow-idx">{i + 1}</span>'
         f'<span class="hrow-name">{esc(t["text"])}</span>'
-        f'<span class="hrow-meta">{_plat_chips(t["platforms"])}{t.get("meta", "")}</span></div>'
+        f'<span class="hrow-meta">{_plat_chips(t["platforms"])}{t.get("meta", "")}</span>'
+        f'<div class="hrow-ex">{esc(t.get("example", ""))}</div></div>'
         for i, t in enumerate(agg_topics)
     ) or '<div class="muted">暂无</div>'
 
@@ -741,7 +746,9 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   .hcard-sub {{ font-size: 11px; font-weight: 700; color: #57606a; margin: 8px 0 4px; padding-top: 6px; border-top: 1px dashed #eaecef; }}
   .hcard-sub:first-child {{ margin-top: 0; padding-top: 0; border-top: 0; }}
   .hcard-foot {{ color: #8b949e; font-size: 10px; margin-top: 8px; border-top: 1px dashed #eaecef; padding-top: 6px; }}
-  .hrow {{ display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }}
+  .hrow {{ display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }}
+  .hrow-ex {{ flex-basis: 100%; display: none; font-size: 12px; color: #57606a; padding: 2px 0 4px 30px; }}
+  @media (hover: none), (max-width: 640px) {{ .hrow-ex {{ display: block; }} }}
   .hrow:last-child {{ border-bottom: 0; }}
   .hrow.dim {{ opacity: .72; }}
   .hrow-name {{ flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
