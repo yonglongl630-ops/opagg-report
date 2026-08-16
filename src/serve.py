@@ -124,6 +124,8 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        # 允许公开 HTTPS 页面（GitHub Pages）访问本机 127.0.0.1 服务（Chrome Private Network Access）
+        self.send_header("Access-Control-Allow-Private-Network", "true")
 
     def _send_json(self, code: int, obj: Dict) -> None:
         body = json.dumps(obj, ensure_ascii=False).encode()

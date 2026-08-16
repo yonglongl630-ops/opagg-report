@@ -854,6 +854,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     <h1>当日舆论蒸馏日报</h1>
     <div style="margin-top:8px">
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
+      <span id="serve-status" class="muted" style="margin-left:8px"></span>
     </div>
     <div class="sub">{esc(date_str)} · 采集于 {esc(report.get('collected_at', ''))} · 数据源 {ok_sources}/{total_sources} 正常</div>
     <div class="sub" style="color:#9a6b1f">统计窗口：{esc((report.get('window') or {}).get('since', ''))} → {esc((report.get('window') or {}).get('until', ''))}（{esc((report.get('window') or {}).get('mode', ''))}）</div>
@@ -888,6 +889,19 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     // 在线版（GitHub Pages）打开时同样会连回本机服务；刷新完成后自动跳到本机最新日报查看。
     return 'http://127.0.0.1:8651';
   }}
+  function checkServe() {{
+    fetch('http://127.0.0.1:8651/api/status')
+      .then(function (r) {{ return r.json(); }})
+      .then(function () {{
+        var el = document.getElementById('serve-status');
+        if (el) {{ el.textContent = '本地服务已连接（点击即可实时刷新）'; el.style.color = '#1a9d57'; }}
+      }})
+      .catch(function () {{
+        var el = document.getElementById('serve-status');
+        if (el) {{ el.textContent = '本地服务未连接：请先运行 python3 -m src.serve 再刷新'; el.style.color = '#c0392b'; }}
+      }});
+  }}
+  checkServe();
   function refreshData(source) {{
     var btn = document.getElementById('refresh-btn');
     var links = document.querySelectorAll('.refresh-link');
