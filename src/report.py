@@ -11,6 +11,7 @@ from collections import Counter as _Counter
 from typing import Any, Dict, List
 
 from .aggregate import SOURCE_LABELS
+from .common import clean_text
 from .config import ROOT
 
 
@@ -23,6 +24,24 @@ PLAT_COLORS = {
     "B站": "#fb7299",
     "股吧": "#e6532a",
 }
+
+
+def _brief(text: str, max_len: int = 60) -> str:
+    """简介化：去掉雪球 $股票$ 标记与多余空白，按句子边界截断，超长补省略号。
+    避免介绍文字被硬切导致断句/后半段丢失。"""
+    s = clean_text(text or "", max_len * 4)
+    s = re.sub(r"\$[^$]+\$", "", s)
+    s = re.sub(r"\s+", " ", s).strip(" \n\t。；，,")
+    if not s:
+        return ""
+    if len(s) <= max_len:
+        return s
+    cut = s[:max_len]
+    m = re.search(r"[。！？；!?;…]", cut[::-1])
+    if m:
+        end = max_len - m.start()
+        return cut[:end] + "…"
+    return cut + "…"
 
 SRC_TO_LABEL = {
     "xueqiu": "雪球",
@@ -330,7 +349,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             ca_users = "".join(
                 f'<div class="cc-user"><b>{esc(x.get("author", ""))}</b> {_stance_badge(x.get("stance", ""))} '
                 f'<span class="muted">{x.get("n", 0)}条 · {fmt_num(x.get("likes"))}赞</span>'
-                f'<div class="muted">“{esc(x.get("top_comment", ""))[:80]}”</div></div>'
+                f'<div class="muted">“{esc(_brief(x.get("top_comment", ""), 80))}”</div></div>'
                 for x in (ca.get("top_commenters") or [])[:5]
             )
             ca_kw = "、".join(esc(x) for x in (ca.get("keywords") or [])[:8])
@@ -394,13 +413,13 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     xq_posts_h = xueqiu.get("hot_posts", []) or []
     xq_stock_rows = [
         {"text": s.get("title", ""), "meta": f"热度 {fmt_num(s.get('views'))}",
-         "example": s.get("content", "")[:60]}
+         "example": _brief(s.get("content", ""), 60)}
         for s in xq_stocks[:10]
     ]
     xq_topic_rows = [
         {"text": t.get("title", "")[:30],
          "meta": f"{fmt_num(t.get('views'))}讨论",
-         "example": t.get("content", "")[:60]}
+         "example": _brief(t.get("content", ""), 60)}
         for t in xq_topics_raw[:10]
     ]
     xq_card = _hot_card(
@@ -449,7 +468,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     jin10_topic_rows = [
         {"text": t.get("title", "")[:24],
          "meta": "热点头条",
-         "example": t.get("content", "")[:70]}
+         "example": _brief(t.get("content", ""), 70)}
         for t in jin10_topics_raw[:10]
     ]
     jin10_card = _hot_card(
@@ -467,7 +486,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         {
             "text": a.get("title", "")[:24],
             "meta": f"{fmt_num(a.get('views'))}阅",
-            "example": a.get("content", "")[:70],
+            "example": _brief(a.get("content", ""), 70),
         }
         for a in cls_articles[:10]
     ]
@@ -535,7 +554,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             "text": n[:20],
             "platforms": ["雪球"],
             "meta": f"{fmt_num(t.get('views'))}讨论",
-            "example": t.get("content", "")[:80],
+            "example": _brief(t.get("content", ""), 80),
         })
     for t in ths_topics_raw[:8]:
         n = str(t.get("name", "") or "").strip()
@@ -595,7 +614,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             "text": n,
             "platforms": ["金十"],
             "meta": t.get("meta", ""),
-            "example": t.get("example", "")[:80],
+            "example": _brief(t.get("example", ""), 80),
         })
     # 板块/热榜合并汇总：五大平台各取最多 4 条（同内容已去重），共 20 条编号列表
     ordered_boards: List[Dict[str, Any]] = []
@@ -710,7 +729,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
           <span class="hrow-idx">{i + 1}</span>
           <div class="topic-summary-main">
             <div><b>{esc(t["text"])}</b> {_plat_chips(t["platforms"])} <span class="muted">{t.get("meta", "")}</span></div>
-            <div class="muted">{esc(t.get("example", ""))[:100]}</div>
+            <div class="muted">{esc(_brief(t.get("example", ""), 100))}</div>
           </div>
         </div>"""
         for i, t in enumerate(agg_topics[:10])
@@ -835,7 +854,6 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     <h1>当日舆论蒸馏日报</h1>
     <div style="margin-top:8px">
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
-      <span class="muted" style="margin-left:8px">停止定时任务后，点击可实时重采集全部平台并更新日报</span>
     </div>
     <div class="sub">{esc(date_str)} · 采集于 {esc(report.get('collected_at', ''))} · 数据源 {ok_sources}/{total_sources} 正常</div>
     <div class="sub" style="color:#9a6b1f">统计窗口：{esc((report.get('window') or {}).get('since', ''))} → {esc((report.get('window') or {}).get('until', ''))}（{esc((report.get('window') or {}).get('mode', ''))}）</div>
@@ -875,14 +893,29 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     var links = document.querySelectorAll('.refresh-link');
     for (var i = 0; i < links.length; i++) {{ links[i].style.pointerEvents = 'none'; links[i].textContent = '刷新中…'; }}
     if (btn) {{ btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }}
-    fetch(refreshBase() + '/api/refresh?source=' + encodeURIComponent(source || 'all'), {{ method: 'POST' }})
+    var m = (location.pathname || '').match(/report_(\d{{4}}-\d{{2}}-\d{{2}})/);
+    var date = m ? m[1] : '';
+    if (location.protocol !== 'http:' && location.protocol !== 'https:') {{
+      // file:// 打开：先探测本地服务，可达则跳转到服务版页面并自动刷新（同源最稳）
+      fetch('http://127.0.0.1:8651/api/status', {{ method: 'GET' }})
+        .then(function () {{
+          var f = (location.pathname || '').split('/').pop() || ('report_' + date + '.html');
+          location.href = 'http://127.0.0.1:8651/' + f + '?refresh=1';
+        }})
+        .catch(function () {{
+          alert('本地刷新服务未运行。请先运行 python3 -m src.serve --open（或执行 deploy/install_serve.sh 安装开机自启），再点刷新');
+          resetRefreshBtns();
+        }});
+      return;
+    }}
+    fetch(refreshBase() + '/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date), {{ method: 'POST' }})
       .then(function (r) {{ return r.json(); }})
       .then(function (j) {{
         if (j && j.ok) {{ pollRefresh(); }}
         else {{ alert('刷新启动失败：' + (j && j.error ? j.error : '未知错误')); resetRefreshBtns(); }}
       }})
       .catch(function () {{
-        alert('无法连接刷新服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
+        alert('无法连接本地刷新服务。请先在终端运行：python3 -m src.serve --open（会自动打开 http://127.0.0.1:8651 的日报），再点刷新');
         resetRefreshBtns();
       }});
   }}
@@ -898,7 +931,8 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
             location.href = localOrigin + '/' + html.replace(/^.*[\\/]/, '');
           }} else {{
-            location.reload();
+            // 本机服务页：去掉 ?refresh=1 后重载，避免再次自动刷新
+            location.href = location.pathname;
           }}
         }}
       }}).catch(function () {{ clearInterval(t); resetRefreshBtns(); }});
@@ -910,6 +944,11 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     var links = document.querySelectorAll('.refresh-link');
     for (var i = 0; i < links.length; i++) {{ links[i].style.pointerEvents = ''; links[i].textContent = '🔄 立即刷新'; }}
   }}
+  (function () {{
+    if ((location.search || '').indexOf('refresh=1') >= 0) {{
+      refreshData('all');
+    }}
+  }})();
   </script>
 </div>
 </body>
