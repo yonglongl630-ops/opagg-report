@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>当日舆论蒸馏日报 · 2026-08-16</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #24292f; line-height: 1.55; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 18px 60px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 24px; }
+  .sub { color: #6a737d; font-size: 13px; margin-top: 4px; }
+  .chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-chip { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .refresh-btn { border: 1px solid #5b6ee8; color: #5b6ee8; background: #fff; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer; }
+  .refresh-btn:hover { background: #f0f4ff; }
+  .refresh-btn:disabled { opacity: .6; cursor: wait; }
+  .refresh-link { color: #5b6ee8; text-decoration: none; font-weight: 700; }
+  .chip { display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
+  .badge { display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }
+  .header-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 1100px) { .header-cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .header-cards { grid-template-columns: 1fr; } }
+  .hcard { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); min-height: 240px; display: flex; flex-direction: column; }
+  .hcard-title { font-size: 13px; font-weight: 700; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid; display: flex; align-items: center; gap: 6px; }
+  .hcard-body { flex: 1; font-size: 12px; max-height: 380px; overflow-y: auto; }
+  .hcard-sub { font-size: 11px; font-weight: 700; color: #57606a; margin: 8px 0 4px; padding-top: 6px; border-top: 1px dashed #eaecef; }
+  .hcard-sub:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .hcard-foot { color: #8b949e; font-size: 10px; margin-top: 8px; border-top: 1px dashed #eaecef; padding-top: 6px; }
+  .hrow { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow.dim { opacity: .72; }
+  .hrow-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hrow-idx { color: #8b949e; font-size: 11px; min-width: 18px; text-align: right; }
+  .hrow-meta { color: #57606a; font-size: 11px; text-align: right; white-space: nowrap; }
+  .topic-block { margin: 6px 0; padding: 7px 9px; background: #fafbfc; border: 1px solid #eef0f2; border-radius: 8px; }
+  .topic-block .hrow { padding: 3px 0; border-bottom: 0; }
+  .pct { font-weight: 700; font-size: 12px; min-width: 52px; text-align: right; }
+  .imp { color: #e8a33d; font-size: 11px; min-width: 22px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .stat b { font-size: 24px; display: block; }
+  .stat span { color: #6a737d; font-size: 12px; }
+  .sentibar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+  .pos { background: #d93026; } .neu { background: #c8c8c8; } .neg { background: #0f8a4d; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rank-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .rank-name { width: 96px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-bar { flex: 1; background: #f0f1f3; border-radius: 4px; height: 12px; }
+  .rank-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg,#f6a05f,#e6532a); }
+  .rank-num { width: 56px; font-size: 12px; color: #6a737d; text-align: right; }
+  .meme-item { padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .meme-item:last-child { border-bottom: 0; }
+  .meme-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .meme-meta { font-size: 12px; color: #6a737d; }
+  .meme-ex { font-size: 12px; color: #6a737d; margin-top: 2px; }
+  .topic-head { display: flex; align-items: center; gap: 8px; }
+  .topic-phrases { color: #57606a; font-size: 12px; margin: 4px 0 8px; }
+  .post-list { list-style: none; }
+  .post-list li { padding: 4px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .post-list a { color: #0969da; text-decoration: none; }
+  .hot-row { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .hot-idx { color: #e6532a; font-weight: 700; width: 20px; }
+  .muted { color: #6a737d; font-size: 12px; }
+  .mini-card { margin-bottom: 10px; padding: 12px; }
+  .topic-sum { font-size: 12px; color: #57606a; margin-top: 4px; }
+  .up-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 800px) { .up-grid { grid-template-columns: 1fr; } }
+  .up-video { padding: 6px 0; border-bottom: 1px dashed #eaecef; }
+  .up-video-title a { color: #0969da; text-decoration: none; font-size: 13px; }
+  .up-video-meta { margin-top: 2px; }
+  .quote { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #eaecef; }
+  .quote-q { color: #24292f; }
+  .up-head-row { display: flex; align-items: center; gap: 10px; }
+  .up-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #f0f1f3; }
+  .up-meta { color: #6a737d; font-size: 12px; margin-top: 2px; }
+  .dyn-item { padding: 6px 0; border-bottom: 1px dashed #eaecef; font-size: 13px; }
+  .dyn-item:last-child { border-bottom: 0; }
+  .dyn-meta { color: #6a737d; font-size: 11px; margin-top: 2px; }
+  .dyn-body { color: #57606a; font-size: 12px; margin-top: 3px; }
+  .cc-users { margin-top: 8px; }
+  .cc-user { padding: 5px 0; border-bottom: 1px dashed #eaecef; font-size: 12px; }
+  .cc-user:last-child { border-bottom: 0; }
+  .up-tabs { display: flex; gap: 12px; margin: 10px 0 4px; font-size: 13px; font-weight: 700; color: #57606a; }
+  .topic-chip { padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-chip:last-child { border-bottom: 0; }
+  .board-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .board-list { margin-top: 4px; }
+  .board-chip { display: inline-flex; align-items: baseline; gap: 6px; background: #f0f4ff; border: 1px solid #d9e2ff; border-radius: 8px; padding: 5px 10px; font-size: 12px; }
+  .up-summary-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .up-summary-row:last-child { border-bottom: 0; }
+  .up-summary-main { flex: 1; }
+  .up-detail { background: #fff; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .up-detail summary { cursor: pointer; font-size: 14px; color: #24292f; }
+  .up-detail[open] summary { margin-bottom: 6px; }
+  .merge-panel { background: linear-gradient(180deg,#fff, #fbfcff); }
+  .merge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 800px) { .merge-grid { grid-template-columns: 1fr; } }
+  .plat-chip { display: inline-block; border-radius: 4px; color: #fff; font-size: 10px; padding: 1px 5px; margin-right: 3px; }
+  .hrow-meta .plat-chip { margin-left: 2px; }
+  .topic-summary-row { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-summary-row:last-child { border-bottom: 0; }
+  .topic-summary-main { flex: 1; }
+  .src-error { color: #c0392b; font-size: 12px; margin-top: 6px; }
+  footer { color: #8b949e; font-size: 12px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>当日舆论蒸馏日报</h1>
+    <div style="margin-top:8px">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
+      <span class="muted" style="margin-left:8px">停止定时任务后，点击可实时重采集全部平台并更新日报</span>
+    </div>
+    <div class="sub">2026-08-16 · 采集于 2026-08-16 09:48:14 · 数据源 1/1 正常</div>
+    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-16 00:00:00 → 2026-08-16 09:48:14（当天 00:00 起）</div>
+    <div class="chips"><span class="src-chip" style="border-color:#f0a020">同花顺 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span></div>
+  </header>
+
+  <div class="header-cards">
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#3a8ee6">雪球热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=雪球官方热股榜；话题=雪球官网右侧「热门话题」(hot_event)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#f0a020">同花顺热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="hrow" title="煤化工概念、国企改革"><span class="hrow-idx">1</span><span class="hrow-name">金牛化工</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-9.90%</span></span></div><div class="hrow" title="首板涨停、光纤概念、F5G概念"><span class="hrow-idx">2</span><span class="hrow-name">亨通光电</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.01%</span></span></div><div class="hrow" title="超级品牌、高股息精选"><span class="hrow-idx">3</span><span class="hrow-name">公牛集团</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-0.84%</span></span></div><div class="hrow" title="算力租赁、国资云"><span class="hrow-idx">4</span><span class="hrow-name">铜牛信息</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+3.70%</span></span></div><div class="hrow" title="首板涨停、算力租赁、东数西算(算力)"><span class="hrow-idx">5</span><span class="hrow-name">莲花控股</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+9.97%</span></span></div><div class="hrow" title="3天3板、新型城镇化、光伏建筑一体化"><span class="hrow-idx">6</span><span class="hrow-name">金螳螂</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+9.98%</span></span></div><div class="hrow" title="存储芯片、先进封装"><span class="hrow-idx">7</span><span class="hrow-name">太极实业</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-3.49%</span></span></div><div class="hrow" title="首板涨停、算力租赁、英伟达概念"><span class="hrow-idx">8</span><span class="hrow-name">利通电子</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+10.00%</span></span></div><div class="hrow" title="光纤概念、共封装光学(CPO)"><span class="hrow-idx">9</span><span class="hrow-name">中天科技</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+8.05%</span></span></div><div class="hrow" title="共封装光学(CPO)、光纤概念"><span class="hrow-idx">10</span><span class="hrow-name">天孚通信</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+4.10%</span></span></div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="9家涨停 · 连续270天上榜 · 热度1.9万"><span class="hrow-idx">1</span><span class="hrow-name">共封装光学(CPO)</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.95%</span></span></div><div class="hrow" title="5家涨停 · 连续100天上榜 · 热度1.6万"><span class="hrow-idx">2</span><span class="hrow-name">创新药</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-0.27%</span></span></div><div class="hrow" title="5家涨停 · 连续134天上榜 · 热度1.3万"><span class="hrow-idx">3</span><span class="hrow-name">算力租赁</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+0.69%</span></span></div><div class="hrow" title="5家涨停 · 连续130天上榜 · 热度1.0万"><span class="hrow-idx">4</span><span class="hrow-name">通信设备</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.33%</span></span></div><div class="hrow" title="2家涨停 · 连续906天上榜 · 热度8602"><span class="hrow-idx">5</span><span class="hrow-name">半导体</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+1.86%</span></span></div><div class="hrow" title="连续147天上榜 · 热度8312"><span class="hrow-idx">6</span><span class="hrow-name">电力</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-2.65%</span></span></div><div class="hrow" title="3家涨停 · 连续93天上榜 · 热度7956"><span class="hrow-idx">7</span><span class="hrow-name">PCB概念</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.08%</span></span></div><div class="hrow" title="连续906天上榜 · 热度7909"><span class="hrow-idx">8</span><span class="hrow-name">证券</span><span class="hrow-meta"><span class="pct" style="color:#0f8a4d">-1.31%</span></span></div><div class="hrow" title="2家涨停 · 连续223天上榜 · 热度7468"><span class="hrow-idx">9</span><span class="hrow-name">存储芯片</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+2.27%</span></span></div><div class="hrow" title="2家涨停 · 5天3次上榜 · 热度6050"><span class="hrow-idx">10</span><span class="hrow-name">电子化学品</span><span class="hrow-meta"><span class="pct" style="color:#d93026">+4.07%</span></span></div></div>
+      <div class="hcard-foot">同花顺官方热股榜 / 板块热榜（实时，A股）</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e8a33d">金十快讯</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=快讯关联股；话题=金十热点头条 TOP10 (xnews.jin10.com)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#1f9d8a">财联社热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=暂无（App 热股榜为签名私有接口，公开渠道无个股热股榜）；话题=财联社热门文章 TOP10</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e0322b">东方财富热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=东财人气榜TOP10；话题=领涨概念TOP10(so.eastmoney.com)</div>
+    </div></div>
+
+  
+    <div class="card board-panel">
+      <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
+      <div class="board-list"><div class="hrow" title="9家涨停 · 连续270天上榜"><span class="hrow-idx">1</span><span class="hrow-name">共封装光学(CPO)</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.95%</span></span></div><div class="hrow" title="5家涨停 · 连续100天上榜"><span class="hrow-idx">2</span><span class="hrow-name">创新药</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-0.27%</span></span></div><div class="hrow" title="5家涨停 · 连续134天上榜"><span class="hrow-idx">3</span><span class="hrow-name">算力租赁</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+0.69%</span></span></div><div class="hrow" title="5家涨停 · 连续130天上榜"><span class="hrow-idx">4</span><span class="hrow-name">通信设备</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+2.33%</span></span></div></div>
+      <div class="muted" style="margin-top:6px">口径：雪球热股/热门话题 + 同花顺板块热榜 + 金十快讯关联股/热点头条 + 财联社热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜（跨平台合并去重，TOP 20）</div>
+    </div>
+
+  
+    <div class="card merge-panel">
+      <div class="sec-title">综合热榜（雪球 / 同花顺 / 金十 / 财联社 / 东方财富 热股 TOP10 汇总）</div>
+      <div class="hcard-sub">热股 TOP10（跨平台合并去重）</div>
+      <div class="hrow" title="煤化工概念、国企改革"><span class="hrow-idx">1</span><span class="hrow-name">金牛化工</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-9.90%</span></span></div><div class="hrow" title="首板涨停、光纤概念、F5G概念"><span class="hrow-idx">2</span><span class="hrow-name">亨通光电</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+10.01%</span></span></div><div class="hrow" title="超级品牌、高股息精选"><span class="hrow-idx">3</span><span class="hrow-name">公牛集团</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-0.84%</span></span></div><div class="hrow" title="算力租赁、国资云"><span class="hrow-idx">4</span><span class="hrow-name">铜牛信息</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+3.70%</span></span></div><div class="hrow" title="首板涨停、算力租赁、东数西算(算力)"><span class="hrow-idx">5</span><span class="hrow-name">莲花控股</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+9.97%</span></span></div><div class="hrow" title="3天3板、新型城镇化、光伏建筑一体化"><span class="hrow-idx">6</span><span class="hrow-name">金螳螂</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+9.98%</span></span></div><div class="hrow" title="存储芯片、先进封装"><span class="hrow-idx">7</span><span class="hrow-name">太极实业</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#0f8a4d">-3.49%</span></span></div><div class="hrow" title="首板涨停、算力租赁、英伟达概念"><span class="hrow-idx">8</span><span class="hrow-name">利通电子</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+10.00%</span></span></div><div class="hrow" title="光纤概念、共封装光学(CPO)"><span class="hrow-idx">9</span><span class="hrow-name">中天科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+8.05%</span></span></div><div class="hrow" title="共封装光学(CPO)、光纤概念"><span class="hrow-idx">10</span><span class="hrow-name">天孚通信</span><span class="hrow-meta"><span class="plat-chip" style="background:#f0a020">同花顺</span><span class="pct" style="color:#d93026">+4.10%</span></span></div>
+    </div>
+
+  <div class="card">
+    <div class="sec-title">五大平台热词 TOP10（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
+    <div class="board-row"><span class="board-chip">共封装光学(CPO)<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">创新药<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">算力租赁<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">通信设备<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">半导体<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">电力<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">PCB概念<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">证券<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">存储芯片<span class="plat-chip" style="background:#f0a020">同花顺</span></span><span class="board-chip">电子化学品<span class="plat-chip" style="background:#f0a020">同花顺</span></span></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">各平台聚合 TOP10 话题（雪球 / 同花顺 / 金十 / 财联社 / 东方财富）</div>
+    
+        <div class="topic-summary-row">
+          <span class="hrow-idx">1</span>
+          <div class="topic-summary-main">
+            <div><b>共封装光学(CPO)</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+2.95%</span></span></div>
+            <div class="muted">9家涨停 · 连续270天上榜 · 热度1.9万</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">2</span>
+          <div class="topic-summary-main">
+            <div><b>创新药</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#0f8a4d">-0.27%</span></span></div>
+            <div class="muted">5家涨停 · 连续100天上榜 · 热度1.6万</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">3</span>
+          <div class="topic-summary-main">
+            <div><b>算力租赁</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+0.69%</span></span></div>
+            <div class="muted">5家涨停 · 连续134天上榜 · 热度1.3万</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">4</span>
+          <div class="topic-summary-main">
+            <div><b>通信设备</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+2.33%</span></span></div>
+            <div class="muted">5家涨停 · 连续130天上榜 · 热度1.0万</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">5</span>
+          <div class="topic-summary-main">
+            <div><b>半导体</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+1.86%</span></span></div>
+            <div class="muted">2家涨停 · 连续906天上榜 · 热度8602</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">6</span>
+          <div class="topic-summary-main">
+            <div><b>电力</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#0f8a4d">-2.65%</span></span></div>
+            <div class="muted">连续147天上榜 · 热度8312</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">7</span>
+          <div class="topic-summary-main">
+            <div><b>PCB概念</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+2.08%</span></span></div>
+            <div class="muted">3家涨停 · 连续93天上榜 · 热度7956</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">8</span>
+          <div class="topic-summary-main">
+            <div><b>证券</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#0f8a4d">-1.31%</span></span></div>
+            <div class="muted">连续906天上榜 · 热度7909</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">9</span>
+          <div class="topic-summary-main">
+            <div><b>存储芯片</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+2.27%</span></span></div>
+            <div class="muted">2家涨停 · 连续223天上榜 · 热度7468</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">10</span>
+          <div class="topic-summary-main">
+            <div><b>电子化学品</b> <span class="plat-chip" style="background:#f0a020">同花顺</span> <span class="muted"><span class="pct" style="color:#d93026">+4.07%</span></span></div>
+            <div class="muted">2家涨停 · 5天3次上榜 · 热度6050</div>
+          </div>
+        </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px">up主动态与观点蒸馏</div>
+  
+    <div class="card up-card">
+      <div class="sec-title">up主动态与观点蒸馏汇总</div>
+      <div class="muted">未配置 up主（config.json → bilibili.upmasters）</div>
+    </div>
+    
+
+  
+
+  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 2026-08-16 09:48:14 · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
+  <script>
+  function refreshBase() {
+    // 「立即刷新」固定调用本机服务（python3 -m src.serve，端口 8651）。
+    // 在线版（GitHub Pages）打开时同样会连回本机服务；刷新完成后自动跳到本机最新日报查看。
+    return 'http://127.0.0.1:8651';
+  }
+  function refreshData(source) {
+    var btn = document.getElementById('refresh-btn');
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = 'none'; links[i].textContent = '刷新中…'; }
+    if (btn) { btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }
+    fetch(refreshBase() + '/api/refresh?source=' + encodeURIComponent(source || 'all'), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok) { pollRefresh(); }
+        else { alert('刷新启动失败：' + (j && j.error ? j.error : '未知错误')); resetRefreshBtns(); }
+      })
+      .catch(function () {
+        alert('无法连接刷新服务。请先运行 python3 -m src.serve，再通过 http://127.0.0.1:8651 打开日报');
+        resetRefreshBtns();
+      });
+  }
+  function pollRefresh() {
+    var base = refreshBase();
+    var localOrigin = 'http://127.0.0.1:8651';
+    var t = setInterval(function () {
+      fetch(base + '/api/status').then(function (r) { return r.json(); }).then(function (j) {
+        if (j && !j.running) {
+          clearInterval(t);
+          if (location.origin !== localOrigin) {
+            // 在线页：跳到本机最新日报（刷新结果在本机）
+            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+            location.href = localOrigin + '/' + html.replace(/^.*[\/]/, '');
+          } else {
+            location.reload();
+          }
+        }
+      }).catch(function () { clearInterval(t); resetRefreshBtns(); });
+    }, 2500);
+  }
+  function resetRefreshBtns() {
+    var btn = document.getElementById('refresh-btn');
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 立即刷新'; }
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = ''; links[i].textContent = '🔄 立即刷新'; }
+  }
+  </script>
+</div>
+</body>
+</html>
