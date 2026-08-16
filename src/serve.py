@@ -4,7 +4,7 @@
   python3 -m src.serve [--port 8651] [--open]
 
 功能：
-- 以 http://127.0.0.1:8651 提供 output/ 下的日报/周报
+- 以 http://127.0.0.1:8651 提供 output/ 下的日报
 - POST /api/refresh?source=all|sector|ths|cls|...  → 后台重采集并重新生成日报
 - GET  /api/status                                  → 刷新状态（页面轮询用）
 
@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import socket
 import subprocess
 import sys
 import threading
@@ -32,7 +33,7 @@ from src.config import load_config  # noqa: E402
 
 PORT = 8651
 _lock = threading.Lock()
-_state: Dict = {"running": False, "source": "", "started": "", "finished": "", "error": "", "result": {}}
+_state: Dict = {"running": False, "source": "", "date": "", "started": "", "finished": "", "error": "", "result": {}}
 _publish_state: Dict = {"running": False, "started": "", "finished": "", "error": "", "output": ""}
 
 
@@ -69,13 +70,14 @@ def _status_path() -> str:
     return os.path.join(STATE_DIR, "refresh_status.json")
 
 
-def _start_refresh(source: str) -> None:
+def _start_refresh(source: str, date: str = "") -> None:
     with _lock:
         if _state.get("running"):
             return
         _state.update({
             "running": True,
             "source": source or "all",
+            "date": date or default_date(),
             "started": time.strftime("%Y-%m-%d %H:%M:%S"),
             "finished": "",
             "error": "",
@@ -88,7 +90,7 @@ def _start_refresh(source: str) -> None:
             sources = None
             if source and source != "all":
                 sources = [s for s in source.split(",") if s.strip()]
-            report = run_day(cfg, default_date(), sources=sources, use_cache=False)
+            report = run_day(cfg, date or default_date(), sources=sources, use_cache=False)
             with _lock:
                 _state["result"] = {
                     "html": report.get("_html_path", ""),
@@ -159,18 +161,19 @@ class Handler(BaseHTTPRequestHandler):
         if parsed.path == "/api/refresh":
             qs = urllib.parse.parse_qs(parsed.query)
             source = (qs.get("source") or ["all"])[0]
+            date = (qs.get("date") or [""])[0]
             with _lock:
                 busy = _state.get("running")
             if busy:
                 self._send_json(200, {"ok": False, "error": "已有刷新任务进行中"})
                 return
-            _start_refresh(source)
-            self._send_json(200, {"ok": True, "source": source})
+            _start_refresh(source, date)
+            self._send_json(200, {"ok": True, "source": source, "date": date or default_date()})
             return
-        # 静态文件
-        rel = urllib.parse.unquote(parsed.path.lstrip("/")) or "report_%s.html" % default_date()
+        # 静态文件：根路径默认 index.html（与在线首页一致），无 index 时回退当日日报
+        rel = urllib.parse.unquote(parsed.path.lstrip("/"))
         if not rel or rel.endswith("/"):
-            rel += "report_%s.html" % default_date()
+            rel = "index.html" if os.path.exists(os.path.join(OUTPUT_DIR, "index.html")) else "report_%s.html" % default_date()
         safe = os.path.normpath(os.path.join(OUTPUT_DIR, rel))
         if not safe.startswith(os.path.abspath(OUTPUT_DIR)):
             self._send_json(403, {"error": "forbidden"})
@@ -209,9 +212,19 @@ def main() -> int:
     ap.add_argument("--open", action="store_true", help="启动后打开浏览器")
     args = ap.parse_args()
     try:
+        # 幂等：端口已被占用说明服务已在运行（可能是开机自启实例），直接退出
+        probe = socket.create_connection(("127.0.0.1", args.port), timeout=1)
+        probe.close()
+        print("本地刷新服务已在运行（端口 %d），无需重复启动。" % args.port)
+        return 0
+    except OSError:
+        pass
+    try:
         from src.aggregate import default_date
-        index = os.path.join(OUTPUT_DIR, f"report_{default_date()}.html")
-        print("日报预览: http://127.0.0.1:%d/%s" % (args.port, os.path.basename(index) if os.path.exists(index) else "output/"))
+        index = os.path.join(OUTPUT_DIR, "index.html")
+        if not os.path.exists(index):
+            index = os.path.join(OUTPUT_DIR, f"report_{default_date()}.html")
+        print("日报预览: http://127.0.0.1:%d/%s" % (args.port, os.path.basename(index) if os.path.exists(index) else ""))
         print("刷新接口: POST http://127.0.0.1:%d/api/refresh?source=all|sector|ths|cls" % args.port)
         print("发布接口: POST http://127.0.0.1:%d/api/publish   （本地生成日报 → 推送到 GitHub Pages）" % args.port)
         if args.open:
