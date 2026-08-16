@@ -859,7 +859,9 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 {esc(report.get('collected_at', ''))} · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
   <script>
   function refreshBase() {{
-    return (location.protocol === 'http:' || location.protocol === 'https:') ? location.origin : 'http://127.0.0.1:8651';
+    // 「立即刷新」固定调用本机服务（python3 -m src.serve，端口 8651）。
+    // 在线版（GitHub Pages）打开时同样会连回本机服务；刷新完成后自动跳到本机最新日报查看。
+    return 'http://127.0.0.1:8651';
   }}
   function refreshData(source) {{
     var btn = document.getElementById('refresh-btn');
@@ -879,9 +881,19 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   }}
   function pollRefresh() {{
     var base = refreshBase();
+    var localOrigin = 'http://127.0.0.1:8651';
     var t = setInterval(function () {{
       fetch(base + '/api/status').then(function (r) {{ return r.json(); }}).then(function (j) {{
-        if (j && !j.running) {{ clearInterval(t); location.reload(); }}
+        if (j && !j.running) {{
+          clearInterval(t);
+          if (location.origin !== localOrigin) {{
+            // 在线页：跳到本机最新日报（刷新结果在本机）
+            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+            location.href = localOrigin + '/' + html.replace(/^.*[\\/]/, '');
+          }} else {{
+            location.reload();
+          }}
+        }}
       }}).catch(function () {{ clearInterval(t); resetRefreshBtns(); }});
     }}, 2500);
   }}
