@@ -1,4 +1,4 @@
-"""生成站点首页 index.html：最新日报/周报 + 历史归档列表（供 GitHub Pages 展示）。"""
+"""生成站点首页 index.html：最新日报 + 历史日报归档列表（供 GitHub Pages 展示）。"""
 
 from __future__ import annotations
 
@@ -16,31 +16,27 @@ def esc(v) -> str:
 
 def _scan(dir_path: str) -> List[dict]:
     files = os.listdir(dir_path) if os.path.isdir(dir_path) else []
-    daily, weekly = [], []
+    daily = []
     for f in files:
-        m = re.match(r"report_(\d{4}-\d{2}-\d{2})(_weekly)?\.html$", f)
+        m = re.match(r"report_(\d{4}-\d{2}-\d{2})\.html$", f)
         if not m:
             continue
-        item = {"date": m.group(1), "file": f, "is_weekly": bool(m.group(2))}
-        (weekly if item["is_weekly"] else daily).append(item)
+        daily.append({"date": m.group(1), "file": f})
     daily.sort(key=lambda x: x["date"], reverse=True)
-    weekly.sort(key=lambda x: x["date"], reverse=True)
-    return daily, weekly
+    return daily
 
 
 def build_site(dir_path: str) -> str:
-    daily, weekly = _scan(dir_path)
+    daily = _scan(dir_path)
     latest_daily = daily[0] if daily else None
-    latest_weekly = weekly[0] if weekly else None
 
     def card(item: dict) -> str:
-        label = "周报" if item["is_weekly"] else "日报"
         return (
             f'<a class="latest" href="{esc(item["file"])}">'
-            f'<b>{label}</b><span>{esc(item["date"])}</span></a>'
+            f'<b>日报</b><span>{esc(item["date"])}</span></a>'
         )
 
-    latest_html = (card(latest_daily) if latest_daily else "") + (card(latest_weekly) if latest_weekly else "")
+    latest_html = card(latest_daily) if latest_daily else ""
     if not latest_html:
         latest_html = '<div class="muted">暂无报告，等待首次生成</div>'
 
@@ -48,19 +44,25 @@ def build_site(dir_path: str) -> str:
         if not items:
             return ""
         rows = "".join(
-            f'<li><a href="{esc(it["file"])}">{esc(it["date"])}'
-            f'{"（周报）" if it["is_weekly"] else ""}</a></li>'
+            f'<li><a href="{esc(it["file"])}">{esc(it["date"])}</a></li>'
             for it in items
         )
         return f'<div class="sec-title">{esc(title)}</div><ul class="arch">{rows}</ul>'
 
-    arch_html = group("历史日报", daily[:30]) + group("历史周报", weekly[:20])
+    arch_html = group("历史日报", daily[:30])
+    # 最新日报全文内嵌：首页打开即可直接看到各平台数据（雪球/金十/同花顺等）
+    report_frame = ""
+    if latest_daily:
+        report_frame = (
+            f'<div class="sec-title">最新日报（{esc(latest_daily["date"])}）</div>'
+            f'<iframe class="report-frame" src="{esc(latest_daily["file"])}" loading="lazy"></iframe>'
+        )
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>舆论蒸馏日报 / 周报</title>
+<title>舆论蒸馏日报</title>
 <style>
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #24292f; line-height: 1.55; }}
@@ -73,6 +75,7 @@ def build_site(dir_path: str) -> str:
   .latest span {{ font-size: 13px; color: #57606a; }}
   .card {{ background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }}
   .sec-title {{ font-size: 15px; font-weight: 700; margin: 18px 0 8px; }}
+  .report-frame {{ width: 100%; height: 3200px; border: 1px solid #d8dee4; border-radius: 12px; background: #fff; }}
   ul.arch {{ list-style: none; }}
   ul.arch li {{ padding: 6px 0; border-bottom: 1px dashed #eaecef; }}
   ul.arch li:last-child {{ border-bottom: 0; }}
@@ -83,10 +86,11 @@ def build_site(dir_path: str) -> str:
 </head>
 <body>
 <div class="wrap">
-  <h1>舆论蒸馏日报 / 周报</h1>
+  <h1>舆论蒸馏日报</h1>
   <div class="sub">B站博主 · 股吧 · 雪球 · 同花顺 · 板块 · 金十 · 财联社 | 生成于 {esc(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}</div>
   <div class="latest-row">{latest_html}</div>
   <div class="card">{arch_html or '<div class="muted">暂无历史报告</div>'}</div>
+  {report_frame}
   <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口</footer>
 </div>
 </body>
