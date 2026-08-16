@@ -117,9 +117,10 @@
     <h1>当日舆论蒸馏日报</h1>
     <div style="margin-top:8px">
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
+      <span id="serve-status" class="muted" style="margin-left:8px"></span>
     </div>
     <div class="sub">2026-08-16 · 采集于 2026-08-16 10:52:26 · 数据源 7/7 正常</div>
-    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-16 00:00:00 → 2026-08-16 11:33:12（当天 00:00 起）</div>
+    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-16 00:00:00 → 2026-08-16 20:52:12（当天 00:00 起）</div>
     <div class="chips"><span class="src-chip" style="border-color:#f0a020">同花顺 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#fb7299">B站 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e6532a">股吧 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#3a8ee6">雪球 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e8a33d">金十 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#1f9d8a">财联社 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e0322b">东方财富 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span></div>
   </header>
 
@@ -353,6 +354,19 @@
     // 在线版（GitHub Pages）打开时同样会连回本机服务；刷新完成后自动跳到本机最新日报查看。
     return 'http://127.0.0.1:8651';
   }
+  function checkServe() {
+    fetch('http://127.0.0.1:8651/api/status')
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        var el = document.getElementById('serve-status');
+        if (el) { el.textContent = '本地服务已连接（点击即可实时刷新）'; el.style.color = '#1a9d57'; }
+      })
+      .catch(function () {
+        var el = document.getElementById('serve-status');
+        if (el) { el.textContent = '本地服务未连接：请先运行 python3 -m src.serve 再刷新'; el.style.color = '#c0392b'; }
+      });
+  }
+  checkServe();
   function refreshData(source) {
     var btn = document.getElementById('refresh-btn');
     var links = document.querySelectorAll('.refresh-link');
