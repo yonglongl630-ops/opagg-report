@@ -16,6 +16,7 @@
   .refresh-btn { border: 1px solid #5b6ee8; color: #5b6ee8; background: #fff; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer; }
   .refresh-btn:hover { background: #f0f4ff; }
   .refresh-btn:disabled { opacity: .6; cursor: wait; }
+  .api-input { width: 320px; max-width: 70%; padding: 5px 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
   .refresh-link { color: #5b6ee8; text-decoration: none; font-weight: 700; }
   .chip { display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
   .badge { display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }
@@ -119,8 +120,13 @@
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
       <span id="serve-status" class="muted" style="margin-left:8px"></span>
     </div>
+    <div id="api-config" style="margin-top:8px;display:none">
+      <input id="api-input" class="api-input" placeholder="粘贴刷新服务地址，如 http://192.168.1.8:8651 或 https://your-app.onrender.com">
+      <button class="refresh-btn" onclick="saveApiBase()">保存并连接</button>
+      <span class="muted" style="margin-left:6px">手机/云端无法刷新时：电脑运行 <code>python3 -m src.serve --lan</code> 填局域网地址，或部署云端后填云端域名</span>
+    </div>
     <div class="sub">2026-08-16 · 采集于 2026-08-16 23:26:50 · 数据源 7/7 正常</div>
-    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-16 00:00:00 → 2026-08-16 23:27:17（当天 00:00 起）</div>
+    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-16 00:00:00 → 2026-08-17 19:22:52（当天 00:00 起）</div>
     <div class="chips"><span class="src-chip" style="border-color:#f0a020">同花顺 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#fb7299">B站 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e6532a">股吧 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#3a8ee6">雪球 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e8a33d">金十 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#1f9d8a">财联社 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#e0322b">东方财富 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span></div>
   </header>
 
@@ -288,7 +294,7 @@
         </div>
     </div>
     
-        <details class="up-detail" open>
+        <details class="up-detail">
           <summary><b>笨笨的韭菜</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
           <div class="up-tabs">视频分析（窗口内近期视频）</div>
           <div class="up-grid">
@@ -307,7 +313,7 @@
           <div class="up-tabs">充电信息分析</div>
           <div class="muted">本月充电 <b>4.6万</b> 人次 · 窗口内充电专属动态 1 条（赞 205 · 评 99），全文已解锁，见最近动态</div>
         </details>
-        <details class="up-detail" open>
+        <details class="up-detail">
           <summary><b>史诗级韭菜</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
           <div class="up-tabs">视频分析（窗口内近期视频）</div>
           <div class="up-grid">
@@ -326,7 +332,7 @@
           <div class="up-tabs">充电信息分析</div>
           <div class="muted">本月充电 <b>1.9万</b> 人次 · 窗口内暂无充电专属动态</div>
         </details>
-        <details class="up-detail" open>
+        <details class="up-detail">
           <summary><b>海螺复盘</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
           <div class="up-tabs">视频分析（窗口内近期视频）</div>
           <div class="up-grid">
@@ -340,7 +346,7 @@
           <div class="up-tabs">充电信息分析</div>
           <div class="muted">本月充电 <b>1103</b> 人次 · 窗口内暂无充电专属动态</div>
         </details>
-        <details class="up-detail" open>
+        <details class="up-detail">
           <summary><b>星话大白</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
           <div class="up-tabs">视频分析（窗口内近期视频）</div>
           <div class="up-grid">
@@ -365,20 +371,48 @@
   <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 2026-08-16 23:26:50 · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
   <script>
   function refreshBase() {
-    // 「立即刷新」固定调用本机服务（python3 -m src.serve，端口 8651）。
-    // 在线版（GitHub Pages）打开时同样会连回本机服务；刷新完成后自动跳到本机最新日报查看。
+    // 同一来源优先：http/https 打开时直接用当前域名（局域网 IP 或云端域名），手机端同源可用。
+    if (location.protocol === 'http:' || location.protocol === 'https:') {
+      return location.origin;
+    }
+    // file:// 打开时：优先 ?api= 参数（并记住），其次 localStorage 保存的地址，最后本机默认。
+    var q = new URLSearchParams(location.search).get('api');
+    if (q) {
+      try { localStorage.setItem('opagg_api', q); } catch (e) {}
+      return q.replace(/\/+$/, '');
+    }
+    try {
+      var saved = localStorage.getItem('opagg_api');
+      if (saved) { return saved.replace(/\/+$/, ''); }
+    } catch (e) {}
     return 'http://127.0.0.1:8651';
   }
+  function showApiConfig() {
+    var el = document.getElementById('api-config');
+    if (el) { el.style.display = 'block'; }
+    var inp = document.getElementById('api-input');
+    if (inp && !inp.value) { inp.value = refreshBase(); }
+  }
+  function saveApiBase() {
+    var v = (document.getElementById('api-input').value || '').trim().replace(/\/+$/, '');
+    if (!v) { return; }
+    try { localStorage.setItem('opagg_api', v); } catch (e) {}
+    checkServe();
+    var st = document.getElementById('serve-status');
+    if (st) { st.textContent = '已保存刷新地址：' + v + '，正在探测…'; st.style.color = '#9a6b1f'; }
+  }
   function checkServe() {
-    fetch('http://127.0.0.1:8651/api/status')
+    var base = refreshBase();
+    fetch(base + '/api/status')
       .then(function (r) { return r.json(); })
       .then(function () {
         var el = document.getElementById('serve-status');
-        if (el) { el.textContent = '本地服务已连接（点击即可实时刷新）'; el.style.color = '#1a9d57'; }
+        if (el) { el.textContent = '刷新服务已连接：' + base + '（点击即可实时刷新）'; el.style.color = '#1a9d57'; }
       })
       .catch(function () {
         var el = document.getElementById('serve-status');
-        if (el) { el.textContent = '本地服务未连接：请先运行 python3 -m src.serve 再刷新'; el.style.color = '#c0392b'; }
+        if (el) { el.textContent = '刷新服务未连接：' + base + '（点上方“保存并连接”可配置手机/云端地址）'; el.style.color = '#c0392b'; }
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') { showApiConfig(); }
       });
   }
   checkServe();
@@ -389,44 +423,48 @@
     if (btn) { btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }
     var m = (location.pathname || '').match(/report_(\d{4}-\d{2}-\d{2})/);
     var date = m ? m[1] : '';
-    if (location.protocol !== 'http:' && location.protocol !== 'https:') {
-      // file:// 打开：先探测本地服务，可达则跳转到服务版页面并自动刷新（同源最稳）
-      fetch('http://127.0.0.1:8651/api/status', { method: 'GET' })
+    var base = refreshBase();
+    if ((location.protocol !== 'http:' && location.protocol !== 'https:') && base.indexOf('127.0.0.1') >= 0) {
+      // file:// 且未配置地址：先探测本机服务，可达则跳转到服务版页面并自动刷新（同源最稳）
+      fetch(base + '/api/status', { method: 'GET' })
         .then(function () {
           var f = (location.pathname || '').split('/').pop() || ('report_' + date + '.html');
-          location.href = 'http://127.0.0.1:8651/' + f + '?refresh=1';
+          location.href = base + '/' + f + '?refresh=1';
         })
         .catch(function () {
-          alert('本地刷新服务未运行。请先运行 python3 -m src.serve --open（或执行 deploy/install_serve.sh 安装开机自启），再点刷新');
+          alert('刷新服务未连接（' + base + '）。
+手机/云端使用：点页面上方“保存并连接”，填局域网地址 http://<电脑IP>:8651（电脑运行 python3 -m src.serve --lan）或云端域名；
+电脑本地：运行 python3 -m src.serve --open');
+          showApiConfig();
           resetRefreshBtns();
         });
       return;
     }
-    fetch(refreshBase() + '/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date), { method: 'POST' })
+    fetch(base + '/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date), { method: 'POST' })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (j && j.ok) { pollRefresh(); }
         else { alert('刷新启动失败：' + (j && j.error ? j.error : '未知错误')); resetRefreshBtns(); }
       })
       .catch(function () {
-        alert('无法连接本地刷新服务。请先在终端运行：python3 -m src.serve --open（会自动打开 http://127.0.0.1:8651 的日报），再点刷新');
+        alert('无法连接刷新服务（' + base + '）。请确认服务已运行：本机 python3 -m src.serve --lan；云端部署后把域名填到“保存并连接”。');
+        showApiConfig();
         resetRefreshBtns();
       });
   }
   function pollRefresh() {
     var base = refreshBase();
-    var localOrigin = 'http://127.0.0.1:8651';
     var t = setInterval(function () {
       fetch(base + '/api/status').then(function (r) { return r.json(); }).then(function (j) {
         if (j && !j.running) {
           clearInterval(t);
-          if (location.origin !== localOrigin) {
-            // 在线页：跳到本机最新日报（刷新结果在本机）
-            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
-            location.href = localOrigin + '/' + html.replace(/^.*[\/]/, '');
+          if (location.protocol === 'http:' || location.protocol === 'https:') {
+            // 同源（局域网/云端页面）：带时间戳重载当前页
+            location.href = location.pathname + '?t=' + Date.now();
           } else {
-            // 本机服务页：去掉 ?refresh=1 后重载，避免再次自动刷新
-            location.href = location.pathname;
+            // file:// 或跨源：跳到服务端最新日报
+            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+            location.href = base + '/' + html.replace(/^.*[\/]/, '');
           }
         }
       }).catch(function () { clearInterval(t); resetRefreshBtns(); });
