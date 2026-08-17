@@ -161,16 +161,35 @@ class BilibiliClient:
             "official": ((card.get("Official") or {}).get("title", "") or ""),
         }
 
-    def dynamics(self, mid: int, limit: int = 10, since_ts: Optional[int] = None) -> List[Dict[str, Any]]:
+    def dynamics(
+        self,
+        mid: int,
+        limit: int = 10,
+        since_ts: Optional[int] = None,
+        stats: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
         """up主最近动态（文字/图文/转发/投稿/充电专属），带 WBI 签名。
 
         since_ts 非空时只返回窗口内的动态，避免混入历史信息。
+        stats 非空时填充 {"ok": bool, "error": str, "charge_count": int}，
+        用于区分“接口被风控”与“窗口内确实无动态”。
         """
+        if stats is not None:
+            stats["ok"] = False
+            stats["error"] = ""
+            stats["charge_count"] = 0
         if not mid or not self._ensure():
+            if stats is not None:
+                stats["error"] = "B站会话初始化失败"
             return []
         out: List[Dict[str, Any]] = []
         offset = ""
-        while len(out) < limit:
+        charge_count = 0
+        hard_fail = False
+        pages = 0
+        max_total = max(limit, limit * 3) if since_ts else limit
+        while len(out) < max_total and pages < 8:
+            pages += 1
             params = {
                 "host_mid": mid,
                 "timezone_offset": -480,
@@ -182,27 +201,43 @@ class BilibiliClient:
                 params.pop("offset")
             url = self._signed(f"{API}/x/polymer/web-dynamic/v1/feed/space", params)
             items = []
-            for attempt in range(3):
+            d = {}
+            for attempt in range(4):
                 data = self._get_json(url, referer=f"https://space.bilibili.com/{mid}/dynamic")
                 d = (data or {}).get("data") or {}
                 items = d.get("items") or []
                 if items:
                     break
-                time.sleep(1.5)
+                code = (data or {}).get("code")
+                if code == -352 or data is None:
+                    hard_fail = True
+                    time.sleep(2.0 + attempt)
+                else:
+                    time.sleep(1.5)
             if not items:
+                if hard_fail and stats is not None:
+                    stats["error"] = "动态接口被风控拦截（-352），未取到动态"
                 break
             for it in items:
+                basic = it.get("basic") or {}
+                pub_ts_it = int((((it.get("modules") or {}).get("module_author") or {}).get("pub_ts", 0) or 0))
+                in_window = (not since_ts) or (pub_ts_it >= since_ts)
+                if basic.get("is_only_fans") and in_window:
+                    charge_count += 1
                 post = self._dynamic_item(it, mid)
                 if post:
                     if since_ts and int(post.get("ts", 0) or 0) < since_ts:
                         continue
                     out.append(post)
-                if len(out) >= limit:
+                if len(out) >= max_total:
                     break
             offset = d.get("offset", "")
             if not d.get("has_more") or not offset:
                 break
             time.sleep(1.0)
+        if stats is not None:
+            stats["ok"] = bool(out) or not hard_fail
+            stats["charge_count"] = charge_count
         return out
 
     @staticmethod
@@ -437,97 +472,131 @@ class BilibiliClient:
             except Exception:  # noqa: BLE001
                 registry_cookies = {}
             for up in b.get("upmasters", []):
-                mid = up.get("mid")
-                name = up.get("name", "")
-                up_cookie = str(up.get("cookie", "") or "").strip() or registry_cookies.get(str(mid), "")
-                client = self
-                if up_cookie and up_cookie != global_cookie:
-                    client = BilibiliClient({**b, "cookie": up_cookie})
-                card = client.user_card(mid) if mid else None
-                time.sleep(0.8)
-                videos = client.up_videos(name, mid, video_limit)
-                if since_ts:
-                    before = len(videos)
-                    videos = [v for v in videos if int(v.get("ts", 0) or 0) >= since_ts]
-                    if before > len(videos):
-                        log.info("up主 %s 窗口过滤视频: %d -> %d", name, before, len(videos))
-                seen_mid = seen.get(str(mid), {})
-                seen_vids = set(seen_mid.get("videos", []) or [])
-                videos = [v for v in videos if (v.get("extra", {}) or {}).get("bvid", "") not in seen_vids]
-                enriched = []
-                for v in videos:
-                    bvid = v.get("extra", {}).get("bvid", "")
-                    info = None
-                    for attempt in range(2):
-                        try:
-                            info = client.video_info(bvid)
-                            if info and info.get("data"):
-                                break
-                            time.sleep(1.5)
-                        except Exception:  # noqa: BLE001
-                            time.sleep(1.5)
-                    time.sleep(interval)
-                    if not info or not info.get("data"):
-                        log.warning("视频详情获取失败，跳过: %s", bvid)
-                        continue
-                    aid = ((info or {}).get("data") or {}).get("aid", 0)
-                    comments: List[Dict[str, Any]] = []
-                    for attempt in range(2):
-                        comments = client.comments(aid, b.get("comment_limit_per_video", 20))
-                        if comments or attempt == 2:
-                            break
-                        time.sleep(1.5)
-                    for c in comments:
-                        c.setdefault("extra", {})["bvid"] = bvid
-                    time.sleep(interval)
-                    v["comments_list"] = comments
-                    v["comments"] = len(comments) or int((info.get("data") or {}).get("stat", {}).get("reply", 0) or 0)
-                    v["extra"]["aid"] = aid
-                    v["extra"]["stat"] = ((info or {}).get("data") or {}).get("stat", {})
-                    enriched.append(v)
-                    posts.append(v)
-                    posts += comments
-                dyn_posts: List[Dict[str, Any]] = []
-                if mid:
-                    try:
-                        dyn_posts = client.dynamics(mid, dynamic_limit, since_ts=since_ts)
-                        seen_dyns = set(seen_mid.get("dynamics", []) or [])
-                        dyn_posts = [
-                            d for d in dyn_posts
-                            if (d.get("extra", {}) or {}).get("dyn_id", "") not in seen_dyns
-                        ]
-                        posts += dyn_posts
-                    except Exception as e:  # noqa: BLE001
-                        log.warning("up主 %s 动态采集失败: %s", name, e)
-                    time.sleep(interval)
-                charging = None
-                if mid:
-                    try:
-                        charging = client.charging_rank(mid, charging_limit)
-                    except Exception as e:  # noqa: BLE001
-                        log.warning("up主 %s 充电榜采集失败: %s", name, e)
-                    time.sleep(interval)
-                up_data.append({
-                    "name": name or f"mid:{mid}",
-                    "mid": mid,
-                    "uid": up.get("uid") or mid,
-                    "cookie": up.get("cookie", ""),
-                    "cookie_configured": bool(up_cookie),
-                    "url": up.get("url", "") or (f"https://space.bilibili.com/{mid}" if mid else ""),
-                    "avatar": (card or {}).get("avatar", "") or up.get("avatar", ""),
-                    "sign": (card or {}).get("sign", ""),
-                    "fans": (card or {}).get("fans", 0),
-                    "tags": up.get("tags", []),
-                    "notes": up.get("notes", ""),
-                    "enabled": up.get("enabled", True),
-                    "keywords": up.get("keywords", []),
-                    "videos": enriched,
-                    "dynamics": dyn_posts,
-                    "charging": charging,
-                })
+                try:
+                    entry = self._collect_upmaster(
+                        up, b, global_cookie, registry_cookies,
+                        since_ts, seen, posts, interval, video_limit, dynamic_limit, charging_limit,
+                    )
+                    if entry:
+                        up_data.append(entry)
+                except Exception as e:  # noqa: BLE001
+                    log.warning("up主 %s 采集失败，跳过: %s", up.get("name", ""), e)
+                    errors.append(f"up主 {up.get('name', '')}: {e}")
             items["upmasters"] = up_data
         except Exception as e:  # noqa: BLE001
             errors.append(f"up主: {e}")
 
         status = "error" if (not posts and errors) else ("partial" if errors else "ok")
         return {"status": status, "error": "；".join(errors), "posts": posts, "items": items}
+
+    def _collect_upmaster(
+        self,
+        up: Dict[str, Any],
+        b: Dict[str, Any],
+        global_cookie: str,
+        registry_cookies: Dict[str, str],
+        since_ts: Optional[int],
+        seen: Dict[str, Dict[str, List[str]]],
+        posts: List[Dict[str, Any]],
+        interval: float,
+        video_limit: int,
+        dynamic_limit: int,
+        charging_limit: int,
+    ) -> Optional[Dict[str, Any]]:
+        """采集单个 up主（视频+评论+动态+充电），失败由调用方隔离，不影响其他 up主。"""
+        mid = up.get("mid")
+        name = up.get("name", "")
+        if not mid:
+            return None
+        up_cookie = str(up.get("cookie", "") or "").strip() or registry_cookies.get(str(mid), "")
+        client = self
+        if up_cookie and up_cookie != global_cookie:
+            client = BilibiliClient({**b, "cookie": up_cookie})
+        card = client.user_card(mid) if mid else None
+        time.sleep(0.8)
+        videos = client.up_videos(name, mid, video_limit)
+        if since_ts:
+            before = len(videos)
+            videos = [v for v in videos if int(v.get("ts", 0) or 0) >= since_ts]
+            if before > len(videos):
+                log.info("up主 %s 窗口过滤视频: %d -> %d", name, before, len(videos))
+        seen_mid = seen.get(str(mid), {})
+        seen_vids = set(seen_mid.get("videos", []) or [])
+        videos = [v for v in videos if (v.get("extra", {}) or {}).get("bvid", "") not in seen_vids]
+        enriched = []
+        for v in videos:
+            bvid = v.get("extra", {}).get("bvid", "")
+            info = None
+            for attempt in range(2):
+                try:
+                    info = client.video_info(bvid)
+                    if info and info.get("data"):
+                        break
+                    time.sleep(1.5)
+                except Exception:  # noqa: BLE001
+                    time.sleep(1.5)
+            time.sleep(interval)
+            if not info or not info.get("data"):
+                log.warning("视频详情获取失败，跳过: %s", bvid)
+                continue
+            aid = ((info or {}).get("data") or {}).get("aid", 0)
+            comments: List[Dict[str, Any]] = []
+            for attempt in range(2):
+                comments = client.comments(aid, b.get("comment_limit_per_video", 20))
+                if comments or attempt == 2:
+                    break
+                time.sleep(1.5)
+            for c in comments:
+                c.setdefault("extra", {})["bvid"] = bvid
+            time.sleep(interval)
+            v["comments_list"] = comments
+            v["comments"] = len(comments) or int((info.get("data") or {}).get("stat", {}).get("reply", 0) or 0)
+            v["extra"]["aid"] = aid
+            v["extra"]["stat"] = ((info or {}).get("data") or {}).get("stat", {})
+            enriched.append(v)
+            posts.append(v)
+            posts += comments
+        dyn_posts: List[Dict[str, Any]] = []
+        dyn_stats: Dict[str, Any] = {"ok": True, "error": "", "charge_count": 0}
+        if mid:
+            try:
+                dyn_posts = client.dynamics(mid, dynamic_limit, since_ts=since_ts, stats=dyn_stats)
+                seen_dyns = set(seen_mid.get("dynamics", []) or [])
+                dyn_posts = [
+                    d for d in dyn_posts
+                    if (d.get("extra", {}) or {}).get("dyn_id", "") not in seen_dyns
+                ]
+                posts += dyn_posts
+            except Exception as e:  # noqa: BLE001
+                log.warning("up主 %s 动态采集失败: %s", name, e)
+                dyn_stats["ok"] = False
+                dyn_stats["error"] = str(e)
+            time.sleep(interval)
+        charging = None
+        if mid:
+            try:
+                charging = client.charging_rank(mid, charging_limit)
+            except Exception as e:  # noqa: BLE001
+                log.warning("up主 %s 充电榜采集失败: %s", name, e)
+            time.sleep(interval)
+        return {
+            "name": name or f"mid:{mid}",
+            "mid": mid,
+            "uid": up.get("uid") or mid,
+            "cookie": up.get("cookie", ""),
+            "cookie_configured": bool(up_cookie),
+            "url": up.get("url", "") or (f"https://space.bilibili.com/{mid}" if mid else ""),
+            "avatar": (card or {}).get("avatar", "") or up.get("avatar", ""),
+            "sign": (card or {}).get("sign", ""),
+            "fans": (card or {}).get("fans", 0),
+            "tags": up.get("tags", []),
+            "notes": up.get("notes", ""),
+            "enabled": up.get("enabled", True),
+            "keywords": up.get("keywords", []),
+            "videos": enriched,
+            "dynamics": dyn_posts,
+            "charging": charging,
+            "dynamics_ok": dyn_stats.get("ok", True),
+            "dynamics_error": dyn_stats.get("error", ""),
+            "charge_dyn_count": int(dyn_stats.get("charge_count", 0) or 0),
+        }

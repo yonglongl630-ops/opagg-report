@@ -36,7 +36,6 @@ DEFAULTS: Dict[str, Any] = {
     "em": {"enabled": True, "hot_limit": 10},
     "scheduler": {
         "daily_enabled": False,   # 停止每日自动采集（用日报页「立即刷新」手动更新）
-        "weekly_enabled": True,   # 保留周日周报
     },
     "distill": {
         "top_keywords": 24,

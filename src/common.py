@@ -86,7 +86,8 @@ class Session:
                 if resp.headers.get("Content-Encoding") == "gzip":
                     raw = gzip.decompress(raw)
                 return raw
-            except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+            # Python 3.9 中 socket.timeout 不是 TimeoutError 子类，用 OSError 兜底
+            except (urllib.error.HTTPError, urllib.error.URLError, OSError) as e:
                 last_err = e
                 if attempt < self.retries:
                     time.sleep(0.8 * (attempt + 1))

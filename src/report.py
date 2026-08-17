@@ -139,6 +139,13 @@ def _dyn_html(d: Dict[str, Any]) -> str:
     )
 
 
+def _dyn_empty(u: Dict[str, Any]) -> str:
+    """最近动态为空时的说明：区分“确实无”与“接口被风控未取到”。"""
+    if not u.get("dynamics_ok", True):
+        return "动态接口被风控拦截（-352），未取到动态；配置 B站 cookie 后可解锁（含充电专属内容）"
+    return "无"
+
+
 def _pct_badge(pct: Any) -> str:
     try:
         v = float(pct or 0)
@@ -321,19 +328,30 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             d for d in (u.get("dynamics") or [])
             if (d.get("extra") or {}).get("charge_exclusive")
         ]
-        charge_dyn_n = len(charge_dyns)
+        charge_dyn_n = int(u.get("charge_dyn_count", 0) or 0) or len(charge_dyns)
         charge_dyn_likes = sum(int(d.get("likes", 0) or 0) for d in charge_dyns)
         charge_dyn_comments = sum(int(d.get("comments", 0) or 0) for d in charge_dyns)
+        charge_locked = any("仅充电用户可见" in (d.get("content") or "") for d in charge_dyns)
         charging_html = ""
         if charging:
+            if not u.get("dynamics_ok", True):
+                charge_state = "动态接口被风控拦截（-352），未取到动态；配置 B站 cookie 后可解锁充电专属内容"
+            elif charge_dyn_n:
+                if charge_locked:
+                    charge_state = (
+                        f"窗口内充电专属动态 {charge_dyn_n} 条（🔒内容需 B站 cookie 解锁后展示全文）"
+                    )
+                else:
+                    charge_state = (
+                        f"窗口内充电专属动态 {charge_dyn_n} 条"
+                        + (f"（赞 {fmt_num(charge_dyn_likes)} · 评 {fmt_num(charge_dyn_comments)}）" if charge_dyns else "")
+                        + "，全文已解锁，见最近动态"
+                    )
+            else:
+                charge_state = "窗口内暂无充电专属动态"
             charging_html = (
                 f'<div class="muted">本月充电 <b>{fmt_num(charging.get("total"))}</b> 人次'
-                + (
-                    f" · 窗口内充电专属动态 {charge_dyn_n} 条"
-                    + (f"（赞 {fmt_num(charge_dyn_likes)} · 评 {fmt_num(charge_dyn_comments)}）" if charge_dyn_n else "")
-                    if charge_dyn_n
-                    else " · 窗口内暂无充电专属动态"
-                )
+                + f" · {charge_state}"
                 + "</div>"
             )
         elif u.get("mid"):
@@ -377,7 +395,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
           </div>
         </div>"""
         up_details += f"""
-        <details class="up-detail">
+        <details class="up-detail" open>
           <summary><b>{esc(u.get('name', ''))}</b> — 视频分析 / 最近动态(近3条) / 评论汇总 / 充电分析</summary>
           <div class="up-tabs">视频分析（窗口内近期视频）</div>
           <div class="up-grid">
@@ -385,7 +403,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             <div>{ca_html}</div>
           </div>
           <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
-          {dyns or '<div class="muted">无</div>'}
+          {dyns or f'<div class="muted">{_dyn_empty(u)}</div>'}
           <div class="up-tabs">高赞金句</div>
           {quotes or '<div class="muted">无</div>'}
           <div class="up-tabs">充电信息分析</div>

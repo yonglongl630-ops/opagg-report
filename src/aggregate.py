@@ -105,6 +105,25 @@ def collect_day(
             "count": len(posts),
             "elapsed_ms": int((time.time() - t0) * 1000),
         }
+        # 持续取数兜底：本次采集失败/无数据时，回退到上次成功的缓存，避免日报数据被清空
+        if (not posts or out.get("status") == "error") and name in cached.get("sources", {}):
+            cached_posts = [
+                p for p in (cached.get("posts", []) or [])
+                if p.get("source") == name
+            ]
+            cached_items = (cached.get("items", {}) or {}).get(name, {}) or {}
+            if cached_posts or cached_items:
+                log.warning("数据源 %s 本次采集失败（%s），回退到上次缓存 %d 条", name, out.get("status"), len(cached_posts))
+                result["posts"] = [p for p in result["posts"] if p.get("source") != name] + cached_posts
+                result["items"][name] = cached_items
+                result["sources"][name] = {
+                    "label": SOURCE_LABELS.get(name, name),
+                    "status": "partial",
+                    "error": (out.get("error") or "") + "（已回退上次缓存）",
+                    "count": len(cached_posts),
+                    "elapsed_ms": int((time.time() - t0) * 1000),
+                }
+                posts = cached_posts
         log.info("%s 采集完成: %s (%d 条)", name, out.get("status"), len(posts))
     if need:
         result["collected_at"] = now_str()
