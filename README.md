@@ -1,6 +1,6 @@
-# 当日舆论聚合与蒸馏日报
+# 当日舆论聚合与蒸馏日报 / 周报
 
-用 Codex 实现的多平台舆论聚合系统：采集 **B站（热搜/排行/搜索/up主视频/动态/评论）、股吧、雪球、同花顺、金十快讯、财联社、东方财富**，自动提炼**热词、情绪、热点主题**，对配置的 **up主** 做观点蒸馏（立场、金句、关键词、动态），并生成**HTML 日报**。
+用 Codex 实现的多平台舆论聚合系统：采集 **B站（热搜/排行/搜索/up主视频/动态/评论）、股吧、雪球、同花顺、金十快讯、财联社**，自动提炼**热词、梗、情绪、热点主题**，对配置的 **up主** 做观点蒸馏（立场、金句、关键词、动态），并生成**日报 + 周日周报**。
 
 ## 快速开始
 
@@ -8,12 +8,14 @@
 python3 run.py                        # 采集今日全部数据源并生成 HTML 日报
 python3 run.py --date 2026-08-13      # 从缓存重新蒸馏某天
 python3 run.py --sources jin10 --no-cache   # 只重取金十（其他源保留缓存）
+python3 run.py --weekly               # 生成本周周报
 python3 run.py --open                 # 生成后打开浏览器
 ```
 
 生成结果：
 
 - 日报：`output/report_YYYY-MM-DD.html`
+- 周报：`output/report_YYYY-MM-DD_weekly.html`（锚点为当周周日）
 - 原始数据：`data/raw/YYYY-MM-DD.json`
 - 蒸馏结果：`data/summary/YYYY-MM-DD.json`
 
@@ -86,7 +88,7 @@ python3 -m src.upmaster_lib refresh --mid <uid> --videos 5 --dynamics 10   # 归
 
 `config.json → distill.exclude_authors_from_topics` 配置要从"今日热门话题"剔除的博主名（如 `["巫师财经"]`），这些作者的内容不再进入话题聚类，但 up主 分析照常保留。
 
-**自学 skill**：`skills/upmaster-selflearn/` 是给 Codex 使用的 skill，说明如何从 up主 历史视频/动态/评论中学习其风格并更新画像。日报 up主 区块会展示头像、标签、风格关键词、近期视频、最近动态与高赞金句。
+**自学 skill**：`skills/upmaster-selflearn/` 是给 Codex 使用的 skill，说明如何从 up主 历史视频/动态/评论中学习其风格并更新画像。日报 up主 区块会展示头像、标签、风格关键词、近期视频、最近动态与高赞金句；周报展示 up主 一周观点走势。
 
 ### B站 uid 与 cookie
 
@@ -117,47 +119,40 @@ up主 卡片细节（默认展开）：**视频分析**（窗口内近期视频 
 ## 定时运行与「立即刷新」
 
 > 默认已停止每日自动采集（`config.json → scheduler.daily_enabled=false`），
-> 改为查看日报时点击页面上的 **🔄 立即刷新** 按钮实时重采集。
+> 改为查看日报时点击页面上的 **🔄 立即刷新** 按钮实时重采集；**周日周报保留**（`weekly_enabled=true`）。
 
 调度器内置 A股交易日历（`data/trading_calendar.json`，含 2026 官方休市安排，跨年后请更新）：
 
 ```bash
 python3 scheduler.py --once                            # 采集一次并生成日报
+python3 scheduler.py --weekly --date 2026-08-16        # 生成周报
 python3 scheduler.py --is-trading-day                  # 判断今天是否交易日（0=是，1=否）
-python3 scheduler.py --next-run                        # 预览下次日报运行时间
+python3 scheduler.py --next-run                        # 预览下次日报/周报运行时间
 python3 scheduler.py --once --force                    # 手动强制跑一次日报
 python3 scheduler.py --once --refresh-upmasters        # 采集前先归档 up主素材
 ```
 
-日报页「立即刷新」依赖一个本地常驻服务（默认已开机自启，无需手动启动）：
+日报页「立即刷新」需要本地服务（页面按钮会自动提示启动方式）：
 
 ```bash
-python3 -m src.serve            # 手动启动 http://127.0.0.1:8651（提供日报 + /api/refresh 刷新接口）
+python3 -m src.serve            # 启动 http://127.0.0.1:8651（提供日报 + /api/refresh 刷新接口）
 python3 -m src.serve --open     # 启动并打开日报
-bash deploy/install_serve.sh    # 安装开机自启（登录后自动用 Terminal 启动服务）
-bash deploy/install_serve.sh --uninstall   # 卸载自启
 ```
-
-> 说明：页面用 `file://` 打开时，点【立即刷新】会自动跳转到
-> `http://127.0.0.1:8651/report_YYYY-MM-DD.html?refresh=1`（服务版页面）并自动执行刷新；
-> 刷新完成后回到当前日期日报。服务通过 Terminal 启动，登录后会出现一个常驻终端窗口
-> （关闭窗口即停止服务；若不想看到窗口，可在系统设置给 python3 授予「完全磁盘访问权限」后改用后台方式）。
 
 如需重新开启 macOS launchd 定时任务（会写入 `~/Library/LaunchAgents`）：
 
 ```bash
-bash deploy/install_launchd.sh            # 默认不安装任何定时任务
+bash deploy/install_launchd.sh            # 仅安装周报（默认）
 bash deploy/install_launchd.sh --daily    # 同时安装每日 8:00/18:00 日报
 launchctl list | grep opagg
 ```
 
-> 周报已移除。`deploy/install_launchd.sh` 默认不安装任何任务（周报/日报均已剔除），
-> 如需开启每日 8:00 / 18:00 日报定时，执行 `bash deploy/install_launchd.sh --daily`。
-> 也可用 Codex 自动化、cron 或 `--interval-minutes` 循环模式替代。
+对应配置：`deploy/launchd/com.opagg.daily.plist`（每天 8:00 / 18:00 触发，非交易日自动跳过，需 `--daily` 才安装）、`com.opagg.weekly.plist`（周日 15:00 周报）。也可用 Codex 自动化、cron 或 `--interval-minutes` 循环模式替代。
 
 ## 公网网址（GitHub Pages，与「破线监控」同款）
 
-利用 GitHub 免费提供的 Pages：**日报在本地生成后一键发布**，任何设备浏览器直接访问网址即可。
+利用 GitHub 免费提供的 Actions + Pages：**日报在本地生成后一键发布**，**周报由 GitHub 云端周日自动生成**，
+任何设备浏览器直接访问网址即可，Mac 关机也不影响周报。
 
 部署步骤：
 
@@ -169,13 +164,14 @@ launchctl list | grep opagg
 cd "/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论"
 git init -b main
 git add .
-git commit -m "舆论蒸馏日报系统"
+git commit -m "舆论蒸馏日报周报系统"
 git remote add origin https://github.com/你的用户名/opagg-report.git
 git push -u origin main
 ```
 
 > 含敏感 cookie 的 `config.json`、`data/secrets.json`、`data/upmasters/registry.json` 已被 `.gitignore` 排除，不会上传。
-> 生成类数据（`output/`、`data/raw|summary`）不入库，由本地发布脚本打包到 gh-pages 存档。
+> 云端使用仓库内的脱敏配置 `config.workflow.json`（cookie 为空、`scheduler.daily_enabled=true`），
+> `src/config.py` 在缺少 `config.json` 时自动回退到它。生成类数据（`output/`、`data/raw|summary`）同样不入库，由云端打包到 gh-pages 存档供周报/缓存使用。
 
 4. 开启 Pages：仓库页面 **Settings → Pages**，Source 选 **Deploy from a branch**，分支选 `gh-pages`、目录 `/ (root)`，点 Save
 5. 等 1~2 分钟，访问（替换成自己的用户名和仓库名）：
@@ -184,11 +180,24 @@ git push -u origin main
 https://yonglongl630-ops.github.io/opagg-report/
 ```
 
-### 发布在线版（GitHub Pages）
+### 云端定时与 Cookie
 
-**日报不设定时、也不由云端生成**（GitHub 服务器 IP 会被雪球 WAF 拦截）：
-本地打开日报页点击「🔄 立即刷新」实时采集（`python3 -m src.serve`），
-再点「☁️ 发布在线版」一键推到网址（执行 `deploy/gh_pages_push.sh`），手机即可查看。
+`.github/workflows/publish.yml` 已内置调度：
+
+- 周日 15:00（北京时间）云端自动生成周报（15 分钟后兜底），并保留 gh-pages 上已有的日报
+- **日报不设定时、也不由云端生成**（GitHub 服务器 IP 会被雪球 WAF 拦截）：本地打开日报页
+  点击「🔄 立即刷新」实时采集（`python3 -m src.serve`），再点「☁️ 发布在线版」一键推到网址，
+  手机即可查看；本地数据（含雪球热帖/热股）会一起打包进 gh-pages 存档，供周报汇总使用
+
+若希望云端也采集雪球热帖/B站动态，在仓库 **Settings → Secrets and variables → Actions** 添加：
+
+| Secret | 值 |
+| --- | --- |
+| `XUEQIU_COOKIE` | 雪球登录 cookie（可选；没有则雪球降级） |
+| `BILI_COOKIE` | B站登录 cookie（可选；改善动态/评论采集） |
+
+工作流每次会先拉取 gh-pages 上的 `data.tar.gz`（历史原始数据/摘要）与既有日报，跑完周报后重新打包发布，
+保证周报能汇总一周数据、日报文件不被覆盖。
 
 ## 配置（config.json）
 
@@ -205,19 +214,8 @@ https://yonglongl630-ops.github.io/opagg-report/
 | `jin10.*` / `cls.*` | 金十快讯 / 财联社电报条数；热门话题分别取热点头条/热门文章 |
 | `em.*` | 东方财富：人气榜/领涨概念/热门搜索条数 |
 | `xueqiu.cookie` | 可选：雪球登录 cookie |
-| `scheduler.daily_enabled` | 是否启用每日定时日报（默认 false，改用「立即刷新」） |
+| `scheduler.daily_enabled` | 是否启用每日定时日报（默认 false，改用「立即刷新」；周报不受影响） |
 | `distill.*` | 蒸馏参数：热词数、梗数、最低频次等 |
-
-### B站充电动态/评论稳定采集（cookie 配置）
-
-充电专属动态与评论需要**登录态**才能取到全文：
-
-1. 浏览器登录 bilibili.com（建议勾选“记住登录状态”），打开开发者工具（F12）→ Network → 任选一个 `api.bilibili.com` 请求 → 复制 `Cookie` 请求头。
-2. 全局配置：把 `SESSDATA=...; bili_jct=...`（连同 `buvid3` 等一并）填入 `config.json → bilibili.cookie`。
-3. 或只给单个 up主 配置：`python3 -m src.upmaster_lib update --mid 11473291 --cookie "SESSDATA=...; bili_jct=..."`。
-4. 重采：`python3 run.py --no-cache --sources bilibili`。
-
-说明：不需要长期保持浏览器/账号在线，cookie 有效期通常较长；失效后重新复制一次即可。若某 up主 的充电内容仍不可见，请确认该 B站账号已对该 up主 充电（有查看权限）。未配置 cookie 时，日报会如实标注“充电专属动态存在但内容锁定”或“动态接口被风控拦截（-352）”，不会把缺失伪装成“无”。
 
 ## 数据源可用性
 
@@ -263,14 +261,16 @@ src/
   em.py           东方财富人气榜 + 领涨概念 + 热门搜索
   distill.py      蒸馏引擎（热词/梗/情感/聚类/up主观点/摘要）
   aggregate.py    聚合流水线
-  report.py       HTML 日报渲染（头部 5 卡片 + 官方板块条 + up主档案展示）
-  site.py         站点首页 index.html（最新日报 + 历史归档）
+  report.py       HTML 日报渲染（头部 4 卡片 + 官方板块条 + up主档案展示）
+  weekly.py       周报生成与渲染
+  site.py         站点首页 index.html（最新日报/周报 + 历史归档）
   upmaster_lib.py up主档案库（注册表/归档/头像/风格画像）
   serve.py        本地预览 + 「立即刷新」服务（http://127.0.0.1:8651）
 run.py            命令行入口
-scheduler.py      定时/循环调度入口（日报默认停用）
+scheduler.py      定时/循环调度入口（日报默认停用，周报保留）
 config.json       配置
 config.workflow.json  云端脱敏配置（GitHub Actions 使用）
+.github/workflows/publish.yml   GitHub Actions：定时生成 + 发布 gh-pages
 skills/upmaster-selflearn/    up主素材自学 skill
 deploy/launchd/               macOS 定时任务
 ```

@@ -1,39 +1,38 @@
 {
  "running": false,
- "source": "all",
- "date": "2026-08-16",
- "started": "2026-08-16 10:50:54",
- "finished": "2026-08-16 10:52:29",
+ "source": "sector",
+ "started": "2026-08-15 21:03:23",
+ "finished": "2026-08-15 21:03:38",
  "error": "",
  "result": {
-  "html": "/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论/output/report_2026-08-16.html",
-  "date": "2026-08-16",
+  "html": "/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论/output/report_2026-08-15.html",
+  "date": "2026-08-15",
   "sources": {
+   "bilibili": {
+    "status": "ok",
+    "count": 91
+   },
+   "guba": {
+    "status": "ok",
+    "count": 202
+   },
+   "xueqiu": {
+    "status": "ok",
+    "count": 58
+   },
    "ths": {
     "status": "ok",
     "count": 34
    },
-   "bilibili": {
+   "sector": {
     "status": "ok",
-    "count": 81
-   },
-   "guba": {
-    "status": "ok",
-    "count": 2
-   },
-   "xueqiu": {
-    "status": "ok",
-    "count": 60
+    "count": 28
    },
    "jin10": {
     "status": "ok",
     "count": 40
    },
    "cls": {
-    "status": "ok",
-    "count": 30
-   },
-   "em": {
     "status": "ok",
     "count": 30
    }

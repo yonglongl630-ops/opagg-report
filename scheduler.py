@@ -3,8 +3,9 @@
 
 用法:
   python3 scheduler.py --once                         # 采集一次并生成日报
+  python3 scheduler.py --weekly --date 2026-08-16     # 生成指定周（周日为锚点）的周报
   python3 scheduler.py --is-trading-day               # 判断今天是否 A股交易日（0=是，1=否）
-  python3 scheduler.py --next-run                     # 预览 8:00/18:00 日报
+  python3 scheduler.py --next-run                     # 预览 8:00/18:00 日报与周日 15:00 周报
   python3 scheduler.py --interval-minutes 60          # 每 60 分钟循环采集（盘中刷新）
 """
 
@@ -30,6 +31,7 @@ LAST_RUN = os.path.join(ROOT, "data", "last_run.json")
 TRADING_CAL = os.path.join(ROOT, "data", "trading_calendar.json")
 
 DAILY_TIMES = ("08:00", "18:00")
+WEEKLY_TIME = "15:00"
 
 
 def setup_logging() -> None:
@@ -59,6 +61,23 @@ def run_once(sources=None, use_cache=True, since_hours=None, incremental=False, 
     return report
 
 
+def run_weekly(anchor: str | None = None) -> str:
+    from src.weekly import build_weekly, save_weekly
+
+    cfg = load_config()
+    weekly = build_weekly(anchor, cfg)
+    html = save_weekly(weekly)
+    save_json(LAST_RUN, {
+        "ts": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "type": "weekly",
+        "range": f"{weekly['monday']} ~ {weekly['sunday']}",
+        "html": html,
+    })
+    print(weekly.get("summary", ""))
+    print(f"周报: {html}")
+    return html
+
+
 def is_trading_day(d: date | None = None) -> bool:
     """A股交易日 = 周一至周五且不在休市日历中。"""
     d = d or date.today()
@@ -70,11 +89,11 @@ def is_trading_day(d: date | None = None) -> bool:
 
 
 def next_run_preview(include_daily: bool = True) -> str:
-    """预览未来 8:00/18:00 日报（若启用）。"""
+    """预览未来 8:00/18:00 日报（若启用）与周日 15:00 周报。"""
     now = datetime.now()
     runs: List[str] = []
     day = now.date()
-    horizon = 14
+    horizon = 21
     for i in range(horizon + 1):
         d = day + timedelta(days=i)
         if include_daily and is_trading_day(d):
@@ -82,6 +101,10 @@ def next_run_preview(include_daily: bool = True) -> str:
                 dt = datetime.combine(d, datetime.strptime(hm, "%H:%M").time())
                 if dt > now:
                     runs.append(f"日报 {dt.strftime('%Y-%m-%d %H:%M')}（交易日）")
+        if d.weekday() == 6:
+            dt = datetime.combine(d, datetime.strptime(WEEKLY_TIME, "%H:%M").time())
+            if dt > now:
+                runs.append(f"周报 {dt.strftime('%Y-%m-%d %H:%M')}（周日）")
         if len(runs) >= 4:
             break
     today = "交易日" if is_trading_day(day) else "非交易日"
@@ -98,7 +121,8 @@ def main() -> int:
     ap.add_argument("--interval-minutes", type=int, default=0, help="循环间隔（分钟）")
     ap.add_argument("--loops", type=int, default=0, help="循环次数，0=无限")
     ap.add_argument("--sources", default=None, help="逗号分隔: bilibili,guba,xueqiu,ths")
-    ap.add_argument("--date", default=None, help="日期 YYYY-MM-DD（默认今天）")
+    ap.add_argument("--weekly", action="store_true", help="生成周报")
+    ap.add_argument("--date", default=None, help="周报锚点日期 YYYY-MM-DD（默认今天，自动落到所在周）")
     ap.add_argument("--is-trading-day", action="store_true", help="判断今天是否交易日")
     ap.add_argument("--next-run", action="store_true", help="预览下次运行时间")
     ap.add_argument("--require-trading-day", action="store_true", help="非交易日直接跳过（供 launchd 每天触发用）")
@@ -118,11 +142,14 @@ def main() -> int:
         cfg0 = load_config()
         print(next_run_preview(include_daily=bool((cfg0.get("scheduler", {}) or {}).get("daily_enabled", False))))
         return 0
+    if args.weekly:
+        run_weekly(args.date)
+        return 0
     cfg = load_config()
     sched_cfg = cfg.get("scheduler", {}) or {}
     if not args.force and not sched_cfg.get("daily_enabled", False):
-        logging.info("定时日报已停用（config.scheduler.daily_enabled=false）")
-        print("DAILY_DISABLED skip")
+        logging.info("定时日报已停用（config.scheduler.daily_enabled=false），保留周报生成")
+        print("DAILY_DISABLED skip（周报不受影响：python3 scheduler.py --weekly）")
         return 0
     if args.require_trading_day and not is_trading_day():
         logging.info("今天非交易日，跳过采集")
