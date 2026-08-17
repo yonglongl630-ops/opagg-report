@@ -139,6 +139,13 @@ def _dyn_html(d: Dict[str, Any]) -> str:
     )
 
 
+def _dyn_empty(u: Dict[str, Any]) -> str:
+    """最近动态为空时的说明：区分“确实无”与“接口被风控未取到”。"""
+    if not u.get("dynamics_ok", True):
+        return "动态接口被风控拦截（-352），未取到动态；配置 B站 cookie 后可解锁（含充电专属内容）"
+    return "无"
+
+
 def _pct_badge(pct: Any) -> str:
     try:
         v = float(pct or 0)
@@ -321,19 +328,28 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             d for d in (u.get("dynamics") or [])
             if (d.get("extra") or {}).get("charge_exclusive")
         ]
-        charge_dyn_n = len(charge_dyns)
+        charge_dyn_n = int(u.get("charge_dyn_count", 0) or 0) or len(charge_dyns)
         charge_dyn_likes = sum(int(d.get("likes", 0) or 0) for d in charge_dyns)
         charge_dyn_comments = sum(int(d.get("comments", 0) or 0) for d in charge_dyns)
+        charge_locked = any("仅充电用户可见" in (d.get("content") or "") for d in charge_dyns)
         charging_html = ""
         if charging:
+            if not u.get("dynamics_ok", True):
+                charge_state = "动态接口被风控拦截（-352），未取到动态；配置 B站 cookie 后可解锁充电专属内容"
+            elif charge_dyn_n:
+                if charge_locked:
+                    charge_state = f"窗口内充电专属动态 {charge_dyn_n} 条（🔒内容需 B站 cookie 解锁后展示全文）"
+                else:
+                    charge_state = (
+                        f"窗口内充电专属动态 {charge_dyn_n} 条"
+                        + (f"（赞 {fmt_num(charge_dyn_likes)} · 评 {fmt_num(charge_dyn_comments)}）" if charge_dyns else "")
+                        + "，全文已解锁，见最近动态"
+                    )
+            else:
+                charge_state = "窗口内暂无充电专属动态"
             charging_html = (
                 f'<div class="muted">本月充电 <b>{fmt_num(charging.get("total"))}</b> 人次'
-                + (
-                    f" · 窗口内充电专属动态 {charge_dyn_n} 条"
-                    + (f"（赞 {fmt_num(charge_dyn_likes)} · 评 {fmt_num(charge_dyn_comments)}）" if charge_dyn_n else "")
-                    if charge_dyn_n
-                    else " · 窗口内暂无充电专属动态"
-                )
+                + f" · {charge_state}"
                 + "</div>"
             )
         elif u.get("mid"):
@@ -385,16 +401,28 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             <div>{ca_html}</div>
           </div>
           <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
-          {dyns or '<div class="muted">无</div>'}
+          {dyns or f'<div class="muted">{_dyn_empty(u)}</div>'}
           <div class="up-tabs">高赞金句</div>
           {quotes or '<div class="muted">无</div>'}
           <div class="up-tabs">充电信息分析</div>
           {charging_html or '<div class="muted">无</div>'}
         </details>"""
+    cfg_upmasters = ((config.get("bilibili", {}) or {}).get("upmasters", []) or [])
+    up_fallback = ""
+    if not up_summary_rows:
+        if cfg_upmasters:
+            b_err = ((sources.get("bilibili", {}) or {}).get("error", "") or "")
+            up_fallback = (
+                f'<div class="card"><div class="src-error">up主 采集未返回数据'
+                f'（已配置 {len(cfg_upmasters)} 位）</div>'
+                f'<div class="muted">{esc(b_err or "请检查 B站 cookie / 网络后重试")}</div></div>'
+            )
+        else:
+            up_fallback = '<div class="card muted">未配置 up主（config.json → bilibili.upmasters）</div>'
     up_html = f"""
     <div class="card up-card">
       <div class="sec-title">up主动态与观点蒸馏汇总</div>
-      {up_summary_rows or '<div class="muted">未配置 up主（config.json → bilibili.upmasters）</div>'}
+      {up_summary_rows or '<div class="muted">暂无数据</div>'}
     </div>
     {up_details}"""
 
@@ -878,7 +906,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   </div>
 
   <div class="sec-title" style="margin-top:6px">up主动态与观点蒸馏</div>
-  {up_html or '<div class="card muted">未配置 up主（config.json → bilibili.upmasters）</div>'}
+  {up_html or up_fallback}
 
   {error_detail and f'<div class="card"><div class="sec-title">数据源异常</div>{error_detail}</div>'}
 

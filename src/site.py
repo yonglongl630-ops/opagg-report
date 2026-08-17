@@ -54,7 +54,8 @@ def build_site(dir_path: str) -> str:
     if latest_daily:
         report_frame = (
             f'<div class="sec-title">最新日报（{esc(latest_daily["date"])}）</div>'
-            f'<iframe class="report-frame" src="{esc(latest_daily["file"])}" loading="lazy"></iframe>'
+            f'<iframe class="report-frame" src="{esc(latest_daily["file"])}" loading="lazy" '
+            'onload="try{this.style.height=(this.contentWindow.document.body.scrollHeight+80)+\'px\';}catch(e){}"></iframe>'
         )
     return f"""<!DOCTYPE html>
 <html lang="zh-CN">
