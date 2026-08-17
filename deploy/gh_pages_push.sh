@@ -1,5 +1,5 @@
 #!/bin/bash
-# 把本地最新日报/周报发布到 GitHub Pages（gh-pages 分支）
+# 把本地最新日报发布到 GitHub Pages（gh-pages 分支）
 # 用法: bash deploy/gh_pages_push.sh
 set -euo pipefail
 
@@ -15,7 +15,7 @@ fi
 # 1) 确保首页最新
 python3 src/site.py --dir output
 
-# 2) 打包数据存档（周报/缓存用）
+# 2) 打包数据存档（缓存用）
 mkdir -p output
 tar -czf output/data.tar.gz -C . data/raw data/summary data/trading_calendar.json 2>/dev/null || true
 
@@ -30,6 +30,6 @@ find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 cp -R "$ROOT/output/." .
 git add -A
 git -c user.name="opagg-bot" -c user.email="opagg-bot@users.noreply.github.com" \
-  commit -m "日报/周报更新 $(date '+%Y-%m-%d %H:%M')" --allow-empty >/dev/null
+  commit -m "日报更新 $(date '+%Y-%m-%d %H:%M')" --allow-empty >/dev/null
 git push origin gh-pages 2>&1 | tail -3
 echo "已发布: $ORIGIN (gh-pages)"

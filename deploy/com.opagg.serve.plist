@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.opagg.serve</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/open</string>
+        <string>-a</string>
+        <string>Terminal</string>
+        <string>/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论/deploy/run_serve_terminal.sh</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+    <key>WorkingDirectory</key>
+    <string>/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论</string>
+    <key>StandardOutPath</key>
+    <string>/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论/data/logs/serve.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论/data/logs/serve.err.log</string>
+    <key>ProcessType</key>
+    <string>Background</string>
+</dict>
+</plist>

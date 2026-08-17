@@ -1,8 +1,8 @@
 #!/bin/bash
-# 安装 launchd 定时任务：
-#   - 周日 15:00 生成周报（默认）
+# 安装 launchd 定时任务（可选）：
 #   - 交易日 08:00 / 18:00 生成日报（需显式 --daily，默认已停用，改用日报页「立即刷新」）
-# 用法: bash deploy/install_launchd.sh [--daily]
+#   - 本地日报服务（--serve，开机自启 127.0.0.1:8651，供「立即刷新」使用）
+# 用法: bash deploy/install_launchd.sh [--daily] [--serve]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -10,13 +10,33 @@ AGENT_DIR="$HOME/Library/LaunchAgents"
 mkdir -p "$AGENT_DIR" "$ROOT/data/logs"
 
 INSTALL_DAILY=0
-if [[ "${1:-}" == "--daily" ]]; then
+INSTALL_SERVE=0
+for arg in "$@"; do
+  if [[ "$arg" == "--daily" ]]; then
   INSTALL_DAILY=1
+  elif [[ "$arg" == "--serve" ]]; then
+    INSTALL_SERVE=1
+  fi
+done
+
+if [[ "$INSTALL_SERVE" == "1" ]]; then
+  src="$ROOT/deploy/launchd/com.opagg.serve.plist"
+  sed "s|/Users/liangyonglong/Documents/ChatGPT/蒸馏up主分析舆论|$ROOT|g" "$src" > "$AGENT_DIR/com.opagg.serve.plist"
+  launchctl unload "$AGENT_DIR/com.opagg.serve.plist" 2>/dev/null || true
+  launchctl load "$AGENT_DIR/com.opagg.serve.plist"
+  echo "已安装本地日报服务: com.opagg.serve（开机自启 http://127.0.0.1:8651）"
 fi
 
-names=(com.opagg.weekly)
+names=()
 if [[ "$INSTALL_DAILY" == "1" ]]; then
   names+=(com.opagg.daily)
+fi
+
+if [[ ${#names[@]} -eq 0 ]]; then
+  launchctl unload "$AGENT_DIR/com.opagg.daily.plist" 2>/dev/null || true
+  launchctl unload "$AGENT_DIR/com.opagg.weekly.plist" 2>/dev/null || true
+  echo "未安装任何定时任务（日报已停用，改用日报页「立即刷新」；周报已移除）。"
+  exit 0
 fi
 
 for name in "${names[@]}"; do
@@ -28,8 +48,4 @@ for name in "${names[@]}"; do
   echo "已安装: $name"
 done
 
-if [[ "$INSTALL_DAILY" == "0" ]]; then
-  launchctl unload "$AGENT_DIR/com.opagg.daily.plist" 2>/dev/null || true
-  echo "提示: 日报定时任务已停用（config.scheduler.daily_enabled=false），可在日报页点击「立即刷新」手动更新。"
-fi
 echo "完成。查看任务: launchctl list | grep opagg"
