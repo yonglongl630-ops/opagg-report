@@ -49,7 +49,6 @@ def build_site(dir_path: str) -> str:
         )
         return f'<div class="sec-title">{esc(title)}</div><ul class="arch">{rows}</ul>'
 
-    arch_html = group("历史日报", daily[:30])
     # 最新日报全文内嵌：首页打开即可直接看到各平台数据（雪球/金十/同花顺等）
     report_frame = ""
     if latest_daily:
@@ -89,7 +88,6 @@ def build_site(dir_path: str) -> str:
   <h1>舆论蒸馏日报</h1>
   <div class="sub">B站博主 · 股吧 · 雪球 · 同花顺 · 板块 · 金十 · 财联社 | 生成于 {esc(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))}</div>
   <div class="latest-row">{latest_html}</div>
-  <div class="card">{arch_html or '<div class="muted">暂无历史报告</div>'}</div>
   {report_frame}
   <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口</footer>
 </div>

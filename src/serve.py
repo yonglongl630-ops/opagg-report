@@ -85,21 +85,42 @@ def _start_refresh(source: str, date: str = "") -> None:
         })
 
     def worker() -> None:
+        # 采集放在独立子进程执行并设硬超时：即使某个网络请求挂起，也能自动终止并报错，
+        # 避免「立即刷新」卡死无法再次刷新。
+        root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sources = None
+        if source and source != "all":
+            sources = [s for s in source.split(",") if s.strip()]
+        code = (
+            "import json,sys;"
+            "sys.path.insert(0,'.');"
+            "from src.aggregate import run_day, default_date;"
+            "from src.config import load_config;"
+            "cfg=load_config();"
+            f"r=run_day(cfg, {date!r} or default_date(), sources={sources!r}, use_cache=False);"
+            "print(json.dumps({'html': r.get('_html_path',''), 'date': r.get('date',''), "
+            "'sources': {k: {'status': v.get('status'), 'count': v.get('count')} "
+            "for k, v in (r.get('sources') or {}).items()}}, ensure_ascii=False))"
+        )
         try:
-            cfg = load_config()
-            sources = None
-            if source and source != "all":
-                sources = [s for s in source.split(",") if s.strip()]
-            report = run_day(cfg, date or default_date(), sources=sources, use_cache=False)
+            proc = subprocess.run(
+                [sys.executable, "-c", code],
+                capture_output=True,
+                text=True,
+                timeout=900,
+                cwd=root,
+            )
+            if proc.returncode != 0:
+                detail = (proc.stderr or proc.stdout or "")[-800:]
+                raise RuntimeError(f"采集失败(exit {proc.returncode}): {detail}")
+            lines = [ln for ln in (proc.stdout or "").strip().splitlines() if ln.strip()]
+            if not lines:
+                raise RuntimeError("采集无输出")
             with _lock:
-                _state["result"] = {
-                    "html": report.get("_html_path", ""),
-                    "date": report.get("date", ""),
-                    "sources": {
-                        k: {"status": v.get("status"), "count": v.get("count")}
-                        for k, v in (report.get("sources") or {}).items()
-                    },
-                }
+                _state["result"] = json.loads(lines[-1])
+        except subprocess.TimeoutExpired:
+            with _lock:
+                _state["error"] = "刷新超时（>15 分钟），已自动终止，请稍后重试"
         except Exception as e:  # noqa: BLE001
             with _lock:
                 _state["error"] = str(e)
