@@ -1,15 +1,18 @@
-"""本地预览 + 「立即刷新」服务。
+"""日报预览 + 「立即刷新」服务（本地 / 局域网 / 云端）。
 
 用法：
-  python3 -m src.serve [--port 8651] [--open]
+  python3 -m src.serve [--port 8651] [--open]             # 仅本机
+  python3 -m src.serve --lan                               # 绑定 0.0.0.0，手机同 WiFi 可访问
+  python3 -m src.serve --cloud --port 8000                 # 云端部署（Docker/Render 等）
 
 功能：
-- 以 http://127.0.0.1:8651 提供 output/ 下的日报
+- 以 http://<host>:<port> 提供 output/ 下的日报
 - POST /api/refresh?source=all|sector|ths|cls|...  → 后台重采集并重新生成日报
 - GET  /api/status                                  → 刷新状态（页面轮询用）
+- POST /api/publish                                  → 把最新日报发布到 GitHub Pages
 
-日报页面里的「立即刷新」按钮通过本服务实现：停止定时任务后，
-查看时手动点击即可拉取各平台实时数据。
+日报页面里的「立即刷新」按钮通过本服务实现；手机端用同一来源访问
+（http://<电脑局域网IP>:<port> 或云端 https 域名）即可同源刷新。
 """
 
 from __future__ import annotations
@@ -32,9 +35,44 @@ from src.aggregate import OUTPUT_DIR, STATE_DIR, default_date, run_day  # noqa: 
 from src.config import load_config  # noqa: E402
 
 PORT = 8651
+_token = os.environ.get("OPAGG_TOKEN", "") or ""
 _lock = threading.Lock()
 _state: Dict = {"running": False, "source": "", "date": "", "started": "", "finished": "", "error": "", "result": {}}
 _publish_state: Dict = {"running": False, "started": "", "finished": "", "error": "", "output": ""}
+
+
+def _lan_ip() -> str:
+    """探测本机局域网 IPv4：优先 192.168/10/172.16-31 私网段，排除 VPN/虚拟网卡地址。"""
+    import re
+    candidates = []
+    for iface in ("en0", "en1"):
+        try:
+            out = subprocess.run(
+                ["ipconfig", "getifaddr", iface],
+                capture_output=True, text=True, timeout=3,
+            )
+            ip = (out.stdout or "").strip()
+            if re.match(r"^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)", ip):
+                candidates.append(ip)
+        except Exception:  # noqa: BLE001
+            continue
+    try:
+        for info in socket.getaddrinfo(socket.gethostname(), None, socket.AF_INET):
+            ip = info[4][0]
+            if re.match(r"^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)", ip):
+                candidates.append(ip)
+    except OSError:
+        pass
+    if candidates:
+        return candidates[0]
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except OSError:
+        return "127.0.0.1"
 
 
 def _start_publish() -> None:
@@ -141,6 +179,12 @@ def _start_refresh(source: str, date: str = "") -> None:
 class Handler(BaseHTTPRequestHandler):
     server_version = "OpAggRefresh/1.0"
 
+    def _check_token(self) -> bool:
+        if not _token:
+            return True
+        qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        return (qs.get("token") or [""])[0] == _token
+
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -173,6 +217,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(200, dict(_publish_state))
             return
         if parsed.path == "/api/publish":
+            if not self._check_token():
+                self._send_json(403, {"ok": False, "error": "token 无效"})
+                return
             with _lock:
                 busy = _publish_state.get("running")
             if busy:
@@ -182,6 +229,9 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200, {"ok": True, "message": "发布已开始，稍后查看 /api/publish-status"})
             return
         if parsed.path == "/api/refresh":
+            if not self._check_token():
+                self._send_json(403, {"ok": False, "error": "token 无效"})
+                return
             qs = urllib.parse.parse_qs(parsed.query)
             source = (qs.get("source") or ["all"])[0]
             date = (qs.get("date") or [""])[0]
@@ -232,13 +282,23 @@ class Handler(BaseHTTPRequestHandler):
 def main() -> int:
     ap = argparse.ArgumentParser(description="日报预览 + 立即刷新服务")
     ap.add_argument("--port", type=int, default=PORT)
+    ap.add_argument("--host", default="127.0.0.1", help="监听地址，默认仅本机")
+    ap.add_argument("--lan", action="store_true", help="绑定 0.0.0.0，手机同局域网可访问")
+    ap.add_argument("--cloud", action="store_true", help="云端模式：绑定 0.0.0.0，token 取 OPAGG_TOKEN")
     ap.add_argument("--open", action="store_true", help="启动后打开浏览器")
     args = ap.parse_args()
+    host = args.host
+    if args.lan or args.cloud:
+        host = "0.0.0.0"
+    port = args.port if not args.cloud else (args.port if args.port != PORT else 8000)
+    global _token
+    if args.cloud and not _token:
+        print("提示：未设置 OPAGG_TOKEN，任何能访问该端口的人都可以触发刷新（云端建议设置 OPAGG_TOKEN）")
     try:
         # 幂等：端口已被占用说明服务已在运行（可能是开机自启实例），直接退出
-        probe = socket.create_connection(("127.0.0.1", args.port), timeout=1)
+        probe = socket.create_connection(("127.0.0.1", port), timeout=1)
         probe.close()
-        print("本地刷新服务已在运行（端口 %d），无需重复启动。" % args.port)
+        print("刷新服务已在运行（端口 %d），无需重复启动。" % port)
         return 0
     except OSError:
         pass
@@ -247,13 +307,22 @@ def main() -> int:
         index = os.path.join(OUTPUT_DIR, "index.html")
         if not os.path.exists(index):
             index = os.path.join(OUTPUT_DIR, f"report_{default_date()}.html")
-        print("日报预览: http://127.0.0.1:%d/%s" % (args.port, os.path.basename(index) if os.path.exists(index) else ""))
-        print("刷新接口: POST http://127.0.0.1:%d/api/refresh?source=all|sector|ths|cls" % args.port)
-        print("发布接口: POST http://127.0.0.1:%d/api/publish   （本地生成日报 → 推送到 GitHub Pages）" % args.port)
+        base = "http://127.0.0.1:%d" % port
+        if host == "0.0.0.0":
+            base = "http://%s:%d" % (_lan_ip(), port)
+        name = os.path.basename(index) if os.path.exists(index) else ""
+        print("日报预览(本机): http://127.0.0.1:%d/%s" % (port, name))
+        if host == "0.0.0.0":
+            print("手机端(同WiFi/云端): %s/%s" % (base, name))
+            if base.startswith("http://127.0.0.1"):
+                print("提示：未能自动识别局域网 IP，请在终端运行 ipconfig getifaddr en0 获取本机 IP，"
+                      "手机打开 http://<该IP>:%d/%s" % (port, name))
+        print("刷新接口: POST %s/api/refresh?source=all|sector|ths|cls" % base)
+        print("发布接口: POST %s/api/publish   （生成日报 → 推送到 GitHub Pages）" % base)
         if args.open:
             import webbrowser
-            webbrowser.open(f"http://127.0.0.1:{args.port}/{os.path.basename(index)}")
-        ThreadingHTTPServer(("127.0.0.1", args.port), Handler).serve_forever()
+            webbrowser.open(f"http://127.0.0.1:{port}/{name}")
+        ThreadingHTTPServer((host, port), Handler).serve_forever()
     except KeyboardInterrupt:
         pass
     return 0

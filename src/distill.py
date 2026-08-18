@@ -513,7 +513,11 @@ def _cluster_label(posts: List[Dict[str, Any]], prot: List[str]) -> str:
 
 # ---------- up主分析 ----------
 
-def analyze_upmasters(upmasters: List[Dict[str, Any]], top_comments: int = 8) -> List[Dict[str, Any]]:
+def analyze_upmasters(
+    upmasters: List[Dict[str, Any]],
+    top_comments: int = 8,
+    stock_names: Optional[Iterable[str]] = None,
+) -> List[Dict[str, Any]]:
     out = []
     for up in upmasters:
         name = up.get("name", "")
@@ -582,6 +586,7 @@ def analyze_upmasters(upmasters: List[Dict[str, Any]], top_comments: int = 8) ->
                 "score": s["score"],
                 "extra": d.get("extra"),
             })
+        dyn_summary = _summarize_dynamics(dynamics, list(stock_names or []), 3)
         overall = round(sum(stance_scores) / len(stance_scores), 3) if stance_scores else 0.0
         label = "看多" if overall >= 0.15 else ("看空" if overall <= -0.15 else "中性")
         comment_analysis = _comment_analysis(all_comments)
@@ -609,11 +614,75 @@ def analyze_upmasters(upmasters: List[Dict[str, Any]], top_comments: int = 8) ->
             "stance_score": overall,
             "total_views": total_views,
             "total_dynamics": len(dyn_analyzed),
+            "dyn_summary": dyn_summary,
             "videos": analyzed,
             "dynamics": dyn_analyzed,
             "comment_analysis": comment_analysis,
             "quotes": quotes[:6],
             "style_keywords": [x["text"] for x in kw[:8]],
+        })
+    return out
+
+
+def _extract_point(text: str, stock_names: List[str]) -> str:
+    """从动态正文里挑一句信息量最大的话（命中金融词/自选股/数字优先），作为蒸馏要点。"""
+    s = clean_text(text, 500)
+    sents = [x.strip() for x in re.split(r"[。！？!?；;\n]+", s) if len(x.strip()) >= 6]
+    scored = []
+    for i, sent in enumerate(sents):
+        score = 0
+        for t in FIN_TERMS:
+            if t and t in sent:
+                score += 2
+        for n in stock_names:
+            if n and n in sent:
+                score += 3
+        score += min(2, len(re.findall(r"\d", sent)))
+        scored.append((score, -i, sent))
+    if not scored:
+        return _condense_point(s)
+    scored.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    return _condense_point(scored[0][2])
+
+
+def _condense_point(sent: str, limit: int = 58) -> str:
+    """长句精简：超过 limit 时在标点处截断，避免日报出现超长段落。"""
+    sent = sent.strip()
+    if len(sent) <= limit:
+        return sent
+    cut = sent[:limit]
+    for sep in ("，", ",", "、", "；", ";", "：", ":"):
+        i = cut.rfind(sep)
+        if i > 20:
+            return cut[:i] + "…"
+    return cut + "…"
+
+
+def _summarize_dynamics(dynamics: List[Dict[str, Any]], stock_names: List[str], top: int = 3) -> List[Dict[str, Any]]:
+    """把窗口内最近的 N 条动态蒸馏成要点：一句话提炼 + 立场 + 关键词，供日报直接展示。"""
+    out = []
+    for d in sorted(dynamics, key=lambda x: int(x.get("ts", 0) or 0), reverse=True)[:top]:
+        text = (d.get("title") or "") + " " + (d.get("content") or "")
+        raw = (d.get("content") or "").strip()
+        title = (d.get("title") or "").strip()
+        s = sentiment(text)
+        kws = [x["text"] for x in extract_keywords([d], top_k=3)[:3]]
+        if raw.startswith("投稿了视频"):
+            point = title or _extract_point(text, stock_names)
+        else:
+            point = _extract_point(text, stock_names)
+            if title and point.startswith(title):
+                point = title
+        out.append({
+            "time": d.get("time", ""),
+            "title": title[:60],
+            "point": point[:90],
+            "stance": s["label"],
+            "keywords": kws,
+            "likes": d.get("likes", 0),
+            "comments": d.get("comments", 0),
+            "url": d.get("url", ""),
+            "raw": (d.get("content") or "")[:300],
         })
     return out
 
@@ -793,7 +862,7 @@ def distill_day(
     sentiment_all = aggregate_sentiment(posts)
     excluded = [a for a in (cfg.get("distill", {}) or {}).get("exclude_authors_from_topics", []) or [] if a]
     topics = cluster_topics(posts, watchlist, top_k=8, excluded_authors=excluded)
-    up_analysis = analyze_upmasters(upmasters, d.get("top_comments_per_video", 8))
+    up_analysis = analyze_upmasters(upmasters, d.get("top_comments_per_video", 8), stock_names=prot_names)
     data = {
         "keywords": keywords,
         "memes": memes,

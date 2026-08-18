@@ -22,6 +22,12 @@ def _scan(dir_path: str) -> List[dict]:
         if not m:
             continue
         daily.append({"date": m.group(1), "file": f})
+    for d in daily:
+        p = os.path.join(dir_path, d["file"])
+        try:
+            d["v"] = int(os.path.getmtime(p))
+        except OSError:
+            d["v"] = 0
     daily.sort(key=lambda x: x["date"], reverse=True)
     return daily
 
@@ -32,7 +38,7 @@ def build_site(dir_path: str) -> str:
 
     def card(item: dict) -> str:
         return (
-            f'<a class="latest" href="{esc(item["file"])}">'
+            f'<a class="latest" href="{esc(item["file"])}?v={item.get("v", 0)}">'
             f'<b>日报</b><span>{esc(item["date"])}</span></a>'
         )
 
@@ -44,7 +50,7 @@ def build_site(dir_path: str) -> str:
         if not items:
             return ""
         rows = "".join(
-            f'<li><a href="{esc(it["file"])}">{esc(it["date"])}</a></li>'
+            f'<li><a href="{esc(it["file"])}?v={it.get("v", 0)}">{esc(it["date"])}</a></li>'
             for it in items
         )
         return f'<div class="sec-title">{esc(title)}</div><ul class="arch">{rows}</ul>'
@@ -54,7 +60,7 @@ def build_site(dir_path: str) -> str:
     if latest_daily:
         report_frame = (
             f'<div class="sec-title">最新日报（{esc(latest_daily["date"])}）</div>'
-            f'<iframe class="report-frame" src="{esc(latest_daily["file"])}" loading="lazy" '
+            f'<iframe class="report-frame" src="{esc(latest_daily["file"])}?v={latest_daily.get("v", 0)}" loading="lazy" '
             'onload="try{this.style.height=(this.contentWindow.document.body.scrollHeight+80)+\'px\';}catch(e){}"></iframe>'
         )
     return f"""<!DOCTYPE html>

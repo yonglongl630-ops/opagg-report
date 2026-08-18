@@ -161,16 +161,34 @@ class BilibiliClient:
             "official": ((card.get("Official") or {}).get("title", "") or ""),
         }
 
-    def dynamics(self, mid: int, limit: int = 10, since_ts: Optional[int] = None) -> List[Dict[str, Any]]:
+    def dynamics(
+        self,
+        mid: int,
+        limit: int = 10,
+        since_ts: Optional[int] = None,
+        stats: Optional[Dict[str, Any]] = None,
+    ) -> List[Dict[str, Any]]:
         """up主最近动态（文字/图文/转发/投稿/充电专属），带 WBI 签名。
 
         since_ts 非空时只返回窗口内的动态，避免混入历史信息。
+        stats 非空时填充 {"ok": bool, "error": str, "charge_count": int}。
         """
+        if stats is not None:
+            stats["ok"] = False
+            stats["error"] = ""
+            stats["charge_count"] = 0
         if not mid or not self._ensure():
+            if stats is not None:
+                stats["error"] = "B站会话初始化失败"
             return []
         out: List[Dict[str, Any]] = []
         offset = ""
-        while len(out) < limit:
+        charge_count = 0
+        hard_fail = False
+        pages = 0
+        max_total = max(limit, limit * 3) if since_ts else limit
+        while len(out) < max_total and pages < 8:
+            pages += 1
             params = {
                 "host_mid": mid,
                 "timezone_offset": -480,
@@ -182,27 +200,43 @@ class BilibiliClient:
                 params.pop("offset")
             url = self._signed(f"{API}/x/polymer/web-dynamic/v1/feed/space", params)
             items = []
-            for attempt in range(3):
+            d = {}
+            for attempt in range(4):
                 data = self._get_json(url, referer=f"https://space.bilibili.com/{mid}/dynamic")
                 d = (data or {}).get("data") or {}
                 items = d.get("items") or []
                 if items:
                     break
-                time.sleep(1.5)
+                code = (data or {}).get("code")
+                if code == -352 or data is None:
+                    hard_fail = True
+                    time.sleep(2.0 + attempt)
+                else:
+                    time.sleep(1.5)
             if not items:
+                if hard_fail and stats is not None:
+                    stats["error"] = "动态接口被风控拦截（-352），未取到动态"
                 break
             for it in items:
+                basic = it.get("basic") or {}
+                pub_ts_it = int((((it.get("modules") or {}).get("module_author") or {}).get("pub_ts", 0) or 0))
+                in_window = (not since_ts) or (pub_ts_it >= since_ts)
+                if basic.get("is_only_fans") and in_window:
+                    charge_count += 1
                 post = self._dynamic_item(it, mid)
                 if post:
                     if since_ts and int(post.get("ts", 0) or 0) < since_ts:
                         continue
                     out.append(post)
-                if len(out) >= limit:
+                if len(out) >= max_total:
                     break
             offset = d.get("offset", "")
             if not d.get("has_more") or not offset:
                 break
             time.sleep(1.0)
+        if stats is not None:
+            stats["ok"] = bool(out) or not hard_fail
+            stats["charge_count"] = charge_count
         return out
 
     @staticmethod
@@ -436,9 +470,13 @@ class BilibiliClient:
                         registry_cookies[str(mid_s)] = ck
             except Exception:  # noqa: BLE001
                 registry_cookies = {}
-            for up in b.get("upmasters", []):
+            def _collect_one(up: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+                """采集单个 up主（视频+评论+动态+充电）；失败由调用方隔离。"""
+                nonlocal posts
                 mid = up.get("mid")
                 name = up.get("name", "")
+                if not mid:
+                    return None
                 up_cookie = str(up.get("cookie", "") or "").strip() or registry_cookies.get(str(mid), "")
                 client = self
                 if up_cookie and up_cookie != global_cookie:
@@ -488,17 +526,27 @@ class BilibiliClient:
                     posts.append(v)
                     posts += comments
                 dyn_posts: List[Dict[str, Any]] = []
+                dyn_stats: Dict[str, Any] = {"ok": True, "error": "", "charge_count": 0}
                 if mid:
                     try:
-                        dyn_posts = client.dynamics(mid, dynamic_limit, since_ts=since_ts)
+                        # up主 卡片展示“近 N 条动态（不限当天，含充电）”；全局舆论统计只纳入当天窗口
+                        dyn_posts = client.dynamics(mid, dynamic_limit, since_ts=None, stats=dyn_stats)
                         seen_dyns = set(seen_mid.get("dynamics", []) or [])
                         dyn_posts = [
                             d for d in dyn_posts
                             if (d.get("extra", {}) or {}).get("dyn_id", "") not in seen_dyns
                         ]
-                        posts += dyn_posts
+                        if since_ts:
+                            posts += [
+                                d for d in dyn_posts
+                                if int(d.get("ts", 0) or 0) >= since_ts
+                            ]
+                        else:
+                            posts += dyn_posts
                     except Exception as e:  # noqa: BLE001
                         log.warning("up主 %s 动态采集失败: %s", name, e)
+                        dyn_stats["ok"] = False
+                        dyn_stats["error"] = str(e)
                     time.sleep(interval)
                 charging = None
                 if mid:
@@ -507,7 +555,7 @@ class BilibiliClient:
                     except Exception as e:  # noqa: BLE001
                         log.warning("up主 %s 充电榜采集失败: %s", name, e)
                     time.sleep(interval)
-                up_data.append({
+                return {
                     "name": name or f"mid:{mid}",
                     "mid": mid,
                     "uid": up.get("uid") or mid,
@@ -524,7 +572,19 @@ class BilibiliClient:
                     "videos": enriched,
                     "dynamics": dyn_posts,
                     "charging": charging,
-                })
+                    "dynamics_ok": dyn_stats.get("ok", True),
+                    "dynamics_error": dyn_stats.get("error", ""),
+                    "charge_dyn_count": int(dyn_stats.get("charge_count", 0) or 0),
+                }
+
+            for up in b.get("upmasters", []):
+                try:
+                    entry = _collect_one(up)
+                    if entry:
+                        up_data.append(entry)
+                except Exception as e:  # noqa: BLE001
+                    log.warning("up主 %s 采集失败，跳过: %s", up.get("name", ""), e)
+                    errors.append(f"up主 {up.get('name', '')}: {e}")
             items["upmasters"] = up_data
         except Exception as e:  # noqa: BLE001
             errors.append(f"up主: {e}")

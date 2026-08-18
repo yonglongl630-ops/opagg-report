@@ -95,6 +95,7 @@ python3 -m src.upmaster_lib refresh --mid <uid> --videos 5 --dynamics 10   # 归
 - `config.json → bilibili.upmasters[].mid` 填 up主 的 B站 uid（空间地址里的数字）。已内置 巫师财经（472747194）、饭统戴老板（253553776）。
 - 匿名采集多数接口可用，但空间视频列表受风控（-799/412）时自动降级为搜索发现视频。
 - 需要**动态/评论稳定采集**时，把登录后的 cookie（含 `SESSDATA=...`）填入 `config.json → bilibili.cookie`，或写入档案库注册表（`python3 -m src.upmaster_lib update --mid <uid> --cookie "SESSDATA=..."`）。注册表已 gitignore，不会误提交敏感信息。
+- 排障：B站接口偶发 `Remote end closed connection without response` / `EOF` / `IncompleteRead` / `-352`，代码已自动重试并**按 up主 隔离**（单个 up主 失败只跳过它并在日报标注，不影响其他 up主）；若日报出现“up主 采集未返回数据”，按“数据源异常”区提示检查 cookie 与网络后重跑 `python3 run.py --no-cache --sources bilibili`。
 - 雪球被阿里云 WAF（acw_sc__v2 挑战）拦截时，把浏览器登录态的完整 Cookie 填入配置即可解封：
 
   ```bash
@@ -132,12 +133,27 @@ python3 scheduler.py --once --force                    # 手动强制跑一次�
 python3 scheduler.py --once --refresh-upmasters        # 采集前先归档 up主素材
 ```
 
-日报页「立即刷新」需要本地服务（页面按钮会自动提示启动方式）：
+日报页「立即刷新」需要刷新服务（页面按钮会自动提示启动方式）：
 
 ```bash
 python3 -m src.serve            # 启动 http://127.0.0.1:8651（提供日报 + /api/refresh 刷新接口）
 python3 -m src.serve --open     # 启动并打开日报
+python3 -m src.serve --lan      # 绑定 0.0.0.0，手机连同一 WiFi 打开终端打印的地址即可同源刷新
+python3 -m src.serve --cloud    # 云端模式（绑定 0.0.0.0，配合 OPAGG_TOKEN 环境变量）
 ```
+
+### 手机端与云端「立即刷新」
+
+日报页的「立即刷新」不再硬编码 127.0.0.1：通过 http/https 打开时自动使用当前域名（同源），
+`file://` 打开时支持配置刷新地址——点页面上方 **「保存并连接」**，填入：
+
+- 局域网：电脑运行 `python3 -m src.serve --lan`，手机填终端打印的 `http://192.168.x.x:8651`
+- 云端：按 `deploy/cloud/README.md` 部署（Render/Railway/Fly/VPS，Dockerfile 已附），填 `https://你的域名`
+
+云端部署后手机在任何网络都能打开日报并点击「立即刷新」重采集，无需本地电脑开机；GitHub Actions
+（`.github/workflows/daily.yml`）还支持每天 08:00 / 18:00 无人值守生成并发布到 Pages
+（需在仓库 Secrets 配置 `BILI_COOKIE`、`XUEQIU_COOKIE`；云端 IP 可能被部分平台 WAF 拦截，
+失败源会在日报“数据源异常”区标注，其余源照常出日报）。
 
 如需重新开启 macOS launchd 定时任务（会写入 `~/Library/LaunchAgents`）：
 

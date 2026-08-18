@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: opagg-report
+    runtime: docker
+    repo: https://github.com/YOUR_USER/YOUR_REPO    # 改成你的仓库地址
+    plan: free
+    healthCheckPath: /api/status
+    envVars:
+      - key: OPAGG_TOKEN
+        sync: false        # 刷新/发布接口的访问口令
+      - key: BILI_COOKIE
+        sync: false        # B站登录 cookie（SESSDATA 等），云端采集动态/充电用
+      - key: XUEQIU_COOKIE
+        sync: false        # 雪球登录 cookie
+    disk:
+      name: opagg-data
+      mountPath: /app/data
+      sizeGB: 1

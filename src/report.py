@@ -139,6 +139,21 @@ def _dyn_html(d: Dict[str, Any]) -> str:
     )
 
 
+def _dyn_summary_html(p: Dict[str, Any]) -> str:
+    """动态蒸馏要点条目：一句话提炼 + 立场 + 关键词，原文折叠展示。"""
+    raw = p.get("raw") or ""
+    raw_html = f'<details class="dyn-raw"><summary>原文</summary>{esc(raw)}</details>' if raw else ""
+    kws = "、".join(esc(x) for x in (p.get("keywords") or [])[:4])
+    return (
+        f'<div class="dyn-item"><b>{esc(p.get("title") or "")[:50]}</b> {_stance_badge(p.get("stance", ""))}'
+        f'<div class="dyn-meta">{esc(p.get("time", ""))} · 赞{fmt_num(p.get("likes"))} · 评{fmt_num(p.get("comments"))}</div>'
+        f'<div class="dyn-point">{esc(p.get("point", ""))}</div>'
+        f'<div class="dyn-meta">要点关键词：{kws or "无"}</div>'
+        + raw_html
+        + "</div>"
+    )
+
+
 def _dyn_empty(u: Dict[str, Any]) -> str:
     """最近动态为空时的说明：区分“确实无”与“接口被风控未取到”。"""
     if not u.get("dynamics_ok", True):
@@ -319,10 +334,8 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             key=lambda x: (x.get("time", "") or ""),
             reverse=True,
         )[:3]
-        dyns = "".join(
-            _dyn_html(d)
-            for d in dyn_all
-        )
+        dyn_sum = (u.get("dyn_summary") or [])[:3]
+        dyns = "".join(_dyn_summary_html(p) for p in dyn_sum) if dyn_sum else "".join(_dyn_html(d) for d in dyn_all)
         charging = u.get("charging") or {}
         charge_dyns = [
             d for d in (u.get("dynamics") or [])
@@ -338,15 +351,15 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
                 charge_state = "动态接口被风控拦截（-352），未取到动态；配置 B站 cookie 后可解锁充电专属内容"
             elif charge_dyn_n:
                 if charge_locked:
-                    charge_state = f"窗口内充电专属动态 {charge_dyn_n} 条（🔒内容需 B站 cookie 解锁后展示全文）"
+                    charge_state = f"近{charge_dyn_n}条动态中含充电专属（🔒内容需 B站 cookie 解锁后展示全文）"
                 else:
                     charge_state = (
-                        f"窗口内充电专属动态 {charge_dyn_n} 条"
+                        f"近{charge_dyn_n}条动态中含充电专属"
                         + (f"（赞 {fmt_num(charge_dyn_likes)} · 评 {fmt_num(charge_dyn_comments)}）" if charge_dyns else "")
                         + "，全文已解锁，见最近动态"
                     )
             else:
-                charge_state = "窗口内暂无充电专属动态"
+                charge_state = "近3条动态中无充电专属内容"
             charging_html = (
                 f'<div class="muted">本月充电 <b>{fmt_num(charging.get("total"))}</b> 人次'
                 + f" · {charge_state}"
@@ -400,7 +413,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             <div>{vids}</div>
             <div>{ca_html}</div>
           </div>
-          <div class="up-tabs">最近动态（近3条 · 含充电内容与正文）</div>
+          <div class="up-tabs">最近动态（近3条 · 蒸馏要点，原文可展开）</div>
           {dyns or f'<div class="muted">{_dyn_empty(u)}</div>'}
           <div class="up-tabs">高赞金句</div>
           {quotes or '<div class="muted">无</div>'}
@@ -781,6 +794,10 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   .refresh-btn {{ border: 1px solid #5b6ee8; color: #5b6ee8; background: #fff; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer; }}
   .refresh-btn:hover {{ background: #f0f4ff; }}
   .refresh-btn:disabled {{ opacity: .6; cursor: wait; }}
+  .api-input {{ width: 320px; max-width: 70%; padding: 5px 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }}
+  .modal-mask {{ position: fixed; inset: 0; background: rgba(20,24,33,.55); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 16px; }}
+  .modal {{ background: #fff; border-radius: 12px; padding: 18px; max-width: 460px; width: 100%; box-shadow: 0 8px 30px rgba(0,0,0,.2); }}
+  .modal-title {{ font-size: 15px; font-weight: 700; margin-bottom: 8px; }}
   .refresh-link {{ color: #5b6ee8; text-decoration: none; font-weight: 700; }}
   .chip {{ display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }}
   .badge {{ display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }}
@@ -849,6 +866,10 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   .dyn-item:last-child {{ border-bottom: 0; }}
   .dyn-meta {{ color: #6a737d; font-size: 11px; margin-top: 2px; }}
   .dyn-body {{ color: #57606a; font-size: 12px; margin-top: 3px; }}
+  .dyn-point {{ color: #24292f; font-size: 13px; margin-top: 3px; }}
+  .dyn-raw {{ margin-top: 4px; font-size: 12px; color: #57606a; }}
+  .dyn-raw summary {{ cursor: pointer; color: #0969da; font-size: 12px; }}
+  .dyn-raw[open] summary {{ margin-bottom: 4px; }}
   .cc-users {{ margin-top: 8px; }}
   .cc-user {{ padding: 5px 0; border-bottom: 1px dashed #eaecef; font-size: 12px; }}
   .cc-user:last-child {{ border-bottom: 0; }}
@@ -884,6 +905,11 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
       <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
       <span id="serve-status" class="muted" style="margin-left:8px"></span>
     </div>
+    <div id="api-config" style="margin-top:8px;display:none">
+      <input id="api-input" class="api-input" placeholder="粘贴刷新服务地址，如 http://192.168.1.8:8651 或 https://your-app.onrender.com">
+      <button class="refresh-btn" onclick="saveApiBase()">保存并连接</button>
+      <span class="muted" style="margin-left:6px">手机/云端无法刷新时：电脑运行 <code>python3 -m src.serve --lan</code> 填局域网地址，或部署云端后填云端域名</span>
+    </div>
     <div class="sub">{esc(date_str)} · 采集于 {esc(report.get('collected_at', ''))} · 数据源 {ok_sources}/{total_sources} 正常</div>
     <div class="sub" style="color:#9a6b1f">统计窗口：{esc((report.get('window') or {}).get('since', ''))} → {esc((report.get('window') or {}).get('until', ''))}（{esc((report.get('window') or {}).get('mode', ''))}）</div>
     <div class="chips">{source_chips}</div>
@@ -911,23 +937,93 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   {error_detail and f'<div class="card"><div class="sec-title">数据源异常</div>{error_detail}</div>'}
 
   <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 {esc(report.get('collected_at', ''))} · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
+
+  <div id="refresh-help" class="modal-mask" style="display:none">
+    <div class="modal">
+      <div class="modal-title">手机 / 云端刷新配置</div>
+      <div id="help-msg" class="muted" style="margin-bottom:6px"></div>
+      <div class="muted" style="margin-bottom:4px">正确网址：<code>https://yonglongl630-ops.github.io/opagg-report/</code>（根域无内容属正常）</div>
+      <div style="margin:8px 0">
+        <input id="help-api" class="api-input" style="width:92%" placeholder="http://192.168.x.x:8651 或 https://你的云端域名">
+      </div>
+      <div style="margin:6px 0">
+        <button class="refresh-btn" onclick="saveHelpApi()">保存并重试刷新</button>
+        <button class="refresh-btn" onclick="closeHelp()" style="color:#777;border-color:#bbb">关闭</button>
+      </div>
+      <div class="muted" style="margin-top:8px;line-height:1.7">
+        方式A·局域网：电脑运行 <code>python3 -m src.serve --lan</code>，手机填 <code>http://电脑IP:8651</code>（同 WiFi）<br>
+        方式B·云端：按 <code>deploy/cloud/README.md</code> 部署后填云端域名，无需本地开机<br>
+        方式C·临时公网：电脑运行 <code>bash deploy/tunnel.sh</code>，手机填 trycloudflare 给的地址
+      </div>
+    </div>
+  </div>
   <script>
   function refreshBase() {{
-    // 「立即刷新」固定调用本机服务（python3 -m src.serve，端口 8651）。
-    // 在线版（GitHub Pages）打开时同样会连回本机服务；刷新完成后自动跳到本机最新日报查看。
+    // 同一来源优先：http/https 打开时直接用当前域名（局域网 IP 或云端域名），手机端同源可用。
+    if (location.protocol === 'http:' || location.protocol === 'https:') {{
+      return location.origin;
+    }}
+    // file:// 打开时：优先 ?api= 参数（并记住），其次 localStorage 保存的地址，最后本机默认。
+    var q = new URLSearchParams(location.search).get('api');
+    if (q) {{
+      try {{ localStorage.setItem('opagg_api', q); }} catch (e) {{}}
+      return q.replace(/\/+$/, '');
+    }}
+    try {{
+      var saved = localStorage.getItem('opagg_api');
+      if (saved) {{ return saved.replace(/\/+$/, ''); }}
+    }} catch (e) {{}}
     return 'http://127.0.0.1:8651';
   }}
+  function showApiConfig() {{
+    var el = document.getElementById('api-config');
+    if (el) {{ el.style.display = 'block'; }}
+    var inp = document.getElementById('api-input');
+    if (inp && !inp.value) {{ inp.value = refreshBase(); }}
+  }}
+  function saveApiBase() {{
+    var v = (document.getElementById('api-input').value || '').trim().replace(/\/+$/, '');
+    if (!v) {{ return; }}
+    try {{ localStorage.setItem('opagg_api', v); }} catch (e) {{}}
+    checkServe();
+    var st = document.getElementById('serve-status');
+    if (st) {{ st.textContent = '已保存刷新地址：' + v + '，正在探测…'; st.style.color = '#9a6b1f'; }}
+  }}
   function checkServe() {{
-    fetch('http://127.0.0.1:8651/api/status')
+    var base = refreshBase();
+    fetch(base + '/api/status')
       .then(function (r) {{ return r.json(); }})
       .then(function () {{
         var el = document.getElementById('serve-status');
-        if (el) {{ el.textContent = '本地服务已连接（点击即可实时刷新）'; el.style.color = '#1a9d57'; }}
+        if (el) {{ el.textContent = '刷新服务已连接：' + base + '（点击即可实时刷新）'; el.style.color = '#1a9d57'; }}
       }})
       .catch(function () {{
         var el = document.getElementById('serve-status');
-        if (el) {{ el.textContent = '本地服务未连接：请先运行 python3 -m src.serve 再刷新'; el.style.color = '#c0392b'; }}
+        if (el) {{ el.textContent = '刷新服务未连接：' + base + '（点上方“保存并连接”可配置手机/云端地址）'; el.style.color = '#c0392b'; }}
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') {{ showApiConfig(); }}
+        if ((location.hostname || '').indexOf('github.io') >= 0) {{
+          showRefreshHelp(base, '当前是 GitHub Pages 静态站，同源没有可执行采集的后端。请在下方配置一个刷新服务地址（局域网 / 云端 / 隧道），保存后重试。');
+        }}
       }});
+  }}
+  function showRefreshHelp(base, msg) {{
+    var el = document.getElementById('refresh-help');
+    if (!el) {{ return; }}
+    document.getElementById('help-msg').textContent = msg || ('当前刷新地址：' + base + '，连接失败。请配置可用的刷新服务。');
+    var inp = document.getElementById('help-api');
+    if (inp && !inp.value) {{ inp.value = base; }}
+    el.style.display = 'flex';
+  }}
+  function closeHelp() {{
+    var el = document.getElementById('refresh-help');
+    if (el) {{ el.style.display = 'none'; }}
+  }}
+  function saveHelpApi() {{
+    var v = (document.getElementById('help-api').value || '').trim().replace(/\/+$/, '');
+    if (!v) {{ return; }}
+    try {{ localStorage.setItem('opagg_api', v); }} catch (e) {{}}
+    closeHelp();
+    refreshData('all');
   }}
   checkServe();
   function refreshData(source) {{
@@ -937,44 +1033,44 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     if (btn) {{ btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }}
     var m = (location.pathname || '').match(/report_(\d{{4}}-\d{{2}}-\d{{2}})/);
     var date = m ? m[1] : '';
-    if (location.protocol !== 'http:' && location.protocol !== 'https:') {{
-      // file:// 打开：先探测本地服务，可达则跳转到服务版页面并自动刷新（同源最稳）
-      fetch('http://127.0.0.1:8651/api/status', {{ method: 'GET' }})
+    var base = refreshBase();
+    if ((location.protocol !== 'http:' && location.protocol !== 'https:') && base.indexOf('127.0.0.1') >= 0) {{
+      // file:// 且未配置地址：先探测本机服务，可达则跳转到服务版页面并自动刷新（同源最稳）
+      fetch(base + '/api/status', {{ method: 'GET' }})
         .then(function () {{
           var f = (location.pathname || '').split('/').pop() || ('report_' + date + '.html');
-          location.href = 'http://127.0.0.1:8651/' + f + '?refresh=1';
+          location.href = base + '/' + f + '?refresh=1';
         }})
         .catch(function () {{
-          alert('本地刷新服务未运行。请先运行 python3 -m src.serve --open（或执行 deploy/install_serve.sh 安装开机自启），再点刷新');
+          showRefreshHelp(base, '无法连接刷新服务（' + base + '）。手机/云端请配置局域网或云端地址；电脑本地请运行 python3 -m src.serve --open。');
           resetRefreshBtns();
         }});
       return;
     }}
-    fetch(refreshBase() + '/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date), {{ method: 'POST' }})
+    fetch(base + '/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date), {{ method: 'POST' }})
       .then(function (r) {{ return r.json(); }})
       .then(function (j) {{
         if (j && j.ok) {{ pollRefresh(); }}
         else {{ alert('刷新启动失败：' + (j && j.error ? j.error : '未知错误')); resetRefreshBtns(); }}
       }})
       .catch(function () {{
-        alert('无法连接本地刷新服务。请先在终端运行：python3 -m src.serve --open（会自动打开 http://127.0.0.1:8651 的日报），再点刷新');
+        showRefreshHelp(base, '无法连接刷新服务（' + base + '）。请确认服务已运行（本机 python3 -m src.serve --lan），或在下方配置云端域名。');
         resetRefreshBtns();
       }});
   }}
   function pollRefresh() {{
     var base = refreshBase();
-    var localOrigin = 'http://127.0.0.1:8651';
     var t = setInterval(function () {{
       fetch(base + '/api/status').then(function (r) {{ return r.json(); }}).then(function (j) {{
         if (j && !j.running) {{
           clearInterval(t);
-          if (location.origin !== localOrigin) {{
-            // 在线页：跳到本机最新日报（刷新结果在本机）
-            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
-            location.href = localOrigin + '/' + html.replace(/^.*[\\/]/, '');
+          if (location.protocol === 'http:' || location.protocol === 'https:') {{
+            // 同源（局域网/云端页面）：带时间戳重载当前页
+            location.href = location.pathname + '?t=' + Date.now();
           }} else {{
-            // 本机服务页：去掉 ?refresh=1 后重载，避免再次自动刷新
-            location.href = location.pathname;
+            // file:// 或跨源：跳到服务端最新日报
+            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+            location.href = base + '/' + html.replace(/^.*[\\/]/, '');
           }}
         }}
       }}).catch(function () {{ clearInterval(t); resetRefreshBtns(); }});

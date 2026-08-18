@@ -11,6 +11,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
+import http.client
 from typing import Any, Dict, Iterable, List, Optional
 
 UA_PC = (
@@ -86,7 +87,9 @@ class Session:
                 if resp.headers.get("Content-Encoding") == "gzip":
                     raw = gzip.decompress(raw)
                 return raw
-            except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+            # Python 3.9 中 socket.timeout / RemoteDisconnected 并非 TimeoutError 子类，用 OSError 兜底；
+            # IncompleteRead 等 http.client.HTTPException 也一并捕获
+            except (urllib.error.HTTPError, urllib.error.URLError, OSError, http.client.HTTPException) as e:
                 last_err = e
                 if attempt < self.retries:
                     time.sleep(0.8 * (attempt + 1))
@@ -157,7 +160,7 @@ class Session:
                 if resp.headers.get("Content-Encoding") == "gzip":
                     raw = gzip.decompress(raw)
                 return json.loads(decode_text(raw))
-            except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as e:
+            except (urllib.error.HTTPError, urllib.error.URLError, OSError, http.client.HTTPException) as e:
                 last_err = e
                 if attempt < self.retries:
                     time.sleep(0.8 * (attempt + 1))

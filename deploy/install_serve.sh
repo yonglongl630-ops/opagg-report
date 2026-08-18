@@ -23,8 +23,9 @@ launchctl unload "$PLIST" 2>/dev/null || true
 launchctl load "$PLIST"
 sleep 1
 if curl -s --max-time 3 "http://127.0.0.1:8651/api/status" >/dev/null 2>&1; then
-  echo "本地刷新服务已启动（开机自启）：http://127.0.0.1:8651"
-  echo "日报页【立即刷新】现在可用；如当前是 file:// 打开，可直接访问 http://127.0.0.1:8651/report_*.html"
+  IP="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || echo 127.0.0.1)"
+  echo "本地刷新服务已启动（开机自启，--lan 手机可访问）：http://127.0.0.1:8651"
+  echo "手机端（同 WiFi）：打开 http://${IP}:8651/report_$(date +%F).html 后点【立即刷新】即可实时更新"
 else
   echo "服务已注册但暂未响应，请查看 $ROOT/data/logs/serve.err.log"
 fi
