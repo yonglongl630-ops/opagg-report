@@ -11,6 +11,7 @@ if [ -z "$ORIGIN" ]; then
   echo "未配置 git remote origin，请先: git remote add origin https://github.com/<用户名>/opagg-report.git"
   exit 1
 fi
+GITEE_URL="$(git remote get-url gitee 2>/dev/null || true)"
 
 # 1) 确保首页最新
 python3 src/site.py --dir output
@@ -33,3 +34,7 @@ git -c user.name="opagg-bot" -c user.email="opagg-bot@users.noreply.github.com" 
   commit -m "日报更新 $(date '+%Y-%m-%d %H:%M')" --allow-empty >/dev/null
 git push origin gh-pages 2>&1 | tail -3
 echo "已发布: $ORIGIN (gh-pages)"
+if [ -n "$GITEE_URL" ]; then
+  echo "检测到 Gitee 远程，开始镜像推送…"
+  git push "$GITEE_URL" gh-pages:gh-pages 2>&1 | tail -3 && echo "已镜像到 Gitee: $GITEE_URL (gh-pages)" || echo "Gitee 镜像推送失败（请检查 Gitee 仓库与网络，可稍后手动重试）"
+fi
