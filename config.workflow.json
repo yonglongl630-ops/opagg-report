@@ -126,7 +126,7 @@
   "hot_limit": 10
  },
  "scheduler": {
-    "daily_enabled": false,
+  "daily_enabled": true,
   "weekly_enabled": true
  },
  "distill": {

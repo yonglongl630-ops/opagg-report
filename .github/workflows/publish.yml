@@ -48,9 +48,11 @@ jobs:
       - name: 生成站点首页
         run: python3 src/site.py --dir output
 
-      - name: 打包数据存档（供下次周报/缓存）
+      - name: 打包数据存档（含 up主 素材，供下次周报/缓存）
         run: |
-          tar -czf output/data.tar.gz -C . data/raw data/summary data/trading_calendar.json 2>/dev/null || true
+          tar -czf output/data.tar.gz -C . \
+            --exclude='data/upmasters/*.xlsx' \
+            data/raw data/summary data/upmasters data/state data/trading_calendar.json 2>/dev/null || true
 
       - name: 发布到 GitHub Pages
         uses: peaceiris/actions-gh-pages@v4

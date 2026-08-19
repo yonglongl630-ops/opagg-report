@@ -3,16 +3,18 @@ name: 舆论蒸馏日报自动生成
 on:
   schedule:
     # GitHub Actions 使用 UTC 时间；北京时间 = UTC+8
-    # 每天 08:00 / 18:00（北京时间）生成日报
-    - cron: '0 0 * * *'
-    - cron: '0 10 * * *'
+    # 工作日 08:00 / 18:00（北京时间）生成日报，15 分钟后兜底一次防漏
+    - cron: '0 0 * * 1-5'
+    - cron: '15 0 * * 1-5'
+    - cron: '0 10 * * 1-5'
+    - cron: '15 10 * * 1-5'
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 concurrency:
-  group: opagg-daily
+  group: opagg-publish
   cancel-in-progress: false
 
 jobs:
@@ -30,26 +32,39 @@ jobs:
 
       - name: 保留既有日报并拉取历史数据（gh-pages）
         run: |
-          rm -rf _gh
+          rm -rf _gh data_backup
           git clone --depth 1 --branch gh-pages "https://github.com/${{ github.repository }}.git" _gh || true
           mkdir -p output data/raw data/summary
           if [ -d _gh ]; then
             cp -f _gh/report_*.html output/ 2>/dev/null || true
             tar -xzf _gh/data.tar.gz -C . 2>/dev/null || true
+            cp -r data data_backup 2>/dev/null || true
           fi
 
-      - name: 生成当日日报
+      - name: 生成当日日报（公共平台实时采集，失败回退缓存）
         env:
           XUEQIU_COOKIE: ${{ secrets.XUEQIU_COOKIE }}
           BILI_COOKIE: ${{ secrets.BILI_COOKIE }}
-        run: python3 scheduler.py --once
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            python3 scheduler.py --is-trading-day || { echo "今天非交易日，跳过生成"; exit 0; }
+          fi
+          python3 scheduler.py --once --force --no-cache --sources guba,xueqiu,ths,jin10,cls,em || {
+            echo "实时采集失败，回退缓存重跑";
+            rm -rf data/raw data/summary;
+            cp -r data_backup/raw data/raw 2>/dev/null || true;
+            cp -r data_backup/summary data/summary 2>/dev/null || true;
+            python3 scheduler.py --once --force;
+          }
 
       - name: 生成站点首页
         run: python3 src/site.py --dir output
 
-      - name: 打包数据存档（供下次生成/缓存）
+      - name: 打包数据存档（含 up主 素材，供下次生成/缓存）
         run: |
-          tar -czf output/data.tar.gz -C . data/raw data/summary data/trading_calendar.json 2>/dev/null || true
+          tar -czf output/data.tar.gz -C . \
+            --exclude='data/upmasters/*.xlsx' \
+            data/raw data/summary data/upmasters data/state data/trading_calendar.json 2>/dev/null || true
 
       - name: 发布到 GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
