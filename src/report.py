@@ -946,6 +946,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
       <div style="margin:8px 0">
         <input id="help-api" class="api-input" style="width:92%" placeholder="http://192.168.x.x:8651 或 https://你的云端域名">
       </div>
+      <div class="muted" style="margin-bottom:4px">若云端设置了 OPAGG_TOKEN，地址写成 <code>https://你的域名?token=你的口令</code>（会分开记忆）</div>
       <div style="margin:6px 0">
         <button class="refresh-btn" onclick="saveHelpApi()">保存并重试刷新</button>
         <button class="refresh-btn" onclick="closeHelp()" style="color:#777;border-color:#bbb">关闭</button>
@@ -953,7 +954,8 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
       <div class="muted" style="margin-top:8px;line-height:1.7">
         方式A·局域网：电脑运行 <code>python3 -m src.serve --lan</code>，手机填 <code>http://电脑IP:8651</code>（同 WiFi）<br>
         方式B·云端：按 <code>deploy/cloud/README.md</code> 部署后填云端域名，无需本地开机<br>
-        方式C·临时公网：电脑运行 <code>bash deploy/tunnel.sh</code>，手机填 trycloudflare 给的地址
+        方式C·临时公网：电脑运行 <code>bash deploy/tunnel.sh</code>，手机填 trycloudflare 给的地址<br>
+        方式D·Tailscale（国内最稳，推荐）：Mac 与手机安装 Tailscale 并登录同一账号，手机填 <code>http://Mac的100.x地址:8651</code>，任何网络都能像同 WiFi 一样刷新
       </div>
     </div>
   </div>
@@ -984,14 +986,34 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   function saveApiBase() {{
     var v = (document.getElementById('api-input').value || '').trim().replace(/\/+$/, '');
     if (!v) {{ return; }}
-    try {{ localStorage.setItem('opagg_api', v); }} catch (e) {{}}
+    saveApiPair(v);
     checkServe();
     var st = document.getElementById('serve-status');
     if (st) {{ st.textContent = '已保存刷新地址：' + v + '，正在探测…'; st.style.color = '#9a6b1f'; }}
   }}
+  function saveApiPair(v) {{
+    // 支持“https://域名?token=口令”的写法：拆成地址 + 口令分别保存
+    var base = v, token = '';
+    var qi = v.indexOf('?token=');
+    if (qi >= 0) {{
+      base = v.substring(0, qi);
+      token = v.substring(qi + 7);
+    }}
+    try {{
+      localStorage.setItem('opagg_api', base);
+      if (token) {{ localStorage.setItem('opagg_token', token); }}
+      else {{ localStorage.removeItem('opagg_token'); }}
+    }} catch (e) {{}}
+  }}
+  function apiUrl(path) {{
+    var b = refreshBase();
+    var t = '';
+    try {{ t = localStorage.getItem('opagg_token') || ''; }} catch (e) {{}}
+    return b + path + (t ? ((path.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(t)) : '');
+  }}
   function checkServe() {{
     var base = refreshBase();
-    fetch(base + '/api/status')
+    fetch(apiUrl('/api/status'))
       .then(function (r) {{ return r.json(); }})
       .then(function () {{
         var el = document.getElementById('serve-status');
@@ -1021,7 +1043,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   function saveHelpApi() {{
     var v = (document.getElementById('help-api').value || '').trim().replace(/\/+$/, '');
     if (!v) {{ return; }}
-    try {{ localStorage.setItem('opagg_api', v); }} catch (e) {{}}
+    saveApiPair(v);
     closeHelp();
     refreshData('all');
   }}
@@ -1036,7 +1058,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     var base = refreshBase();
     if ((location.protocol !== 'http:' && location.protocol !== 'https:') && base.indexOf('127.0.0.1') >= 0) {{
       // file:// 且未配置地址：先探测本机服务，可达则跳转到服务版页面并自动刷新（同源最稳）
-      fetch(base + '/api/status', {{ method: 'GET' }})
+      fetch(apiUrl('/api/status'), {{ method: 'GET' }})
         .then(function () {{
           var f = (location.pathname || '').split('/').pop() || ('report_' + date + '.html');
           location.href = base + '/' + f + '?refresh=1';
@@ -1047,7 +1069,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         }});
       return;
     }}
-    fetch(base + '/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date), {{ method: 'POST' }})
+    fetch(apiUrl('/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date)), {{ method: 'POST' }})
       .then(function (r) {{ return r.json(); }})
       .then(function (j) {{
         if (j && j.ok) {{ pollRefresh(); }}
@@ -1061,7 +1083,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
   function pollRefresh() {{
     var base = refreshBase();
     var t = setInterval(function () {{
-      fetch(base + '/api/status').then(function (r) {{ return r.json(); }}).then(function (j) {{
+      fetch(apiUrl('/api/status')).then(function (r) {{ return r.json(); }}).then(function (j) {{
         if (j && !j.running) {{
           clearInterval(t);
           if (location.protocol === 'http:' || location.protocol === 'https:') {{

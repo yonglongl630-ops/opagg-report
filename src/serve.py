@@ -216,6 +216,15 @@ class Handler(BaseHTTPRequestHandler):
             with _lock:
                 self._send_json(200, dict(_publish_state))
             return
+        if parsed.path == "/tunnel-url":
+            # 返回当前 cloudflared 公网地址（供局域网内查看）
+            try:
+                with open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "tunnel_url.txt"), encoding="utf-8") as f:
+                    url = f.read().strip()
+            except OSError:
+                url = ""
+            self._send_json(200, {"url": url, "report": (url + "/report_%s.html" % default_date()) if url else ""})
+            return
         if parsed.path == "/api/publish":
             if not self._check_token():
                 self._send_json(403, {"ok": False, "error": "token 无效"})
