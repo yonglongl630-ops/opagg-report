@@ -262,7 +262,7 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     )
 
     # 关键词 / 梗
-    kw_max = max((k.get("freq", 0) or 0) for k in keywords) or 1
+    kw_max = max(((k.get("freq", 0) or 0) for k in keywords), default=0) or 1
     kw_html = "".join(
         f"""
         <div class="rank-row">

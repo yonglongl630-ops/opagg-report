@@ -51,6 +51,8 @@ def run_once(sources=None, use_cache=True, since_hours=None, incremental=False, 
         cfg, date, sources=sources, use_cache=use_cache,
         since_hours=since_hours, incremental=incremental, last_run_ts=last_run_ts,
     )
+    if not (report.get("posts") or []):
+        raise RuntimeError("所有数据源均未采集到内容，本次日报未生成（网络或风控问题，保留旧日报）")
     print_report_summary(report)
     save_json(LAST_RUN, {
         "ts": time.strftime("%Y-%m-%d %H:%M:%S"),

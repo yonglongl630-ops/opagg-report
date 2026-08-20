@@ -17,6 +17,7 @@ python3 scheduler.py --is-trading-day >> "$LOG" 2>&1 || {
 # 实时采集：8:00/18:00 都拉最新数据（--no-cache）；失败时回退缓存重跑
 if ! python3 scheduler.py --once --force --no-cache >> "$LOG" 2>&1; then
   echo "实时采集失败，回退缓存重跑" | tee -a "$LOG"
+  rm -f "data/raw/$(date +%F).json"
   if ! python3 scheduler.py --once --force >> "$LOG" 2>&1; then
     echo "采集失败，保留旧日报。日志：$LOG" | tee -a "$LOG"
     exit 1

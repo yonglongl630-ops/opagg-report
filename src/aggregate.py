@@ -53,6 +53,9 @@ def collect_day(
         "sources": dict(cached.get("sources", {}) or {}),
     }
     need = []
+    cached_posts_by_src: Dict[str, List[Dict[str, Any]]] = {}
+    for p in cached.get("posts", []) or []:
+        cached_posts_by_src.setdefault(p.get("source") or "", []).append(p)
     if use_cache:
         for name in enabled:
             if name in result["sources"]:
@@ -96,8 +99,16 @@ def collect_day(
         except Exception as e:  # noqa: BLE001
             out = {"status": "error", "error": str(e), "posts": [], "items": {}}
         posts = out.get("posts", []) or []
+        if out.get("status") == "error" and cached_posts_by_src.get(name):
+            # 实时采集失败：保留该源的历史缓存，避免日报内容空洞
+            posts = cached_posts_by_src[name]
+            out["error"] = (out.get("error") or "") + "（已回退当日缓存）"
         result["posts"] += posts
-        result["items"][name] = out.get("items", {}) or {}
+        result["items"][name] = (
+            (cached.get("items", {}) or {}).get(name, {}) or {}
+            if out.get("status") == "error" and cached_posts_by_src.get(name)
+            else (out.get("items", {}) or {})
+        )
         result["sources"][name] = {
             "label": SOURCE_LABELS.get(name, name),
             "status": out.get("status", "ok"),
