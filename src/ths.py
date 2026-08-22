@@ -43,6 +43,9 @@ class ThsClient:
             concept = (tag.get("concept_tag") or [])[:2]
             popularity = tag.get("popularity_tag") or ""
             topic = it.get("topic") or it.get("analyse_title") or ""
+            if isinstance(topic, dict):
+                # 接口里 topic 可能是 {"topic_code": "...", "title": "..."} 结构
+                topic = topic.get("title") or ""
             out.append({
                 "name": name,
                 "code": code,
