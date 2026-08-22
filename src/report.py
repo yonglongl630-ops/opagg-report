@@ -350,7 +350,10 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
             if not u.get("dynamics_ok", True):
                 charge_state = "动态接口被风控拦截（-352），未取到动态；配置 B站 cookie 后可解锁充电专属内容"
             elif charge_dyn_n:
-                if charge_locked:
+                locked_n = sum(1 for d in charge_dyns if "仅充电用户可见" in (d.get("content") or ""))
+                if charge_locked and locked_n < charge_dyn_n:
+                    charge_state = f"近{charge_dyn_n}条动态中含充电专属（{locked_n}条需 B站 cookie 解锁，其余已展示全文）"
+                elif charge_locked:
                     charge_state = f"近{charge_dyn_n}条动态中含充电专属（🔒内容需 B站 cookie 解锁后展示全文）"
                 else:
                     charge_state = (
@@ -955,14 +958,25 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         方式A·局域网：电脑运行 <code>python3 -m src.serve --lan</code>，手机填 <code>http://电脑IP:8651</code>（同 WiFi）<br>
         方式B·云端：按 <code>deploy/cloud/README.md</code> 部署后填云端域名，无需本地开机<br>
         方式C·临时公网：电脑运行 <code>bash deploy/tunnel.sh</code>，手机填 trycloudflare 给的地址<br>
-        方式D·Tailscale（国内最稳，推荐）：Mac 与手机安装 Tailscale 并登录同一账号，手机填 <code>http://Mac的100.x地址:8651</code>，任何网络都能像同 WiFi 一样刷新
+        方式D·Tailscale：Mac 与手机安装 Tailscale 并登录同一账号，手机填 <code>http://Mac的100.x地址:8651</code><br>
+        方式E·花生壳（推荐公网）：电脑运行本地刷新服务并保持花生壳客户端在线（映射 8651），
+        手机/电脑任何网络打开 <code>http://sf12894020jr.vicp.fun</code> 即可「立即刷新」，
+        GitHub Pages 版会自动走该地址刷新并同步发布
       </div>
     </div>
   </div>
   <script>
+  // GitHub Pages 静态站默认回退的刷新服务（花生壳映射到本机 8651）
+  var DEFAULT_API = 'http://sf12894020jr.vicp.fun';
   function refreshBase() {{
     // 同一来源优先：http/https 打开时直接用当前域名（局域网 IP 或云端域名），手机端同源可用。
     if (location.protocol === 'http:' || location.protocol === 'https:') {{
+      // GitHub Pages 是纯静态站，没有采集后端：自动使用已保存地址或花生壳默认地址
+      if ((location.hostname || '').indexOf('github.io') >= 0) {{
+        var savedApi = null;
+        try {{ savedApi = localStorage.getItem('opagg_api'); }} catch (e) {{}}
+        return (savedApi || DEFAULT_API).replace(/\/+$/, '');
+      }}
       return location.origin;
     }}
     // file:// 打开时：优先 ?api= 参数（并记住），其次 localStorage 保存的地址，最后本机默认。
@@ -1024,7 +1038,9 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
         if (el) {{ el.textContent = '刷新服务未连接：' + base + '（点上方“保存并连接”可配置手机/云端地址）'; el.style.color = '#c0392b'; }}
         if (location.protocol !== 'http:' && location.protocol !== 'https:') {{ showApiConfig(); }}
         if ((location.hostname || '').indexOf('github.io') >= 0) {{
-          showRefreshHelp(base, '当前是 GitHub Pages 静态站，同源没有可执行采集的后端。请在下方配置一个刷新服务地址（局域网 / 云端 / 隧道），保存后重试。');
+          showRefreshHelp(base, 'GitHub Pages 静态站已自动改用刷新服务：' + base +
+            '。若仍未连接，请确认电脑已开机且本地服务/花生壳在线（映射 8651）；' +
+            '首次使用若提示需要口令，请在下方地址后补上 ?token=你的口令 后保存。');
         }}
       }});
   }}
@@ -1073,7 +1089,18 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
       .then(function (r) {{ return r.json(); }})
       .then(function (j) {{
         if (j && j.ok) {{ pollRefresh(); }}
-        else {{ alert('刷新启动失败：' + (j && j.error ? j.error : '未知错误')); resetRefreshBtns(); }}
+        else {{
+          var err = (j && j.error ? j.error : '未知错误');
+          if (err.indexOf('token') >= 0) {{
+            // 服务要求口令：弹配置框并预填“当前地址?token=”，用户只需粘贴口令
+            var inp = document.getElementById('help-api');
+            if (inp && !inp.value) {{ inp.value = location.origin + '?token='; }}
+            showRefreshHelp(base, '该刷新服务需要口令（当前没带 token，被拒绝）。请在地址后补上 ?token=你的口令，例如 ' + location.origin + '?token=你的口令');
+          }} else {{
+            alert('刷新启动失败：' + err);
+          }}
+          resetRefreshBtns();
+        }}
       }})
       .catch(function () {{
         showRefreshHelp(base, '无法连接刷新服务（' + base + '）。请确认服务已运行（本机 python3 -m src.serve --lan），或在下方配置云端域名。');
@@ -1084,19 +1111,59 @@ def render_report(report: Dict[str, Any], config: Dict[str, Any]) -> str:
     var base = refreshBase();
     var t = setInterval(function () {{
       fetch(apiUrl('/api/status')).then(function (r) {{ return r.json(); }}).then(function (j) {{
-        if (j && !j.running) {{
-          clearInterval(t);
-          if (location.protocol === 'http:' || location.protocol === 'https:') {{
-            // 同源（局域网/云端页面）：带时间戳重载当前页
-            location.href = location.pathname + '?t=' + Date.now();
-          }} else {{
-            // file:// 或跨源：跳到服务端最新日报
-            var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
-            location.href = base + '/' + html.replace(/^.*[\\/]/, '');
+          if (j && !j.running) {{
+            clearInterval(t);
+            var isHsUrl = (base || '').indexOf('vicp.fun') >= 0;
+            if ((location.hostname || '').indexOf('github.io') >= 0 || isHsUrl) {{
+              // GitHub Pages / 花生壳：刷新完成后自动发布到 GitHub Pages，实现两站同步
+              publishAndReload(base, location.pathname + '?t=' + Date.now());
+            }} else if (location.protocol === 'http:' || location.protocol === 'https:') {{
+              // 同源（局域网/云端页面）：带时间戳重载当前页
+              location.href = location.pathname + '?t=' + Date.now();
+            }} else {{
+              // file:// 或跨源：跳到服务端最新日报
+              var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+              location.href = base + '/' + html.replace(/^.*[\\/]/, '');
+            }}
           }}
-        }}
-      }}).catch(function () {{ clearInterval(t); resetRefreshBtns(); }});
+        }}).catch(function () {{ clearInterval(t); resetRefreshBtns(); }});
     }}, 2500);
+  }}
+  function publishAndReload(base, reloadUrl) {{
+    var st = document.getElementById('serve-status');
+    if (st) {{ st.textContent = '日报已刷新，正在同步到 GitHub Pages…'; st.style.color = '#9a6b1f'; }}
+    fetch(apiUrl('/api/publish'), {{ method: 'POST' }})
+      .then(function (r) {{ return r.json(); }})
+      .then(function (j) {{
+        if (!j || !j.ok) {{
+          var msg = (j && j.message) ? j.message : '未知错误';
+          if (st) {{ st.textContent = '刷新完成，但发布未启动：' + msg; st.style.color = '#c0392b'; }}
+          resetRefreshBtns();
+          return;
+        }}
+        var t = setInterval(function () {{
+          fetch(apiUrl('/api/publish-status'))
+            .then(function (r) {{ return r.json(); }})
+            .then(function (p) {{
+              if (p && !p.running) {{
+                clearInterval(t);
+                var err = p && p.error;
+                if (st) {{
+                  st.textContent = err
+                    ? ('发布失败：' + err + '，请稍后在电脑上手动运行 bash deploy/gh_pages_push.sh')
+                    : '已刷新并发布，GitHub Pages 约 1 分钟后更新';
+                  st.style.color = err ? '#c0392b' : '#1a9d57';
+                }}
+                setTimeout(function () {{ location.href = reloadUrl; }}, err ? 6000 : 3500);
+              }}
+            }})
+            .catch(function () {{ clearInterval(t); resetRefreshBtns(); }});
+        }}, 3000);
+      }})
+      .catch(function () {{
+        if (st) {{ st.textContent = '刷新完成，但发布请求失败（请确认服务在线）'; st.style.color = '#c0392b'; }}
+        resetRefreshBtns();
+      }});
   }}
   function resetRefreshBtns() {{
     var btn = document.getElementById('refresh-btn');

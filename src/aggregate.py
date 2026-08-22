@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import os
+import glob
 import time
 from typing import Any, Dict, Iterable, List
 
 from . import distill
-from .common import load_json, log, now_str, save_json
+from .common import clean_text, load_json, log, now_str, save_json
 from .config import ROOT, load_config
 
 DATA_DIR = os.path.join(ROOT, "data")
@@ -26,6 +27,81 @@ SOURCE_LABELS = {
     "cls": "财联社",
     "em": "东方财富",
 }
+
+CHARGE_PLACEHOLDER = "充电专属动态（仅充电用户可见）"
+
+
+def _backfill_charge_dynamics(result: Dict[str, Any]) -> int:
+    """B站充电专属动态内容回填：
+    本次采集未解锁（cookie 失效/风控）时，从历史 raw 中找回同一 dyn_id 已采集到的全文，
+    避免日报里最近充电动态变成占位文案。"""
+    ups = ((result.get("items", {}) or {}).get("bilibili", {}) or {}).get("upmasters", []) or []
+    if not ups and not (result.get("posts") or []):
+        return 0
+    today = result.get("date", "")
+    hist: Dict[str, Dict[str, Any]] = {}
+    for path in sorted(glob.glob(os.path.join(RAW_DIR, "*.json"))):
+        if today and os.path.basename(path) == f"{today}.json":
+            continue
+        try:
+            old = load_json(path) or {}
+        except Exception:  # noqa: BLE001
+            continue
+        for u in (((old.get("items", {}) or {}).get("bilibili", {}) or {}).get("upmasters", []) or []):
+            for d in u.get("dynamics", []) or []:
+                did = str((d.get("extra") or {}).get("dyn_id", ""))
+                if not did:
+                    continue
+                content = (d.get("content") or "").strip()
+                if content and content != CHARGE_PLACEHOLDER:
+                    cur = hist.get(did) or {}
+                    if len(content) > len(cur.get("content", "") or ""):
+                        hist[did] = {
+                            "content": content,
+                            "title": (d.get("title") or "").strip(),
+                            "likes": d.get("likes", 0) or 0,
+                            "comments": d.get("comments", 0) or 0,
+                        }
+    if not hist:
+        return 0
+    fixed = 0
+    for u in ups:
+        for d in u.get("dynamics", []) or []:
+            ex = d.get("extra") or {}
+            if not ex.get("charge_exclusive"):
+                continue
+            did = str(ex.get("dyn_id", ""))
+            if did and hist.get(did):
+                h = hist[did]
+                content = (d.get("content") or "").strip()
+                if not content or content == CHARGE_PLACEHOLDER:
+                    d["content"] = h["content"]
+                    fixed += 1
+                if CHARGE_PLACEHOLDER in (d.get("title") or "") or not (d.get("title") or "").strip():
+                    d["title"] = clean_text(h["content"], 50)
+                if not (d.get("likes") or 0):
+                    d["likes"] = h["likes"]
+                if not (d.get("comments") or 0):
+                    d["comments"] = h["comments"]
+    for p in result.get("posts", []) or []:
+        ex = p.get("extra") or {}
+        did = str(ex.get("dyn_id", ""))
+        if not did or not hist.get(did):
+            continue
+        content = (p.get("content") or "").strip()
+        if not content or content == CHARGE_PLACEHOLDER:
+            h = hist[did]
+            p["content"] = h["content"]
+            if CHARGE_PLACEHOLDER in (p.get("title") or "") or not (p.get("title") or "").strip():
+                p["title"] = clean_text(h["content"], 50)
+            if not (p.get("likes") or 0):
+                p["likes"] = h["likes"]
+            if not (p.get("comments") or 0):
+                p["comments"] = h["comments"]
+            fixed += 1
+    if fixed:
+        log.info("充电专属动态内容回填: %d 条", fixed)
+    return fixed
 
 
 def collect_day(
@@ -117,6 +193,7 @@ def collect_day(
             "elapsed_ms": int((time.time() - t0) * 1000),
         }
         log.info("%s 采集完成: %s (%d 条)", name, out.get("status"), len(posts))
+    _backfill_charge_dynamics(result)
     if need:
         result["collected_at"] = now_str()
         save_json(raw_path, result)

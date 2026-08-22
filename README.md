@@ -119,8 +119,10 @@ up主 卡片细节（默认展开）：**视频分析**（窗口内近期视频 
 
 ## 定时运行与「立即刷新」
 
-> 默认已停止每日自动采集（`config.json → scheduler.daily_enabled=false`），
-> 改为查看日报时点击页面上的 **🔄 立即刷新** 按钮实时重采集；**周日周报保留**（`weekly_enabled=true`）。
+> 当前自动化：**工作日 08:00 / 18:00（北京时间）自动生成日报**——本机 launchd（`com.opagg.daily`，
+> 通过 Terminal 运行以绕开 macOS TCC 限制）+ GitHub Actions 云端兜底（`.github/workflows/daily.yml`，
+> 公共平台实时采集、失败回退缓存），周报固定周日 15:00 生成。随时也可以点日报页面的
+> **🔄 立即刷新** 手动重采集（需要本地刷新服务在线，见下）。
 
 调度器内置 A股交易日历（`data/trading_calendar.json`，含 2026 官方休市安排，跨年后请更新）：
 
@@ -149,11 +151,24 @@ python3 -m src.serve --cloud    # 云端模式（绑定 0.0.0.0，配合 OPAGG_T
 
 - 局域网：电脑运行 `python3 -m src.serve --lan`，手机填终端打印的 `http://192.168.x.x:8651`
 - 云端：按 `deploy/cloud/README.md` 部署（Render/Railway/Fly/VPS，Dockerfile 已附），填 `https://你的域名`
+- **花生壳（推荐公网）**：电脑保持 `com.opagg.serve` 在线 + 花生壳客户端在线，
+  把 `sf12894020jr.vicp.fun` 映射到本机 `127.0.0.1:8651`；手机/电脑任何网络打开
+  `http://sf12894020jr.vicp.fun` 即可「立即刷新」。
+
+GitHub Pages 静态站（`https://yonglongl630-ops.github.io/opagg-report/`）没有采集后端，
+页面 JS 已内置花生壳默认地址作为刷新服务：打开后直接点「🔄 立即刷新」即可
+（首次若提示需要口令，在地址后补 `?token=你的口令`，`data/secrets.json → opagg_token`）。
+刷新完成后会自动调用 `/api/publish` 把最新日报发布回 GitHub Pages，两站约 1 分钟后同步。
 
 云端部署后手机在任何网络都能打开日报并点击「立即刷新」重采集，无需本地电脑开机；GitHub Actions
 （`.github/workflows/daily.yml`）还支持每天 08:00 / 18:00 无人值守生成并发布到 Pages
 （需在仓库 Secrets 配置 `BILI_COOKIE`、`XUEQIU_COOKIE`；云端 IP 可能被部分平台 WAF 拦截，
 失败源会在日报“数据源异常”区标注，其余源照常出日报）。
+
+**充电专属动态**：B站 cookie 失效时，最新采集会把充电动态正文降级为占位文案；系统会自动从历史
+`data/raw/*.json` 回填同一 `dyn_id` 已采集过的全文（`src/aggregate.py → _backfill_charge_dynamics`）。
+全新发布的充电动态若从未用有效 cookie 采集过，需刷新 `config.json → bilibili.cookie` 后重跑
+`python3 scheduler.py --once --force --no-cache --sources bilibili`。
 
 如需重新开启 macOS launchd 定时任务（会写入 `~/Library/LaunchAgents`）：
 
