@@ -1,13 +1,9 @@
 name: 舆论蒸馏日报自动生成
 
 on:
-  schedule:
-    # GitHub Actions 使用 UTC 时间；北京时间 = UTC+8
-    # 工作日 08:00 / 18:00（北京时间）生成日报，15 分钟后兜底一次防漏
-    - cron: '0 0 * * 1-5'
-    - cron: '15 0 * * 1-5'
-    - cron: '0 10 * * 1-5'
-    - cron: '15 10 * * 1-5'
+  # 说明：日报由 Mac 本地 launchd 定时生成并发布（7 源全量、雪球正常）。
+  # GitHub Actions 仅保留手动触发（Run workflow），避免云端 IP 被雪球 WAF 拦截的
+  # 降级版本覆盖本地正常版本。
   workflow_dispatch: {}
 
 permissions:
