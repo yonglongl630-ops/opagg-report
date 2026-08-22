@@ -8,12 +8,6 @@ mkdir -p data/logs
 LOG="data/logs/daily_terminal_$(date '+%Y%m%d_%H%M').log"
 echo "==== 日报自动生成开始 $(date '+%Y-%m-%d %H:%M:%S') ====" | tee -a "$LOG"
 
-# 非交易日直接跳过（launchd 每天都触发，仅工作日生成）
-python3 scheduler.py --is-trading-day >> "$LOG" 2>&1 || {
-  echo "今天非交易日，跳过生成" | tee -a "$LOG"
-  exit 0
-}
-
 # 实时采集：8:00/18:00 都拉最新数据（--no-cache）；失败时回退缓存重跑
 if ! python3 scheduler.py --once --force --no-cache >> "$LOG" 2>&1; then
   echo "实时采集失败，回退缓存重跑" | tee -a "$LOG"
