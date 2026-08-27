@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>当日舆论蒸馏日报 · 2026-08-27</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #24292f; line-height: 1.55; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 18px 60px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 24px; }
+  .sub { color: #6a737d; font-size: 13px; margin-top: 4px; }
+  .chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-chip { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .refresh-btn { border: 1px solid #5b6ee8; color: #5b6ee8; background: #fff; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer; }
+  .refresh-btn:hover { background: #f0f4ff; }
+  .refresh-btn:disabled { opacity: .6; cursor: wait; }
+  .api-input { width: 320px; max-width: 70%; padding: 5px 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
+  .modal-mask { position: fixed; inset: 0; background: rgba(20,24,33,.55); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: #fff; border-radius: 12px; padding: 18px; max-width: 460px; width: 100%; box-shadow: 0 8px 30px rgba(0,0,0,.2); }
+  .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .refresh-link { color: #5b6ee8; text-decoration: none; font-weight: 700; }
+  .chip { display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
+  .badge { display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }
+  .header-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 1100px) { .header-cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .header-cards { grid-template-columns: 1fr; } }
+  .hcard { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); min-height: 240px; display: flex; flex-direction: column; }
+  .hcard-title { font-size: 13px; font-weight: 700; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid; display: flex; align-items: center; gap: 6px; }
+  .hcard-body { flex: 1; font-size: 12px; max-height: 380px; overflow-y: auto; }
+  .hcard-sub { font-size: 11px; font-weight: 700; color: #57606a; margin: 8px 0 4px; padding-top: 6px; border-top: 1px dashed #eaecef; }
+  .hcard-sub:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .hcard-foot { color: #8b949e; font-size: 10px; margin-top: 8px; border-top: 1px dashed #eaecef; padding-top: 6px; }
+  .hrow { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }
+  .hrow-ex { flex-basis: 100%; display: none; font-size: 12px; color: #57606a; padding: 2px 0 4px 30px; }
+  @media (hover: none), (max-width: 640px) { .hrow-ex { display: block; } }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow.dim { opacity: .72; }
+  .hrow-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hrow-idx { color: #8b949e; font-size: 11px; min-width: 18px; text-align: right; }
+  .hrow-meta { color: #57606a; font-size: 11px; text-align: right; white-space: nowrap; }
+  .topic-block { margin: 6px 0; padding: 7px 9px; background: #fafbfc; border: 1px solid #eef0f2; border-radius: 8px; }
+  .topic-block .hrow { padding: 3px 0; border-bottom: 0; }
+  .pct { font-weight: 700; font-size: 12px; min-width: 52px; text-align: right; }
+  .imp { color: #e8a33d; font-size: 11px; min-width: 22px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .stat b { font-size: 24px; display: block; }
+  .stat span { color: #6a737d; font-size: 12px; }
+  .sentibar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+  .pos { background: #d93026; } .neu { background: #c8c8c8; } .neg { background: #0f8a4d; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rank-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .rank-name { width: 96px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-bar { flex: 1; background: #f0f1f3; border-radius: 4px; height: 12px; }
+  .rank-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg,#f6a05f,#e6532a); }
+  .rank-num { width: 56px; font-size: 12px; color: #6a737d; text-align: right; }
+  .meme-item { padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .meme-item:last-child { border-bottom: 0; }
+  .meme-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .meme-meta { font-size: 12px; color: #6a737d; }
+  .meme-ex { font-size: 12px; color: #6a737d; margin-top: 2px; }
+  .topic-head { display: flex; align-items: center; gap: 8px; }
+  .topic-phrases { color: #57606a; font-size: 12px; margin: 4px 0 8px; }
+  .post-list { list-style: none; }
+  .post-list li { padding: 4px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .post-list a { color: #0969da; text-decoration: none; }
+  .hot-row { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .hot-idx { color: #e6532a; font-weight: 700; width: 20px; }
+  .muted { color: #6a737d; font-size: 12px; }
+  .mini-card { margin-bottom: 10px; padding: 12px; }
+  .topic-sum { font-size: 12px; color: #57606a; margin-top: 4px; }
+  .up-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 800px) { .up-grid { grid-template-columns: 1fr; } }
+  .up-video { padding: 6px 0; border-bottom: 1px dashed #eaecef; }
+  .up-video-title a { color: #0969da; text-decoration: none; font-size: 13px; }
+  .up-video-meta { margin-top: 2px; }
+  .quote { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #eaecef; }
+  .quote-q { color: #24292f; }
+  .up-head-row { display: flex; align-items: center; gap: 10px; }
+  .up-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #f0f1f3; }
+  .up-meta { color: #6a737d; font-size: 12px; margin-top: 2px; }
+  .dyn-item { padding: 6px 0; border-bottom: 1px dashed #eaecef; font-size: 13px; }
+  .dyn-item:last-child { border-bottom: 0; }
+  .dyn-meta { color: #6a737d; font-size: 11px; margin-top: 2px; }
+  .dyn-body { color: #57606a; font-size: 12px; margin-top: 3px; }
+  .dyn-point { color: #24292f; font-size: 13px; margin-top: 3px; }
+  .dyn-raw { margin-top: 4px; font-size: 12px; color: #57606a; }
+  .dyn-raw summary { cursor: pointer; color: #0969da; font-size: 12px; }
+  .dyn-raw[open] summary { margin-bottom: 4px; }
+  .cc-users { margin-top: 8px; }
+  .cc-user { padding: 5px 0; border-bottom: 1px dashed #eaecef; font-size: 12px; }
+  .cc-user:last-child { border-bottom: 0; }
+  .up-tabs { display: flex; gap: 12px; margin: 10px 0 4px; font-size: 13px; font-weight: 700; color: #57606a; }
+  .topic-chip { padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-chip:last-child { border-bottom: 0; }
+  .board-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .board-list { margin-top: 4px; }
+  .board-chip { display: inline-flex; align-items: baseline; gap: 6px; background: #f0f4ff; border: 1px solid #d9e2ff; border-radius: 8px; padding: 5px 10px; font-size: 12px; }
+  .up-summary-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .up-summary-row:last-child { border-bottom: 0; }
+  .up-summary-main { flex: 1; }
+  .up-detail { background: #fff; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .up-detail summary { cursor: pointer; font-size: 14px; color: #24292f; }
+  .up-detail[open] summary { margin-bottom: 6px; }
+  .merge-panel { background: linear-gradient(180deg,#fff, #fbfcff); }
+  .merge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 800px) { .merge-grid { grid-template-columns: 1fr; } }
+  .plat-chip { display: inline-block; border-radius: 4px; color: #fff; font-size: 10px; padding: 1px 5px; margin-right: 3px; }
+  .hrow-meta .plat-chip { margin-left: 2px; }
+  .topic-summary-row { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-summary-row:last-child { border-bottom: 0; }
+  .topic-summary-main { flex: 1; }
+  .src-error { color: #c0392b; font-size: 12px; margin-top: 6px; }
+  footer { color: #8b949e; font-size: 12px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>当日舆论蒸馏日报</h1>
+    <div style="margin-top:8px">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
+      <span id="serve-status" class="muted" style="margin-left:8px"></span>
+    </div>
+    <div id="api-config" style="margin-top:8px;display:none">
+      <input id="api-input" class="api-input" placeholder="粘贴刷新服务地址，如 http://192.168.1.8:8651 或 https://your-app.onrender.com">
+      <button class="refresh-btn" onclick="saveApiBase()">保存并连接</button>
+      <span class="muted" style="margin-left:6px">手机/云端无法刷新时：电脑运行 <code>python3 -m src.serve --lan</code> 填局域网地址，或部署云端后填云端域名</span>
+    </div>
+    <div class="sub">2026-08-27 · 采集于 2026-08-27 21:24:05 · 数据源 3/7 正常</div>
+    <div class="sub" style="color:#9a6b1f">统计窗口：2026-08-27 00:00:00 → 2026-08-27 18:00:27（当天 00:00 起）</div>
+    <div class="chips"><span class="src-chip" style="border-color:#fb7299">B站 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#e6532a">股吧 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#3a8ee6">雪球 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#f0a020">同花顺 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#e8a33d">金十 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#1f9d8a">财联社 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#e0322b">东方财富 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span></div>
+  </header>
+
+  <div class="header-cards">
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#3a8ee6">雪球热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="hrow" title="雪球热门股票：胜宏科技（SZ300476）热度 19172"><span class="hrow-idx">1</span><span class="hrow-name">胜宏科技</span><span class="hrow-meta">热度 1.9万</span><div class="hrow-ex">雪球热门股票：胜宏科技（SZ300476）热度 19172</div></div><div class="hrow" title="雪球热门股票：英伟达（NVDA）热度 16876"><span class="hrow-idx">2</span><span class="hrow-name">英伟达</span><span class="hrow-meta">热度 1.7万</span><div class="hrow-ex">雪球热门股票：英伟达（NVDA）热度 16876</div></div><div class="hrow" title="雪球热门股票：云南锗业（SZ002428）热度 8212"><span class="hrow-idx">3</span><span class="hrow-name">云南锗业</span><span class="hrow-meta">热度 8212</span><div class="hrow-ex">雪球热门股票：云南锗业（SZ002428）热度 8212</div></div><div class="hrow" title="雪球热门股票：云铝股份（SZ000807）热度 8059"><span class="hrow-idx">4</span><span class="hrow-name">云铝股份</span><span class="hrow-meta">热度 8059</span><div class="hrow-ex">雪球热门股票：云铝股份（SZ000807）热度 8059</div></div><div class="hrow" title="雪球热门股票：德明利（SZ001309）热度 7390"><span class="hrow-idx">5</span><span class="hrow-name">德明利</span><span class="hrow-meta">热度 7390</span><div class="hrow-ex">雪球热门股票：德明利（SZ001309）热度 7390</div></div><div class="hrow" title="雪球热门股票：天齐锂业（SZ002466）热度 7018"><span class="hrow-idx">6</span><span class="hrow-name">天齐锂业</span><span class="hrow-meta">热度 7018</span><div class="hrow-ex">雪球热门股票：天齐锂业（SZ002466）热度 7018</div></div><div class="hrow" title="雪球热门股票：协创数据（SZ300857）热度 6348"><span class="hrow-idx">7</span><span class="hrow-name">协创数据</span><span class="hrow-meta">热度 6348</span><div class="hrow-ex">雪球热门股票：协创数据（SZ300857）热度 6348</div></div><div class="hrow" title="雪球热门股票：阳光电源（SZ300274）热度 6250"><span class="hrow-idx">8</span><span class="hrow-name">阳光电源</span><span class="hrow-meta">热度 6250</span><div class="hrow-ex">雪球热门股票：阳光电源（SZ300274）热度 6250</div></div><div class="hrow" title="雪球热门股票：麦格米特（SZ002851）热度 5637"><span class="hrow-idx">9</span><span class="hrow-name">麦格米特</span><span class="hrow-meta">热度 5637</span><div class="hrow-ex">雪球热门股票：麦格米特（SZ002851）热度 5637</div></div><div class="hrow" title="雪球热门股票：海尔智家（SH600690）热度 5073"><span class="hrow-idx">10</span><span class="hrow-name">海尔智家</span><span class="hrow-meta">热度 5073</span><div class="hrow-ex">雪球热门股票：海尔智家（SH600690）热度 5073</div></div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="临近尾盘，存储芯片概念持续走高，德明利涨停，大普微20cm涨停，恒烁股份、澜起科技、联芸科技、香农芯创、普冉股份、佰维存…"><span class="hrow-idx">1</span><span class="hrow-name">存储芯片概念走强，德明利涨停</span><span class="hrow-meta">72讨论</span><div class="hrow-ex">临近尾盘，存储芯片概念持续走高，德明利涨停，大普微20cm涨停，恒烁股份、澜起科技、联芸科技、香农芯创、普冉股份、佰维存…</div></div><div class="hrow" title="海尔智家发布2026年半年度报告，公司营业收入同比下降2.80%，归母净利润同比下降14.27%。…"><span class="hrow-idx">2</span><span class="hrow-name">海尔智家利润下滑，营收承压</span><span class="hrow-meta">12讨论</span><div class="hrow-ex">海尔智家发布2026年半年度报告，公司营业收入同比下降2.80%，归母净利润同比下降14.27%。…</div></div><div class="hrow" title="港股人工智能板块走强，智谱涨近5%，壁仞科技、天数智芯、MINIMAX-W等个股跟涨，板块整体表现活跃"><span class="hrow-idx">3</span><span class="hrow-name">港股AI概念走强，智谱领涨</span><span class="hrow-meta">47讨论</span><div class="hrow-ex">港股人工智能板块走强，智谱涨近5%，壁仞科技、天数智芯、MINIMAX-W等个股跟涨，板块整体表现活跃</div></div><div class="hrow" title="万科A发布2026年半年度报告，公司营业收入同比下降33.38%，归属于上市公司股东的净利润亏损149.5亿元。…"><span class="hrow-idx">4</span><span class="hrow-name">万科A半年报亏损，销售大幅下滑</span><span class="hrow-meta">11讨论</span><div class="hrow-ex">万科A发布2026年半年度报告，公司营业收入同比下降33.38%，归属于上市公司股东的净利润亏损149.5亿元。…</div></div><div class="hrow" title="PCB概念盘中涨势扩大，金安国纪、协和电子、嘉立创封涨停，此前肯特股份、沃特股份、宏昌电子等多股涨停，联瑞新材、科翔股份…"><span class="hrow-idx">5</span><span class="hrow-name">PCB概念强势拉升，金安国纪封板</span><span class="hrow-meta">40讨论</span><div class="hrow-ex">PCB概念盘中涨势扩大，金安国纪、协和电子、嘉立创封涨停，此前肯特股份、沃特股份、宏昌电子等多股涨停，联瑞新材、科翔股份…</div></div><div class="hrow" title="8月27日，伊利股份召开2026年半年报业绩说明会。…"><span class="hrow-idx">6</span><span class="hrow-name">伊利股份股东回报加码，开盘上涨</span><span class="hrow-meta">133讨论</span><div class="hrow-ex">8月27日，伊利股份召开2026年半年报业绩说明会。…</div></div><div class="hrow" title="8月26日，浙商银行披露2026年半年报。…"><span class="hrow-idx">7</span><span class="hrow-name">浙商银行上半年营收净利双增</span><span class="hrow-meta">38讨论</span><div class="hrow-ex">8月26日，浙商银行披露2026年半年报。…</div></div><div class="hrow" title="三环集团发布2026年半年度报告，上半年实现营业收入64.23亿元，同比增长54.82%；…"><span class="hrow-idx">8</span><span class="hrow-name">三环集团业绩爆发，MLCC和光通信销售大增</span><span class="hrow-meta">11讨论</span><div class="hrow-ex">三环集团发布2026年半年度报告，上半年实现营业收入64.23亿元，同比增长54.82%；…</div></div><div class="hrow" title="午后农林牧渔板块再度拉升，道道全、平潭发展涨停，此前花溪科技、金健米业、新农股份、万向德农、亚盛集团等多股涨停，秋乐种业…"><span class="hrow-idx">9</span><span class="hrow-name">农林牧渔板块拉升，道道全涨停</span><span class="hrow-meta">24讨论</span><div class="hrow-ex">午后农林牧渔板块再度拉升，道道全、平潭发展涨停，此前花溪科技、金健米业、新农股份、万向德农、亚盛集团等多股涨停，秋乐种业…</div></div><div class="hrow" title="黄金概念反复走强，深中华A走出6连板，湖南黄金、莱绅通灵涨停，湖南白银、招金黄金、白银有色、盛达资源等跟涨。…"><span class="hrow-idx">10</span><span class="hrow-name">黄金概念反复走强，深中华A6连板</span><span class="hrow-meta">36讨论</span><div class="hrow-ex">黄金概念反复走强，深中华A走出6连板，湖南黄金、莱绅通灵涨停，湖南白银、招金黄金、白银有色、盛达资源等跟涨。…</div></div></div>
+      <div class="hcard-foot">热股=雪球官方热股榜；话题=雪球官网右侧「热门话题」(hot_event)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#f0a020">同花顺热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">同花顺官方热股榜 / 板块热榜（实时，A股）</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e8a33d">金十快讯</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分成”，英媒“泼冷水”"><span class="hrow-idx">1</span><span class="hrow-name">霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分成”，英媒“泼冷水”</div></div><div class="hrow" title="科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量或已恢复70%"><span class="hrow-idx">2</span><span class="hrow-name">科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量或已恢复70%</div></div><div class="hrow" title="中东战事拖累全球布局，美国航母被迫接受“超长部署”新常态"><span class="hrow-idx">3</span><span class="hrow-name">中东战事拖累全球布局，美国航母被迫接受“超长部署</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">中东战事拖累全球布局，美国航母被迫接受“超长部署”新常态</div></div><div class="hrow" title="英伟达交出超预期财报，明年营收预计再增70%，股价盘后由跌转涨"><span class="hrow-idx">4</span><span class="hrow-name">英伟达交出超预期财报，明年营收预计再增70%，股</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">英伟达交出超预期财报，明年营收预计再增70%，股价盘后由跌转涨</div></div><div class="hrow" title="英伟达周三美股盘后公布财报，要回答几个比营收更难的问题"><span class="hrow-idx">5</span><span class="hrow-name">英伟达周三美股盘后公布财报，要回答几个比营收更难</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">英伟达周三美股盘后公布财报，要回答几个比营收更难的问题</div></div><div class="hrow" title="金十数据全球财经早餐 | 2026年8月27日"><span class="hrow-idx">6</span><span class="hrow-name">金十数据全球财经早餐 | 2026年8月27日</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">金十数据全球财经早餐 | 2026年8月27日</div></div><div class="hrow" title="美国7月核心PCE符合预期，通胀韧性重燃美联储加息预期"><span class="hrow-idx">7</span><span class="hrow-name">美国7月核心PCE符合预期，通胀韧性重燃美联储加</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">美国7月核心PCE符合预期，通胀韧性重燃美联储加息预期</div></div><div class="hrow" title="日本央行副行长放鹰：及时加息，是为了避免未来被迫大幅收紧"><span class="hrow-idx">8</span><span class="hrow-name">日本央行副行长放鹰：及时加息，是为了避免未来被迫</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">日本央行副行长放鹰：及时加息，是为了避免未来被迫大幅收紧</div></div><div class="hrow" title="特朗普：我不着急！伊朗战争半年未停，海湾国家开始为“数年”做准备"><span class="hrow-idx">9</span><span class="hrow-name">特朗普：我不着急！伊朗战争半年未停，海湾国家开始</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">特朗普：我不着急！伊朗战争半年未停，海湾国家开始为“数年”做准备</div></div><div class="hrow" title="“美联储传声筒”：沃什怎么解释通胀，决定了他要走的路"><span class="hrow-idx">10</span><span class="hrow-name">“美联储传声筒”：沃什怎么解释通胀，决定了他要走</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">“美联储传声筒”：沃什怎么解释通胀，决定了他要走的路</div></div></div>
+      <div class="hcard-foot">热股=快讯关联股；话题=金十热点头条 TOP10 (xnews.jin10.com)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#1f9d8a">财联社热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=暂无（App 热股榜为签名私有接口，公开渠道无个股热股榜）；话题=财联社热门文章 TOP10</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e0322b">东方财富热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=东财人气榜TOP10；话题=领涨概念TOP10(so.eastmoney.com)</div>
+    </div></div>
+
+  
+    <div class="card board-panel">
+      <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
+      <div class="board-list"><div class="hrow" title="雪球官方热股榜"><span class="hrow-idx">1</span><span class="hrow-name">胜宏科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 1.9万</span><div class="hrow-ex">雪球官方热股榜</div></div><div class="hrow" title="雪球官方热股榜"><span class="hrow-idx">2</span><span class="hrow-name">英伟达</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 1.7万</span><div class="hrow-ex">雪球官方热股榜</div></div><div class="hrow" title="雪球官方热股榜"><span class="hrow-idx">3</span><span class="hrow-name">云南锗业</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 8212</span><div class="hrow-ex">雪球官方热股榜</div></div><div class="hrow" title="临近尾盘，存储芯片概念持续走高，德明利涨停，大普微20cm涨停，恒烁股份、澜起科技、联芸科技、香农芯创、普冉股份、佰维存储等多股涨超6%。…"><span class="hrow-idx">4</span><span class="hrow-name">存储芯片概念走强，德明利涨停</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>72讨论</span><div class="hrow-ex">临近尾盘，存储芯片概念持续走高，德明利涨停，大普微20cm涨停，恒烁股份、澜起科技、联芸科技、香农芯创、普冉股份、佰维存储等多股涨超6%。…</div></div><div class="hrow" title="霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分成”，英媒“泼冷水”"><span class="hrow-idx">5</span><span class="hrow-name">霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分成”，英媒“泼冷水”</div></div><div class="hrow" title="科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量或已恢复70%"><span class="hrow-idx">6</span><span class="hrow-name">科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量或已恢复70%</div></div><div class="hrow" title="中东战事拖累全球布局，美国航母被迫接受“超长部署”新常态"><span class="hrow-idx">7</span><span class="hrow-name">中东战事拖累全球布局，美国航母被迫接受“超长部署</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">中东战事拖累全球布局，美国航母被迫接受“超长部署”新常态</div></div><div class="hrow" title="英伟达交出超预期财报，明年营收预计再增70%，股价盘后由跌转涨"><span class="hrow-idx">8</span><span class="hrow-name">英伟达交出超预期财报，明年营收预计再增70%，股</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">英伟达交出超预期财报，明年营收预计再增70%，股价盘后由跌转涨</div></div></div>
+      <div class="muted" style="margin-top:6px">口径：雪球热股/热门话题 + 同花顺板块热榜 + 金十快讯关联股/热点头条 + 财联社热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜（跨平台合并去重，TOP 20）</div>
+    </div>
+
+  
+    <div class="card merge-panel">
+      <div class="sec-title">综合热榜（雪球 / 同花顺 / 金十 / 财联社 / 东方财富 热股 TOP10 汇总）</div>
+      <div class="hcard-sub">热股 TOP10（跨平台合并去重）</div>
+      <div class="hrow" title="雪球热门股票：胜宏科技（SZ300476）热度 19172"><span class="hrow-idx">1</span><span class="hrow-name">胜宏科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 1.9万</span><div class="hrow-ex">雪球热门股票：胜宏科技（SZ300476）热度 19172</div></div><div class="hrow" title="雪球热门股票：英伟达（NVDA）热度 16876"><span class="hrow-idx">2</span><span class="hrow-name">英伟达</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 1.7万</span><div class="hrow-ex">雪球热门股票：英伟达（NVDA）热度 16876</div></div><div class="hrow" title="雪球热门股票：云南锗业（SZ002428）热度 8212"><span class="hrow-idx">3</span><span class="hrow-name">云南锗业</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 8212</span><div class="hrow-ex">雪球热门股票：云南锗业（SZ002428）热度 8212</div></div><div class="hrow" title="雪球热门股票：云铝股份（SZ000807）热度 8059"><span class="hrow-idx">4</span><span class="hrow-name">云铝股份</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 8059</span><div class="hrow-ex">雪球热门股票：云铝股份（SZ000807）热度 8059</div></div><div class="hrow" title="雪球热门股票：德明利（SZ001309）热度 7390"><span class="hrow-idx">5</span><span class="hrow-name">德明利</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 7390</span><div class="hrow-ex">雪球热门股票：德明利（SZ001309）热度 7390</div></div><div class="hrow" title="雪球热门股票：天齐锂业（SZ002466）热度 7018"><span class="hrow-idx">6</span><span class="hrow-name">天齐锂业</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 7018</span><div class="hrow-ex">雪球热门股票：天齐锂业（SZ002466）热度 7018</div></div><div class="hrow" title="雪球热门股票：协创数据（SZ300857）热度 6348"><span class="hrow-idx">7</span><span class="hrow-name">协创数据</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 6348</span><div class="hrow-ex">雪球热门股票：协创数据（SZ300857）热度 6348</div></div><div class="hrow" title="雪球热门股票：阳光电源（SZ300274）热度 6250"><span class="hrow-idx">8</span><span class="hrow-name">阳光电源</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 6250</span><div class="hrow-ex">雪球热门股票：阳光电源（SZ300274）热度 6250</div></div><div class="hrow" title="雪球热门股票：麦格米特（SZ002851）热度 5637"><span class="hrow-idx">9</span><span class="hrow-name">麦格米特</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 5637</span><div class="hrow-ex">雪球热门股票：麦格米特（SZ002851）热度 5637</div></div><div class="hrow" title="雪球热门股票：海尔智家（SH600690）热度 5073"><span class="hrow-idx">10</span><span class="hrow-name">海尔智家</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 5073</span><div class="hrow-ex">雪球热门股票：海尔智家（SH600690）热度 5073</div></div>
+    </div>
+
+  <div class="card">
+    <div class="sec-title">五大平台热词 TOP10（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
+    <div class="board-row"><span class="board-chip">存储芯片概念走强，德明利涨停<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">海尔智家利润下滑，营收承压<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">港股AI概念走强，智谱领涨<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">中东战事拖累全球布局，美国航母被迫接受“超长部署<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">万科A半年报亏损，销售大幅下滑<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">英伟达交出超预期财报，明年营收预计再增70%，股<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">PCB概念强势拉升，金安国纪封板<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">英伟达周三美股盘后公布财报，要回答几个比营收更难<span class="plat-chip" style="background:#e8a33d">金十</span></span></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">各平台聚合 TOP10 话题（雪球 / 同花顺 / 金十 / 财联社 / 东方财富）</div>
+    
+        <div class="topic-summary-row">
+          <span class="hrow-idx">1</span>
+          <div class="topic-summary-main">
+            <div><b>存储芯片概念走强，德明利涨停</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">72讨论</span></div>
+            <div class="muted">临近尾盘，存储芯片概念持续走高，德明利涨停，大普微20cm涨停，恒烁股份、澜起科技、联芸科技、香农芯创、普冉股份、佰维存…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">2</span>
+          <div class="topic-summary-main">
+            <div><b>霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">霍尔木兹海峡通行费争议再起！伊朗称与阿曼谈妥“分成”，英媒“泼冷水”</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">3</span>
+          <div class="topic-summary-main">
+            <div><b>海尔智家利润下滑，营收承压</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">12讨论</span></div>
+            <div class="muted">海尔智家发布2026年半年度报告，公司营业收入同比下降2.80%，归母净利润同比下降14.27%。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">4</span>
+          <div class="topic-summary-main">
+            <div><b>科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">科威特、卡塔尔也运出石油！霍尔木兹海峡每日运油量或已恢复70%</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">5</span>
+          <div class="topic-summary-main">
+            <div><b>港股AI概念走强，智谱领涨</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">47讨论</span></div>
+            <div class="muted">港股人工智能板块走强，智谱涨近5%，壁仞科技、天数智芯、MINIMAX-W等个股跟涨，板块整体表现活跃</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">6</span>
+          <div class="topic-summary-main">
+            <div><b>中东战事拖累全球布局，美国航母被迫接受“超长部署</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">中东战事拖累全球布局，美国航母被迫接受“超长部署”新常态</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">7</span>
+          <div class="topic-summary-main">
+            <div><b>万科A半年报亏损，销售大幅下滑</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">11讨论</span></div>
+            <div class="muted">万科A发布2026年半年度报告，公司营业收入同比下降33.38%，归属于上市公司股东的净利润亏损149.5亿元。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">8</span>
+          <div class="topic-summary-main">
+            <div><b>英伟达交出超预期财报，明年营收预计再增70%，股</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">英伟达交出超预期财报，明年营收预计再增70%，股价盘后由跌转涨</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">9</span>
+          <div class="topic-summary-main">
+            <div><b>PCB概念强势拉升，金安国纪封板</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">40讨论</span></div>
+            <div class="muted">PCB概念盘中涨势扩大，金安国纪、协和电子、嘉立创封涨停，此前肯特股份、沃特股份、宏昌电子等多股涨停，联瑞新材、科翔股份…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">10</span>
+          <div class="topic-summary-main">
+            <div><b>英伟达周三美股盘后公布财报，要回答几个比营收更难</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">英伟达周三美股盘后公布财报，要回答几个比营收更难的问题</div>
+          </div>
+        </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px">up主动态与观点蒸馏</div>
+  
+    <div class="card up-card">
+      <div class="sec-title">up主动态与观点蒸馏汇总</div>
+      <div class="muted">暂无数据</div>
+    </div>
+    
+
+  <div class="card"><div class="sec-title">数据源异常</div><div class="src-error"><b>B站</b>：B站会话初始化失败（风控）</div></div>
+
+  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 2026-08-27 21:24:05 · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
+
+  <div id="refresh-help" class="modal-mask" style="display:none">
+    <div class="modal">
+      <div class="modal-title">手机 / 云端刷新配置</div>
+      <div id="help-msg" class="muted" style="margin-bottom:6px"></div>
+      <div class="muted" style="margin-bottom:4px">正确网址：<code>https://yonglongl630-ops.github.io/opagg-report/</code>（根域无内容属正常）</div>
+      <div style="margin:8px 0">
+        <input id="help-api" class="api-input" style="width:92%" placeholder="http://192.168.x.x:8651 或 https://你的云端域名">
+      </div>
+      <div class="muted" style="margin-bottom:4px">若云端设置了 OPAGG_TOKEN，地址写成 <code>https://你的域名?token=你的口令</code>（会分开记忆）</div>
+      <div style="margin:6px 0">
+        <button class="refresh-btn" onclick="saveHelpApi()">保存并重试刷新</button>
+        <button class="refresh-btn" onclick="closeHelp()" style="color:#777;border-color:#bbb">关闭</button>
+      </div>
+      <div class="muted" style="margin-top:8px;line-height:1.7">
+        方式A·局域网：电脑运行 <code>python3 -m src.serve --lan</code>，手机填 <code>http://电脑IP:8651</code>（同 WiFi）<br>
+        方式B·云端：按 <code>deploy/cloud/README.md</code> 部署后填云端域名，无需本地开机<br>
+        方式C·临时公网：电脑运行 <code>bash deploy/tunnel.sh</code>，手机填 trycloudflare 给的地址<br>
+        方式D·Tailscale：Mac 与手机安装 Tailscale 并登录同一账号，手机填 <code>http://Mac的100.x地址:8651</code><br>
+        方式E·花生壳（推荐公网）：电脑运行本地刷新服务并保持花生壳客户端在线（映射 8651），
+        手机/电脑任何网络打开 <code>http://sf12894020jr.vicp.fun</code> 即可「立即刷新」，
+        GitHub Pages 版会自动走该地址刷新并同步发布
+      </div>
+    </div>
+  </div>
+  <script>
+  // GitHub Pages 静态站默认回退的刷新服务（花生壳映射到本机 8651）
+  var DEFAULT_API = 'http://sf12894020jr.vicp.fun';
+  function refreshBase() {
+    // 同一来源优先：http/https 打开时直接用当前域名（局域网 IP 或云端域名），手机端同源可用。
+    if (location.protocol === 'http:' || location.protocol === 'https:') {
+      // GitHub Pages 是纯静态站，没有采集后端：自动使用已保存地址或花生壳默认地址
+      if ((location.hostname || '').indexOf('github.io') >= 0) {
+        var savedApi = null;
+        try { savedApi = localStorage.getItem('opagg_api'); } catch (e) {}
+        return (savedApi || DEFAULT_API).replace(/\/+$/, '');
+      }
+      return location.origin;
+    }
+    // file:// 打开时：优先 ?api= 参数（并记住），其次 localStorage 保存的地址，最后本机默认。
+    var q = new URLSearchParams(location.search).get('api');
+    if (q) {
+      try { localStorage.setItem('opagg_api', q); } catch (e) {}
+      return q.replace(/\/+$/, '');
+    }
+    try {
+      var saved = localStorage.getItem('opagg_api');
+      if (saved) { return saved.replace(/\/+$/, ''); }
+    } catch (e) {}
+    return 'http://127.0.0.1:8651';
+  }
+  function showApiConfig() {
+    var el = document.getElementById('api-config');
+    if (el) { el.style.display = 'block'; }
+    var inp = document.getElementById('api-input');
+    if (inp && !inp.value) { inp.value = refreshBase(); }
+  }
+  function saveApiBase() {
+    var v = (document.getElementById('api-input').value || '').trim().replace(/\/+$/, '');
+    if (!v) { return; }
+    saveApiPair(v);
+    checkServe();
+    var st = document.getElementById('serve-status');
+    if (st) { st.textContent = '已保存刷新地址：' + v + '，正在探测…'; st.style.color = '#9a6b1f'; }
+  }
+  function saveApiPair(v) {
+    // 支持“https://域名?token=口令”的写法：拆成地址 + 口令分别保存
+    var base = v, token = '';
+    var qi = v.indexOf('?token=');
+    if (qi >= 0) {
+      base = v.substring(0, qi);
+      token = v.substring(qi + 7);
+    }
+    try {
+      localStorage.setItem('opagg_api', base);
+      if (token) { localStorage.setItem('opagg_token', token); }
+      else { localStorage.removeItem('opagg_token'); }
+    } catch (e) {}
+  }
+  function apiUrl(path) {
+    var b = refreshBase();
+    var t = '';
+    try { t = localStorage.getItem('opagg_token') || ''; } catch (e) {}
+    return b + path + (t ? ((path.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(t)) : '');
+  }
+  function checkServe() {
+    var base = refreshBase();
+    fetch(apiUrl('/api/status'))
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        var el = document.getElementById('serve-status');
+        if (el) { el.textContent = '刷新服务已连接：' + base + '（点击即可实时刷新）'; el.style.color = '#1a9d57'; }
+      })
+      .catch(function () {
+        var el = document.getElementById('serve-status');
+        if (el) { el.textContent = '刷新服务未连接：' + base + '（点上方“保存并连接”可配置手机/云端地址）'; el.style.color = '#c0392b'; }
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') { showApiConfig(); }
+        if ((location.hostname || '').indexOf('github.io') >= 0) {
+          showRefreshHelp(base, 'GitHub Pages 静态站已自动改用刷新服务：' + base +
+            '。若仍未连接，请确认电脑已开机且本地服务/花生壳在线（映射 8651）；' +
+            '首次使用若提示需要口令，请在下方地址后补上 ?token=你的口令 后保存。');
+        }
+      });
+  }
+  function showRefreshHelp(base, msg) {
+    var el = document.getElementById('refresh-help');
+    if (!el) { return; }
+    document.getElementById('help-msg').textContent = msg || ('当前刷新地址：' + base + '，连接失败。请配置可用的刷新服务。');
+    var inp = document.getElementById('help-api');
+    if (inp && !inp.value) { inp.value = base; }
+    el.style.display = 'flex';
+  }
+  function closeHelp() {
+    var el = document.getElementById('refresh-help');
+    if (el) { el.style.display = 'none'; }
+  }
+  function saveHelpApi() {
+    var v = (document.getElementById('help-api').value || '').trim().replace(/\/+$/, '');
+    if (!v) { return; }
+    saveApiPair(v);
+    closeHelp();
+    refreshData('all');
+  }
+  checkServe();
+  function refreshData(source) {
+    var btn = document.getElementById('refresh-btn');
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = 'none'; links[i].textContent = '刷新中…'; }
+    if (btn) { btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }
+    var m = (location.pathname || '').match(/report_(\d{4}-\d{2}-\d{2})/);
+    var date = m ? m[1] : '';
+    var base = refreshBase();
+    if ((location.protocol !== 'http:' && location.protocol !== 'https:') && base.indexOf('127.0.0.1') >= 0) {
+      // file:// 且未配置地址：先探测本机服务，可达则跳转到服务版页面并自动刷新（同源最稳）
+      fetch(apiUrl('/api/status'), { method: 'GET' })
+        .then(function () {
+          var f = (location.pathname || '').split('/').pop() || ('report_' + date + '.html');
+          location.href = base + '/' + f + '?refresh=1';
+        })
+        .catch(function () {
+          showRefreshHelp(base, '无法连接刷新服务（' + base + '）。手机/云端请配置局域网或云端地址；电脑本地请运行 python3 -m src.serve --open。');
+          resetRefreshBtns();
+        });
+      return;
+    }
+    fetch(apiUrl('/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date)), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok) { pollRefresh(); }
+        else {
+          var err = (j && j.error ? j.error : '未知错误');
+          if (err.indexOf('token') >= 0) {
+            // 服务要求口令：弹配置框并预填“当前地址?token=”，用户只需粘贴口令
+            var inp = document.getElementById('help-api');
+            if (inp && !inp.value) { inp.value = location.origin + '?token='; }
+            showRefreshHelp(base, '该刷新服务需要口令（当前没带 token，被拒绝）。请在地址后补上 ?token=你的口令，例如 ' + location.origin + '?token=你的口令');
+          } else {
+            alert('刷新启动失败：' + err);
+          }
+          resetRefreshBtns();
+        }
+      })
+      .catch(function () {
+        showRefreshHelp(base, '无法连接刷新服务（' + base + '）。请确认服务已运行（本机 python3 -m src.serve --lan），或在下方配置云端域名。');
+        resetRefreshBtns();
+      });
+  }
+  function pollRefresh() {
+    var base = refreshBase();
+    var t = setInterval(function () {
+      fetch(apiUrl('/api/status')).then(function (r) { return r.json(); }).then(function (j) {
+          if (j && !j.running) {
+            clearInterval(t);
+            var isHsUrl = (base || '').indexOf('vicp.fun') >= 0;
+            if ((location.hostname || '').indexOf('github.io') >= 0 || isHsUrl) {
+              // GitHub Pages / 花生壳：刷新完成后自动发布到 GitHub Pages，实现两站同步
+              publishAndReload(base, location.pathname + '?t=' + Date.now());
+            } else if (location.protocol === 'http:' || location.protocol === 'https:') {
+              // 同源（局域网/云端页面）：带时间戳重载当前页
+              location.href = location.pathname + '?t=' + Date.now();
+            } else {
+              // file:// 或跨源：跳到服务端最新日报
+              var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+              location.href = base + '/' + html.replace(/^.*[\/]/, '');
+            }
+          }
+        }).catch(function () { clearInterval(t); resetRefreshBtns(); });
+    }, 2500);
+  }
+  function publishAndReload(base, reloadUrl) {
+    var st = document.getElementById('serve-status');
+    if (st) { st.textContent = '日报已刷新，正在同步到 GitHub Pages…'; st.style.color = '#9a6b1f'; }
+    fetch(apiUrl('/api/publish'), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) {
+          var msg = (j && j.message) ? j.message : '未知错误';
+          if (st) { st.textContent = '刷新完成，但发布未启动：' + msg; st.style.color = '#c0392b'; }
+          resetRefreshBtns();
+          return;
+        }
+        var t = setInterval(function () {
+          fetch(apiUrl('/api/publish-status'))
+            .then(function (r) { return r.json(); })
+            .then(function (p) {
+              if (p && !p.running) {
+                clearInterval(t);
+                var err = p && p.error;
+                if (st) {
+                  st.textContent = err
+                    ? ('发布失败：' + err + '，请稍后在电脑上手动运行 bash deploy/gh_pages_push.sh')
+                    : '已刷新并发布，GitHub Pages 约 1 分钟后更新';
+                  st.style.color = err ? '#c0392b' : '#1a9d57';
+                }
+                setTimeout(function () { location.href = reloadUrl; }, err ? 6000 : 3500);
+              }
+            })
+            .catch(function () { clearInterval(t); resetRefreshBtns(); });
+        }, 3000);
+      })
+      .catch(function () {
+        if (st) { st.textContent = '刷新完成，但发布请求失败（请确认服务在线）'; st.style.color = '#c0392b'; }
+        resetRefreshBtns();
+      });
+  }
+  function resetRefreshBtns() {
+    var btn = document.getElementById('refresh-btn');
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 立即刷新'; }
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = ''; links[i].textContent = '🔄 立即刷新'; }
+  }
+  (function () {
+    if ((location.search || '').indexOf('refresh=1') >= 0) {
+      refreshData('all');
+    }
+  })();
+  </script>
+</div>
+</body>
+</html>
