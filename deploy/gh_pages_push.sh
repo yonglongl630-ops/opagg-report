@@ -3,6 +3,9 @@
 # 用法: bash deploy/gh_pages_push.sh
 set -euo pipefail
 
+# 本机到 GitHub 的链路偶发 TLS 挂起：给 git 加低速/连接超时，避免无限等待
+GIT_TIMEOUT_CFG="-c http.lowSpeedLimit=1000 -c http.lowSpeedTime=20 -c http.connectTimeout=15"
+
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
@@ -25,13 +28,18 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 CLONE_OK=0
 for i in 1 2 3; do
-  if git clone --depth 1 --branch gh-pages "$ORIGIN" "$WORK" >/dev/null 2>&1; then
+  if git $GIT_TIMEOUT_CFG clone --depth 1 --branch gh-pages "$ORIGIN" "$WORK" >/dev/null 2>&1; then
     CLONE_OK=1
     break
   fi
   sleep $((i * 5))
 done
 if [ "$CLONE_OK" != "1" ]; then
+  # 远端已存在 gh-pages 时不能空仓库回退（会造成非快进被拒）；只有首次发布才允许 init
+  if git $GIT_TIMEOUT_CFG ls-remote --heads "$ORIGIN" gh-pages 2>/dev/null | grep -q 'refs/heads/gh-pages'; then
+    echo "clone gh-pages 失败（网络问题），请稍后重试 bash deploy/gh_pages_push.sh"
+    exit 1
+  fi
   git init -b gh-pages "$WORK" >/dev/null 2>&1
 fi
 cd "$WORK"
@@ -45,7 +53,7 @@ git -c user.name="opagg-bot" -c user.email="opagg-bot@users.noreply.github.com" 
 PUSH_OK=0
 for i in 1 2 3; do
   echo "推送 gh-pages（第 $i 次）..."
-  if git push origin gh-pages 2>&1 | tail -3; then
+  if git $GIT_TIMEOUT_CFG push origin gh-pages 2>&1 | tail -3; then
     PUSH_OK=1
     break
   fi
@@ -61,7 +69,7 @@ echo "已发布: $ORIGIN (gh-pages)"
 if [ -n "$GITEE_URL" ]; then
   echo "检测到 Gitee 远程，开始镜像推送…"
   for i in 1 2 3; do
-    if git push "$GITEE_URL" gh-pages:gh-pages 2>&1 | tail -3; then
+    if git $GIT_TIMEOUT_CFG push "$GITEE_URL" gh-pages:gh-pages 2>&1 | tail -3; then
       echo "已镜像到 Gitee: $GITEE_URL (gh-pages)"
       break
     fi
