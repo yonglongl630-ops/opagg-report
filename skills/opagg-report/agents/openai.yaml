@@ -1,0 +1,4 @@
+interface:
+  display_name: "舆论日报维护"
+  short_description: "运行、刷新、发布舆论蒸馏日报，含花生壳与GitHub Pages同步"
+  default_prompt: "Use $opagg-report to refresh and publish today's 舆论蒸馏日报 via 花生壳."
