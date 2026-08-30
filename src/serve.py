@@ -86,7 +86,8 @@ def _start_publish() -> None:
 
     def worker() -> None:
         try:
-            proc = subprocess.run(["bash", script], capture_output=True, text=True, timeout=300)
+            # API 推送需上传 20 个文件（含 tar），放宽到 10 分钟
+            proc = subprocess.run(["bash", script], capture_output=True, text=True, timeout=600)
             tail = (proc.stdout or "")[-1500:] + (proc.stderr or "")[-1500:]
             with _lock:
                 if proc.returncode != 0:
