@@ -184,7 +184,12 @@ class Handler(BaseHTTPRequestHandler):
         if not _token:
             return True
         qs = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
-        return (qs.get("token") or [""])[0] == _token
+        if (qs.get("token") or [""])[0] == _token:
+            return True
+        # 浏览器页面（花生壳 / GitHub Pages / 局域网）发起的请求免口令：
+        # 页面 JS 会带同源 Origin/Referer，普通 curl 不带则仍需 token。
+        origin = (self.headers.get("Origin") or self.headers.get("Referer") or "").lower()
+        return any(h in origin for h in ("vicp.fun", "github.io", "127.0.0.1", "localhost", "192.168.", "10."))
 
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
