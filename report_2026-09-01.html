@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>当日舆论蒸馏日报 · 2026-09-01</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; background: #f5f6f8; color: #24292f; line-height: 1.55; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 18px 60px; }
+  header { margin-bottom: 20px; }
+  h1 { font-size: 24px; }
+  .sub { color: #6a737d; font-size: 13px; margin-top: 4px; }
+  .chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-chip { border: 1px solid; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .refresh-btn { border: 1px solid #5b6ee8; color: #5b6ee8; background: #fff; border-radius: 999px; padding: 5px 14px; font-size: 12px; cursor: pointer; }
+  .refresh-btn:hover { background: #f0f4ff; }
+  .refresh-btn:disabled { opacity: .6; cursor: wait; }
+  .api-input { width: 320px; max-width: 70%; padding: 5px 9px; border: 1px solid #ccc; border-radius: 6px; font-size: 12px; }
+  .modal-mask { position: fixed; inset: 0; background: rgba(20,24,33,.55); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .modal { background: #fff; border-radius: 12px; padding: 18px; max-width: 460px; width: 100%; box-shadow: 0 8px 30px rgba(0,0,0,.2); }
+  .modal-title { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .refresh-link { color: #5b6ee8; text-decoration: none; font-weight: 700; }
+  .chip { display: inline-block; border: 1px solid; border-radius: 4px; padding: 0 6px; font-size: 11px; margin-left: 4px; }
+  .badge { display: inline-block; border-radius: 4px; color: #fff; padding: 1px 8px; font-size: 12px; }
+  .header-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 1100px) { .header-cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 640px) { .header-cards { grid-template-columns: 1fr; } }
+  .hcard { background: #fff; border-radius: 10px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,.06); min-height: 240px; display: flex; flex-direction: column; }
+  .hcard-title { font-size: 13px; font-weight: 700; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 2px solid; display: flex; align-items: center; gap: 6px; }
+  .hcard-body { flex: 1; font-size: 12px; max-height: 380px; overflow-y: auto; }
+  .hcard-sub { font-size: 11px; font-weight: 700; color: #57606a; margin: 8px 0 4px; padding-top: 6px; border-top: 1px dashed #eaecef; }
+  .hcard-sub:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+  .hcard-foot { color: #8b949e; font-size: 10px; margin-top: 8px; border-top: 1px dashed #eaecef; padding-top: 6px; }
+  .hrow { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px; padding: 4px 0; border-bottom: 1px dashed #f0f1f3; }
+  .hrow-ex { flex-basis: 100%; display: none; font-size: 12px; color: #57606a; padding: 2px 0 4px 30px; }
+  @media (hover: none), (max-width: 640px) { .hrow-ex { display: block; } }
+  .hrow:last-child { border-bottom: 0; }
+  .hrow.dim { opacity: .72; }
+  .hrow-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hrow-idx { color: #8b949e; font-size: 11px; min-width: 18px; text-align: right; }
+  .hrow-meta { color: #57606a; font-size: 11px; text-align: right; white-space: nowrap; }
+  .topic-block { margin: 6px 0; padding: 7px 9px; background: #fafbfc; border: 1px solid #eef0f2; border-radius: 8px; }
+  .topic-block .hrow { padding: 3px 0; border-bottom: 0; }
+  .pct { font-weight: 700; font-size: 12px; min-width: 52px; text-align: right; }
+  .imp { color: #e8a33d; font-size: 11px; min-width: 22px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat { background: #fff; border-radius: 10px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .stat b { font-size: 24px; display: block; }
+  .stat span { color: #6a737d; font-size: 12px; }
+  .sentibar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+  .pos { background: #d93026; } .neu { background: #c8c8c8; } .neg { background: #0f8a4d; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 800px) { .grid2 { grid-template-columns: 1fr; } }
+  .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px; }
+  .sec-title { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .rank-row { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .rank-name { width: 96px; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rank-bar { flex: 1; background: #f0f1f3; border-radius: 4px; height: 12px; }
+  .rank-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg,#f6a05f,#e6532a); }
+  .rank-num { width: 56px; font-size: 12px; color: #6a737d; text-align: right; }
+  .meme-item { padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .meme-item:last-child { border-bottom: 0; }
+  .meme-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .meme-meta { font-size: 12px; color: #6a737d; }
+  .meme-ex { font-size: 12px; color: #6a737d; margin-top: 2px; }
+  .topic-head { display: flex; align-items: center; gap: 8px; }
+  .topic-phrases { color: #57606a; font-size: 12px; margin: 4px 0 8px; }
+  .post-list { list-style: none; }
+  .post-list li { padding: 4px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .post-list a { color: #0969da; text-decoration: none; }
+  .hot-row { display: flex; gap: 8px; padding: 5px 0; font-size: 13px; border-bottom: 1px solid #f0f1f3; }
+  .hot-idx { color: #e6532a; font-weight: 700; width: 20px; }
+  .muted { color: #6a737d; font-size: 12px; }
+  .mini-card { margin-bottom: 10px; padding: 12px; }
+  .topic-sum { font-size: 12px; color: #57606a; margin-top: 4px; }
+  .up-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 14px; margin-top: 10px; }
+  @media (max-width: 800px) { .up-grid { grid-template-columns: 1fr; } }
+  .up-video { padding: 6px 0; border-bottom: 1px dashed #eaecef; }
+  .up-video-title a { color: #0969da; text-decoration: none; font-size: 13px; }
+  .up-video-meta { margin-top: 2px; }
+  .quote { padding: 6px 0; font-size: 13px; border-bottom: 1px dashed #eaecef; }
+  .quote-q { color: #24292f; }
+  .up-head-row { display: flex; align-items: center; gap: 10px; }
+  .up-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #f0f1f3; }
+  .up-meta { color: #6a737d; font-size: 12px; margin-top: 2px; }
+  .dyn-item { padding: 6px 0; border-bottom: 1px dashed #eaecef; font-size: 13px; }
+  .dyn-item:last-child { border-bottom: 0; }
+  .dyn-meta { color: #6a737d; font-size: 11px; margin-top: 2px; }
+  .dyn-body { color: #57606a; font-size: 12px; margin-top: 3px; }
+  .dyn-point { color: #24292f; font-size: 13px; margin-top: 3px; }
+  .dyn-raw { margin-top: 4px; font-size: 12px; color: #57606a; }
+  .dyn-raw summary { cursor: pointer; color: #0969da; font-size: 12px; }
+  .dyn-raw[open] summary { margin-bottom: 4px; }
+  .cc-users { margin-top: 8px; }
+  .cc-user { padding: 5px 0; border-bottom: 1px dashed #eaecef; font-size: 12px; }
+  .cc-user:last-child { border-bottom: 0; }
+  .up-tabs { display: flex; gap: 12px; margin: 10px 0 4px; font-size: 13px; font-weight: 700; color: #57606a; }
+  .topic-chip { padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-chip:last-child { border-bottom: 0; }
+  .board-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .board-list { margin-top: 4px; }
+  .board-chip { display: inline-flex; align-items: baseline; gap: 6px; background: #f0f4ff; border: 1px solid #d9e2ff; border-radius: 8px; padding: 5px 10px; font-size: 12px; }
+  .up-summary-row { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed #eaecef; }
+  .up-summary-row:last-child { border-bottom: 0; }
+  .up-summary-main { flex: 1; }
+  .up-detail { background: #fff; border-radius: 10px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 12px; }
+  .up-detail summary { cursor: pointer; font-size: 14px; color: #24292f; }
+  .up-detail[open] summary { margin-bottom: 6px; }
+  .merge-panel { background: linear-gradient(180deg,#fff, #fbfcff); }
+  .merge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 800px) { .merge-grid { grid-template-columns: 1fr; } }
+  .plat-chip { display: inline-block; border-radius: 4px; color: #fff; font-size: 10px; padding: 1px 5px; margin-right: 3px; }
+  .hrow-meta .plat-chip { margin-left: 2px; }
+  .topic-summary-row { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-bottom: 1px dashed #eaecef; }
+  .topic-summary-row:last-child { border-bottom: 0; }
+  .topic-summary-main { flex: 1; }
+  .src-error { color: #c0392b; font-size: 12px; margin-top: 6px; }
+  footer { color: #8b949e; font-size: 12px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>当日舆论蒸馏日报</h1>
+    <div style="margin-top:8px">
+      <button class="refresh-btn" id="refresh-btn" onclick="refreshData('all')">🔄 立即刷新</button>
+      <span id="serve-status" class="muted" style="margin-left:8px"></span>
+    </div>
+    <div id="api-config" style="margin-top:8px;display:none">
+      <input id="api-input" class="api-input" placeholder="粘贴刷新服务地址，如 http://192.168.1.8:8651 或 https://your-app.onrender.com">
+      <button class="refresh-btn" onclick="saveApiBase()">保存并连接</button>
+      <span class="muted" style="margin-left:6px">手机/云端无法刷新时：电脑运行 <code>python3 -m src.serve --lan</code> 填局域网地址，或部署云端后填云端域名</span>
+    </div>
+    <div class="sub">2026-09-01 · 采集于 2026-09-01 08:06:04 · 数据源 3/7 正常</div>
+    <div class="sub" style="color:#9a6b1f">统计窗口：2026-09-01 00:00:00 → 2026-09-01 08:00:07（当天 00:00 起）</div>
+    <div class="chips"><span class="src-chip" style="border-color:#fb7299">B站 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#e6532a">股吧 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#3a8ee6">雪球 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#f0a020">同花顺 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#e8a33d">金十 <span class="chip" style="border-color:#1a9d57;color:#1a9d57">正常</span></span><span class="src-chip" style="border-color:#1f9d8a">财联社 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span><span class="src-chip" style="border-color:#e0322b">东方财富 <span class="chip" style="border-color:#c0392b;color:#c0392b">失败</span></span></div>
+  </header>
+
+  <div class="header-cards">
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#3a8ee6">雪球热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="hrow" title="雪球热门股票：闪迪（SNDK）热度 9748"><span class="hrow-idx">1</span><span class="hrow-name">闪迪</span><span class="hrow-meta">热度 9748</span><div class="hrow-ex">雪球热门股票：闪迪（SNDK）热度 9748</div></div><div class="hrow" title="雪球热门股票：英伟达（NVDA）热度 6433"><span class="hrow-idx">2</span><span class="hrow-name">英伟达</span><span class="hrow-meta">热度 6433</span><div class="hrow-ex">雪球热门股票：英伟达（NVDA）热度 6433</div></div><div class="hrow" title="雪球热门股票：美光科技（MU）热度 4863"><span class="hrow-idx">3</span><span class="hrow-name">美光科技</span><span class="hrow-meta">热度 4863</span><div class="hrow-ex">雪球热门股票：美光科技（MU）热度 4863</div></div><div class="hrow" title="雪球热门股票：阿里巴巴（BABA）热度 4600"><span class="hrow-idx">4</span><span class="hrow-name">阿里巴巴</span><span class="hrow-meta">热度 4600</span><div class="hrow-ex">雪球热门股票：阿里巴巴（BABA）热度 4600</div></div><div class="hrow" title="雪球热门股票：特斯拉（TSLA）热度 4040"><span class="hrow-idx">5</span><span class="hrow-name">特斯拉</span><span class="hrow-meta">热度 4040</span><div class="hrow-ex">雪球热门股票：特斯拉（TSLA）热度 4040</div></div><div class="hrow" title="雪球热门股票：SK海力士（SKHY）热度 3548"><span class="hrow-idx">6</span><span class="hrow-name">SK海力士</span><span class="hrow-meta">热度 3548</span><div class="hrow-ex">雪球热门股票：SK海力士（SKHY）热度 3548</div></div><div class="hrow" title="雪球热门股票：芒果超媒（SZ300413）热度 2977"><span class="hrow-idx">7</span><span class="hrow-name">芒果超媒</span><span class="hrow-meta">热度 2977</span><div class="hrow-ex">雪球热门股票：芒果超媒（SZ300413）热度 2977</div></div><div class="hrow" title="雪球热门股票：赛轮轮胎（SH601058）热度 2625"><span class="hrow-idx">8</span><span class="hrow-name">赛轮轮胎</span><span class="hrow-meta">热度 2625</span><div class="hrow-ex">雪球热门股票：赛轮轮胎（SH601058）热度 2625</div></div><div class="hrow" title="雪球热门股票：Circle（CRCL）热度 2320"><span class="hrow-idx">9</span><span class="hrow-name">Circle</span><span class="hrow-meta">热度 2320</span><div class="hrow-ex">雪球热门股票：Circle（CRCL）热度 2320</div></div><div class="hrow" title="雪球热门股票：智谱（02513）热度 2065"><span class="hrow-idx">10</span><span class="hrow-name">智谱</span><span class="hrow-meta">热度 2065</span><div class="hrow-ex">雪球热门股票：智谱（02513）热度 2065</div></div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="今日，智谱发布2026年中期业绩。业绩显示，智谱2026年上半年实现收入9.54亿元，同比增长近400%。…"><span class="hrow-idx">1</span><span class="hrow-name">智谱上半年收入增长近400%</span><span class="hrow-meta">86讨论</span><div class="hrow-ex">今日，智谱发布2026年中期业绩。业绩显示，智谱2026年上半年实现收入9.54亿元，同比增长近400%。…</div></div><div class="hrow" title="午后超节点概念异动拉升，星网锐捷7天4板，艾华集团涨停，浪潮信息、紫光股份、锐捷网络、智微智能、共进股份跟涨。…"><span class="hrow-idx">2</span><span class="hrow-name">超节点概念拉升，星网锐捷大涨</span><span class="hrow-meta">103讨论</span><div class="hrow-ex">午后超节点概念异动拉升，星网锐捷7天4板，艾华集团涨停，浪潮信息、紫光股份、锐捷网络、智微智能、共进股份跟涨。…</div></div><div class="hrow" title="影视院线概念表现活跃，上海电影涨停，博纳影业、光线传媒、横店影视、儒意电影跟涨。…"><span class="hrow-idx">3</span><span class="hrow-name">影视院线板块活跃，上海电影涨停</span><span class="hrow-meta">40讨论</span><div class="hrow-ex">影视院线概念表现活跃，上海电影涨停，博纳影业、光线传媒、横店影视、儒意电影跟涨。…</div></div><div class="hrow" title="早盘银行板块逆势拉升，中国银行涨超3%，中信银行涨近2%，股价续创历史新高，北京银行、齐鲁银行、邮储银行均涨超3%。…"><span class="hrow-idx">4</span><span class="hrow-name">银行板块逆势拉升，中国银行创新高</span><span class="hrow-meta">92讨论</span><div class="hrow-ex">早盘银行板块逆势拉升，中国银行涨超3%，中信银行涨近2%，股价续创历史新高，北京银行、齐鲁银行、邮储银行均涨超3%。…</div></div><div class="hrow" title="房地产板块表现活跃，我爱我家、世联行等涨停，万科A、金地集团、新城控股等涨幅靠前。…"><span class="hrow-idx">5</span><span class="hrow-name">地产股表现活跃，我爱我家二连板</span><span class="hrow-meta">66讨论</span><div class="hrow-ex">房地产板块表现活跃，我爱我家、世联行等涨停，万科A、金地集团、新城控股等涨幅靠前。…</div></div><div class="hrow" title="早盘端侧AI概念活跃，瑞芯微涨停，美格智能、奋达科技、全志科技、博通集成、乐鑫科技、广和通跟涨。…"><span class="hrow-idx">6</span><span class="hrow-name">端侧AI概念活跃，瑞芯微涨停</span><span class="hrow-meta">125讨论</span><div class="hrow-ex">早盘端侧AI概念活跃，瑞芯微涨停，美格智能、奋达科技、全志科技、博通集成、乐鑫科技、广和通跟涨。…</div></div><div class="hrow" title="早盘短剧概念震荡走强，芒果超媒、中广天择、欢瑞世纪涨停，德才股份触及涨停，掌阅科技、中文在线、流金科技等跟涨。…"><span class="hrow-idx">7</span><span class="hrow-name">短剧概念走强，芒果超媒涨停</span><span class="hrow-meta">150讨论</span><div class="hrow-ex">早盘短剧概念震荡走强，芒果超媒、中广天择、欢瑞世纪涨停，德才股份触及涨停，掌阅科技、中文在线、流金科技等跟涨。…</div></div><div class="hrow" title="液冷服务器概念表现活跃，同飞股份涨超10%，海鸥股份触及涨停，新朋股份、强瑞技术、大元泵业、依米康、冰轮环境跟涨。…"><span class="hrow-idx">8</span><span class="hrow-name">液冷服务器概念活跃，同飞股份大涨</span><span class="hrow-meta">86讨论</span><div class="hrow-ex">液冷服务器概念表现活跃，同飞股份涨超10%，海鸥股份触及涨停，新朋股份、强瑞技术、大元泵业、依米康、冰轮环境跟涨。…</div></div><div class="hrow" title="早盘CRO概念延续上周调整态势，百花医药一字跌停，普蕊斯、万邦医药跌超10%，康希诺、近岸蛋白、成都先导、义翘神州等跟跌"><span class="hrow-idx">9</span><span class="hrow-name">CRO概念调整，百花医药大跌</span><span class="hrow-meta">45讨论</span><div class="hrow-ex">早盘CRO概念延续上周调整态势，百花医药一字跌停，普蕊斯、万邦医药跌超10%，康希诺、近岸蛋白、成都先导、义翘神州等跟跌</div></div><div class="hrow" title="早盘黄金概念大幅下挫，盛达资源、湖南白银触及跌停，晓程科技、白银有色、莱绅通灵、兴业银锡等跌幅靠前。…"><span class="hrow-idx">10</span><span class="hrow-name">黄金概念大跌，盛达资源走弱</span><span class="hrow-meta">49讨论</span><div class="hrow-ex">早盘黄金概念大幅下挫，盛达资源、湖南白银触及跌停，晓程科技、白银有色、莱绅通灵、兴业银锡等跌幅靠前。…</div></div></div>
+      <div class="hcard-foot">热股=雪球官方热股榜；话题=雪球官网右侧「热门话题」(hot_event)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#f0a020">同花顺热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">同花顺官方热股榜 / 板块热榜（实时，A股）</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e8a33d">金十快讯</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="hrow" title="美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放话“必将报复”！"><span class="hrow-idx">1</span><span class="hrow-name">美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放话“必将报复”！</div></div><div class="hrow" title="特朗普放话“重击”伊朗，美军却准备“割草坪”：霍尔木兹战火要常态化？"><span class="hrow-idx">2</span><span class="hrow-name">特朗普放话“重击”伊朗，美军却准备“割草坪”：霍</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">特朗普放话“重击”伊朗，美军却准备“割草坪”：霍尔木兹战火要常态化？</div></div><div class="hrow" title="贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对伊制裁遭遇尴尬现实"><span class="hrow-idx">3</span><span class="hrow-name">贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对伊制裁遭遇尴尬现实</div></div><div class="hrow" title="沃什“鹰派”表态推升9月加息预期，但债市投资者持怀疑态度"><span class="hrow-idx">4</span><span class="hrow-name">沃什“鹰派”表态推升9月加息预期，但债市投资者持</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">沃什“鹰派”表态推升9月加息预期，但债市投资者持怀疑态度</div></div><div class="hrow" title="金十数据全球财经早餐 | 2026年8月31日"><span class="hrow-idx">5</span><span class="hrow-name">金十数据全球财经早餐 | 2026年8月31日</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">金十数据全球财经早餐 | 2026年8月31日</div></div><div class="hrow" title="金十数据全球财经早餐 | 2026年9月1日"><span class="hrow-idx">6</span><span class="hrow-name">金十数据全球财经早餐 | 2026年9月1日</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">金十数据全球财经早餐 | 2026年9月1日</div></div><div class="hrow" title="美联储和财政部“各打各的”，黄金被夹在政策博弈中"><span class="hrow-idx">7</span><span class="hrow-name">美联储和财政部“各打各的”，黄金被夹在政策博弈中</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">美联储和财政部“各打各的”，黄金被夹在政策博弈中</div></div><div class="hrow" title="沃什鹰声一出，巴克莱也“变脸”：美联储9月、12月将各加息一次"><span class="hrow-idx">8</span><span class="hrow-name">沃什鹰声一出，巴克莱也“变脸”：美联储9月、12</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">沃什鹰声一出，巴克莱也“变脸”：美联储9月、12月将各加息一次</div></div><div class="hrow" title="“美联储传声筒”：沃什演讲埋下紧缩伏笔，8月CPI数据成关键！"><span class="hrow-idx">9</span><span class="hrow-name">“美联储传声筒”：沃什演讲埋下紧缩伏笔，8月CP</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">“美联储传声筒”：沃什演讲埋下紧缩伏笔，8月CPI数据成关键！</div></div><div class="hrow" title="海峡失控风险骤升！超级油轮触雷起火，伊朗击落美军无人机"><span class="hrow-idx">10</span><span class="hrow-name">海峡失控风险骤升！超级油轮触雷起火，伊朗击落美军</span><span class="hrow-meta">热点头条</span><div class="hrow-ex">海峡失控风险骤升！超级油轮触雷起火，伊朗击落美军无人机</div></div></div>
+      <div class="hcard-foot">热股=快讯关联股；话题=金十热点头条 TOP10 (xnews.jin10.com)</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#1f9d8a">财联社热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=暂无（App 热股榜为签名私有接口，公开渠道无个股热股榜）；话题=财联社热门文章 TOP10</div>
+    </div>
+    <div class="hcard">
+      <div class="hcard-title" style="border-color:#e0322b">东方财富热榜</div>
+      <div class="hcard-body"><div class="hcard-sub">热股 TOP10</div><div class="muted">暂无热股数据</div><div class="hcard-sub">热门话题 TOP10</div><div class="muted">暂无话题数据</div></div>
+      <div class="hcard-foot">热股=东财人气榜TOP10；话题=领涨概念TOP10(so.eastmoney.com)</div>
+    </div></div>
+
+  
+    <div class="card board-panel">
+      <div class="sec-title">今日热门板块 / 热榜（官方板块榜 + 雪球热榜）</div>
+      <div class="board-list"><div class="hrow" title="雪球官方热股榜"><span class="hrow-idx">1</span><span class="hrow-name">闪迪</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 9748</span><div class="hrow-ex">雪球官方热股榜</div></div><div class="hrow" title="雪球官方热股榜"><span class="hrow-idx">2</span><span class="hrow-name">英伟达</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 6433</span><div class="hrow-ex">雪球官方热股榜</div></div><div class="hrow" title="雪球官方热股榜"><span class="hrow-idx">3</span><span class="hrow-name">美光科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 4863</span><div class="hrow-ex">雪球官方热股榜</div></div><div class="hrow" title="今日，智谱发布2026年中期业绩。业绩显示，智谱2026年上半年实现收入9.54亿元，同比增长近400%。…"><span class="hrow-idx">4</span><span class="hrow-name">智谱上半年收入增长近400%</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>86讨论</span><div class="hrow-ex">今日，智谱发布2026年中期业绩。业绩显示，智谱2026年上半年实现收入9.54亿元，同比增长近400%。…</div></div><div class="hrow" title="美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放话“必将报复”！"><span class="hrow-idx">5</span><span class="hrow-name">美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放话“必将报复”！</div></div><div class="hrow" title="特朗普放话“重击”伊朗，美军却准备“割草坪”：霍尔木兹战火要常态化？"><span class="hrow-idx">6</span><span class="hrow-name">特朗普放话“重击”伊朗，美军却准备“割草坪”：霍</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">特朗普放话“重击”伊朗，美军却准备“割草坪”：霍尔木兹战火要常态化？</div></div><div class="hrow" title="贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对伊制裁遭遇尴尬现实"><span class="hrow-idx">7</span><span class="hrow-name">贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对伊制裁遭遇尴尬现实</div></div><div class="hrow" title="沃什“鹰派”表态推升9月加息预期，但债市投资者持怀疑态度"><span class="hrow-idx">8</span><span class="hrow-name">沃什“鹰派”表态推升9月加息预期，但债市投资者持</span><span class="hrow-meta"><span class="plat-chip" style="background:#e8a33d">金十</span>热点头条</span><div class="hrow-ex">沃什“鹰派”表态推升9月加息预期，但债市投资者持怀疑态度</div></div></div>
+      <div class="muted" style="margin-top:6px">口径：雪球热股/热门话题 + 同花顺板块热榜 + 金十快讯关联股/热点头条 + 财联社热门板块（含主力资金/领涨股）+ 东方财富领涨概念榜（跨平台合并去重，TOP 20）</div>
+    </div>
+
+  
+    <div class="card merge-panel">
+      <div class="sec-title">综合热榜（雪球 / 同花顺 / 金十 / 财联社 / 东方财富 热股 TOP10 汇总）</div>
+      <div class="hcard-sub">热股 TOP10（跨平台合并去重）</div>
+      <div class="hrow" title="雪球热门股票：闪迪（SNDK）热度 9748"><span class="hrow-idx">1</span><span class="hrow-name">闪迪</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 9748</span><div class="hrow-ex">雪球热门股票：闪迪（SNDK）热度 9748</div></div><div class="hrow" title="雪球热门股票：英伟达（NVDA）热度 6433"><span class="hrow-idx">2</span><span class="hrow-name">英伟达</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 6433</span><div class="hrow-ex">雪球热门股票：英伟达（NVDA）热度 6433</div></div><div class="hrow" title="雪球热门股票：美光科技（MU）热度 4863"><span class="hrow-idx">3</span><span class="hrow-name">美光科技</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 4863</span><div class="hrow-ex">雪球热门股票：美光科技（MU）热度 4863</div></div><div class="hrow" title="雪球热门股票：阿里巴巴（BABA）热度 4600"><span class="hrow-idx">4</span><span class="hrow-name">阿里巴巴</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 4600</span><div class="hrow-ex">雪球热门股票：阿里巴巴（BABA）热度 4600</div></div><div class="hrow" title="雪球热门股票：特斯拉（TSLA）热度 4040"><span class="hrow-idx">5</span><span class="hrow-name">特斯拉</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 4040</span><div class="hrow-ex">雪球热门股票：特斯拉（TSLA）热度 4040</div></div><div class="hrow" title="雪球热门股票：SK海力士（SKHY）热度 3548"><span class="hrow-idx">6</span><span class="hrow-name">SK海力士</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 3548</span><div class="hrow-ex">雪球热门股票：SK海力士（SKHY）热度 3548</div></div><div class="hrow" title="雪球热门股票：芒果超媒（SZ300413）热度 2977"><span class="hrow-idx">7</span><span class="hrow-name">芒果超媒</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 2977</span><div class="hrow-ex">雪球热门股票：芒果超媒（SZ300413）热度 2977</div></div><div class="hrow" title="雪球热门股票：赛轮轮胎（SH601058）热度 2625"><span class="hrow-idx">8</span><span class="hrow-name">赛轮轮胎</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 2625</span><div class="hrow-ex">雪球热门股票：赛轮轮胎（SH601058）热度 2625</div></div><div class="hrow" title="雪球热门股票：Circle（CRCL）热度 2320"><span class="hrow-idx">9</span><span class="hrow-name">Circle</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 2320</span><div class="hrow-ex">雪球热门股票：Circle（CRCL）热度 2320</div></div><div class="hrow" title="雪球热门股票：智谱（02513）热度 2065"><span class="hrow-idx">10</span><span class="hrow-name">智谱</span><span class="hrow-meta"><span class="plat-chip" style="background:#3a8ee6">雪球</span>热度 2065</span><div class="hrow-ex">雪球热门股票：智谱（02513）热度 2065</div></div>
+    </div>
+
+  <div class="card">
+    <div class="sec-title">五大平台热词 TOP10（雪球/同花顺/金十/财联社/东方财富 话题聚合）</div>
+    <div class="board-row"><span class="board-chip">智谱上半年收入增长近400%<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">超节点概念拉升，星网锐捷大涨<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">特朗普放话“重击”伊朗，美军却准备“割草坪”：霍<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">影视院线板块活跃，上海电影涨停<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">银行板块逆势拉升，中国银行创新高<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">沃什“鹰派”表态推升9月加息预期，但债市投资者持<span class="plat-chip" style="background:#e8a33d">金十</span></span><span class="board-chip">地产股表现活跃，我爱我家二连板<span class="plat-chip" style="background:#3a8ee6">雪球</span></span><span class="board-chip">金十数据全球财经早餐 | 2026年8月31日<span class="plat-chip" style="background:#e8a33d">金十</span></span></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title">各平台聚合 TOP10 话题（雪球 / 同花顺 / 金十 / 财联社 / 东方财富）</div>
+    
+        <div class="topic-summary-row">
+          <span class="hrow-idx">1</span>
+          <div class="topic-summary-main">
+            <div><b>智谱上半年收入增长近400%</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">86讨论</span></div>
+            <div class="muted">今日，智谱发布2026年中期业绩。业绩显示，智谱2026年上半年实现收入9.54亿元，同比增长近400%。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">2</span>
+          <div class="topic-summary-main">
+            <div><b>美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">美军夜袭霍尔木兹，摧毁伊朗两处发射器，革命卫队放话“必将报复”！</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">3</span>
+          <div class="topic-summary-main">
+            <div><b>超节点概念拉升，星网锐捷大涨</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">103讨论</span></div>
+            <div class="muted">午后超节点概念异动拉升，星网锐捷7天4板，艾华集团涨停，浪潮信息、紫光股份、锐捷网络、智微智能、共进股份跟涨。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">4</span>
+          <div class="topic-summary-main">
+            <div><b>特朗普放话“重击”伊朗，美军却准备“割草坪”：霍</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">特朗普放话“重击”伊朗，美军却准备“割草坪”：霍尔木兹战火要常态化？</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">5</span>
+          <div class="topic-summary-main">
+            <div><b>影视院线板块活跃，上海电影涨停</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">40讨论</span></div>
+            <div class="muted">影视院线概念表现活跃，上海电影涨停，博纳影业、光线传媒、横店影视、儒意电影跟涨。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">6</span>
+          <div class="topic-summary-main">
+            <div><b>贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">贝森特高喊“经济诺曼底登陆”，盟友却不跟：美国对伊制裁遭遇尴尬现实</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">7</span>
+          <div class="topic-summary-main">
+            <div><b>银行板块逆势拉升，中国银行创新高</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">92讨论</span></div>
+            <div class="muted">早盘银行板块逆势拉升，中国银行涨超3%，中信银行涨近2%，股价续创历史新高，北京银行、齐鲁银行、邮储银行均涨超3%。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">8</span>
+          <div class="topic-summary-main">
+            <div><b>沃什“鹰派”表态推升9月加息预期，但债市投资者持</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">沃什“鹰派”表态推升9月加息预期，但债市投资者持怀疑态度</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">9</span>
+          <div class="topic-summary-main">
+            <div><b>地产股表现活跃，我爱我家二连板</b> <span class="plat-chip" style="background:#3a8ee6">雪球</span> <span class="muted">66讨论</span></div>
+            <div class="muted">房地产板块表现活跃，我爱我家、世联行等涨停，万科A、金地集团、新城控股等涨幅靠前。…</div>
+          </div>
+        </div>
+        <div class="topic-summary-row">
+          <span class="hrow-idx">10</span>
+          <div class="topic-summary-main">
+            <div><b>金十数据全球财经早餐 | 2026年8月31日</b> <span class="plat-chip" style="background:#e8a33d">金十</span> <span class="muted">热点头条</span></div>
+            <div class="muted">金十数据全球财经早餐 | 2026年8月31日</div>
+          </div>
+        </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px">up主动态与观点蒸馏</div>
+  
+    <div class="card up-card">
+      <div class="sec-title">up主动态与观点蒸馏汇总</div>
+      <div class="muted">暂无数据</div>
+    </div>
+    
+
+  <div class="card"><div class="sec-title">数据源异常</div><div class="src-error"><b>B站</b>：B站会话初始化失败（风控）</div></div>
+
+  <footer>仅供研究参考，不构成投资建议 · 数据来自公开接口，时效与准确性以原平台为准 · 生成于 2026-09-01 08:06:04 · <a href="https://yonglongl630-ops.github.io/opagg-report/" style="color:#8b949e">在线版</a></footer>
+
+  <div id="refresh-help" class="modal-mask" style="display:none">
+    <div class="modal">
+      <div class="modal-title">手机 / 云端刷新配置</div>
+      <div id="help-msg" class="muted" style="margin-bottom:6px"></div>
+      <div class="muted" style="margin-bottom:4px">正确网址：<code>https://yonglongl630-ops.github.io/opagg-report/</code>（根域无内容属正常）</div>
+      <div style="margin:8px 0">
+        <input id="help-api" class="api-input" style="width:92%" placeholder="http://192.168.x.x:8651 或 https://你的云端域名">
+      </div>
+      <div class="muted" style="margin-bottom:4px">若云端设置了 OPAGG_TOKEN，地址写成 <code>https://你的域名?token=你的口令</code>（会分开记忆）</div>
+      <div style="margin:6px 0">
+        <button class="refresh-btn" onclick="saveHelpApi()">保存并重试刷新</button>
+        <button class="refresh-btn" onclick="closeHelp()" style="color:#777;border-color:#bbb">关闭</button>
+      </div>
+      <div class="muted" style="margin-top:8px;line-height:1.7">
+        方式A·局域网：电脑运行 <code>python3 -m src.serve --lan</code>，手机填 <code>http://电脑IP:8651</code>（同 WiFi）<br>
+        方式B·云端：按 <code>deploy/cloud/README.md</code> 部署后填云端域名，无需本地开机<br>
+        方式C·临时公网：电脑运行 <code>bash deploy/tunnel.sh</code>，手机填 trycloudflare 给的地址<br>
+        方式D·Tailscale：Mac 与手机安装 Tailscale 并登录同一账号，手机填 <code>http://Mac的100.x地址:8651</code><br>
+        方式E·花生壳（推荐公网）：电脑运行本地刷新服务并保持花生壳客户端在线（映射 8651），
+        手机/电脑任何网络打开 <code>http://sf12894020jr.vicp.fun</code> 即可「立即刷新」，
+        GitHub Pages 版会自动走该地址刷新并同步发布
+      </div>
+    </div>
+  </div>
+  <script>
+  // GitHub Pages 静态站默认回退的刷新服务（花生壳映射到本机 8651）
+  var DEFAULT_API = 'http://sf12894020jr.vicp.fun';
+  function refreshBase() {
+    // 同一来源优先：http/https 打开时直接用当前域名（局域网 IP 或云端域名），手机端同源可用。
+    if (location.protocol === 'http:' || location.protocol === 'https:') {
+      // GitHub Pages 是纯静态站，没有采集后端：自动使用已保存地址或花生壳默认地址
+      if ((location.hostname || '').indexOf('github.io') >= 0) {
+        var savedApi = null;
+        try { savedApi = localStorage.getItem('opagg_api'); } catch (e) {}
+        return (savedApi || DEFAULT_API).replace(/\/+$/, '');
+      }
+      return location.origin;
+    }
+    // file:// 打开时：优先 ?api= 参数（并记住），其次 localStorage 保存的地址，最后本机默认。
+    var q = new URLSearchParams(location.search).get('api');
+    if (q) {
+      try { localStorage.setItem('opagg_api', q); } catch (e) {}
+      return q.replace(/\/+$/, '');
+    }
+    try {
+      var saved = localStorage.getItem('opagg_api');
+      if (saved) { return saved.replace(/\/+$/, ''); }
+    } catch (e) {}
+    return 'http://127.0.0.1:8651';
+  }
+  function showApiConfig() {
+    var el = document.getElementById('api-config');
+    if (el) { el.style.display = 'block'; }
+    var inp = document.getElementById('api-input');
+    if (inp && !inp.value) { inp.value = refreshBase(); }
+  }
+  function saveApiBase() {
+    var v = (document.getElementById('api-input').value || '').trim().replace(/\/+$/, '');
+    if (!v) { return; }
+    saveApiPair(v);
+    checkServe();
+    var st = document.getElementById('serve-status');
+    if (st) { st.textContent = '已保存刷新地址：' + v + '，正在探测…'; st.style.color = '#9a6b1f'; }
+  }
+  function saveApiPair(v) {
+    // 支持“https://域名?token=口令”的写法：拆成地址 + 口令分别保存
+    var base = v, token = '';
+    var qi = v.indexOf('?token=');
+    if (qi >= 0) {
+      base = v.substring(0, qi);
+      token = v.substring(qi + 7);
+    }
+    try {
+      localStorage.setItem('opagg_api', base);
+      if (token) { localStorage.setItem('opagg_token', token); }
+      else { localStorage.removeItem('opagg_token'); }
+    } catch (e) {}
+  }
+  function apiUrl(path) {
+    var b = refreshBase();
+    var t = '';
+    try { t = localStorage.getItem('opagg_token') || ''; } catch (e) {}
+    return b + path + (t ? ((path.indexOf('?') >= 0 ? '&' : '?') + 'token=' + encodeURIComponent(t)) : '');
+  }
+  function checkServe() {
+    var base = refreshBase();
+    fetch(apiUrl('/api/status'))
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        var el = document.getElementById('serve-status');
+        if (el) { el.textContent = '刷新服务已连接：' + base + '（点击即可实时刷新）'; el.style.color = '#1a9d57'; }
+      })
+      .catch(function () {
+        var el = document.getElementById('serve-status');
+        if (el) { el.textContent = '刷新服务未连接：' + base + '（点上方“保存并连接”可配置手机/云端地址）'; el.style.color = '#c0392b'; }
+        if (location.protocol !== 'http:' && location.protocol !== 'https:') { showApiConfig(); }
+        if ((location.hostname || '').indexOf('github.io') >= 0) {
+          showRefreshHelp(base, 'GitHub Pages 静态站已自动改用刷新服务：' + base +
+            '。若仍未连接，请确认电脑已开机且本地服务/花生壳在线（映射 8651）；' +
+            '首次使用若提示需要口令，请在下方地址后补上 ?token=你的口令 后保存。');
+        }
+      });
+  }
+  function showRefreshHelp(base, msg) {
+    var el = document.getElementById('refresh-help');
+    if (!el) { return; }
+    document.getElementById('help-msg').textContent = msg || ('当前刷新地址：' + base + '，连接失败。请配置可用的刷新服务。');
+    var inp = document.getElementById('help-api');
+    if (inp && !inp.value) { inp.value = base; }
+    el.style.display = 'flex';
+  }
+  function closeHelp() {
+    var el = document.getElementById('refresh-help');
+    if (el) { el.style.display = 'none'; }
+  }
+  function saveHelpApi() {
+    var v = (document.getElementById('help-api').value || '').trim().replace(/\/+$/, '');
+    if (!v) { return; }
+    saveApiPair(v);
+    closeHelp();
+    refreshData('all');
+  }
+  checkServe();
+  function refreshData(source) {
+    var btn = document.getElementById('refresh-btn');
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = 'none'; links[i].textContent = '刷新中…'; }
+    if (btn) { btn.disabled = true; btn.textContent = '刷新中…（约1-2分钟）'; }
+    var m = (location.pathname || '').match(/report_(\d{4}-\d{2}-\d{2})/);
+    var date = m ? m[1] : '';
+    var base = refreshBase();
+    if ((location.protocol !== 'http:' && location.protocol !== 'https:') && base.indexOf('127.0.0.1') >= 0) {
+      // file:// 且未配置地址：先探测本机服务，可达则跳转到服务版页面并自动刷新（同源最稳）
+      fetch(apiUrl('/api/status'), { method: 'GET' })
+        .then(function () {
+          var f = (location.pathname || '').split('/').pop() || ('report_' + date + '.html');
+          location.href = base + '/' + f + '?refresh=1';
+        })
+        .catch(function () {
+          showRefreshHelp(base, '无法连接刷新服务（' + base + '）。手机/云端请配置局域网或云端地址；电脑本地请运行 python3 -m src.serve --open。');
+          resetRefreshBtns();
+        });
+      return;
+    }
+    fetch(apiUrl('/api/refresh?source=' + encodeURIComponent(source || 'all') + '&date=' + encodeURIComponent(date)), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.ok) { pollRefresh(); }
+        else {
+          var err = (j && j.error ? j.error : '未知错误');
+          if (err.indexOf('token') >= 0) {
+            // 服务要求口令：弹配置框并预填“当前地址?token=”，用户只需粘贴口令
+            var inp = document.getElementById('help-api');
+            if (inp && !inp.value) { inp.value = location.origin + '?token='; }
+            showRefreshHelp(base, '该刷新服务需要口令（当前没带 token，被拒绝）。请在地址后补上 ?token=你的口令，例如 ' + location.origin + '?token=你的口令');
+          } else {
+            alert('刷新启动失败：' + err);
+          }
+          resetRefreshBtns();
+        }
+      })
+      .catch(function () {
+        showRefreshHelp(base, '无法连接刷新服务（' + base + '）。请确认服务已运行（本机 python3 -m src.serve --lan），或在下方配置云端域名。');
+        resetRefreshBtns();
+      });
+  }
+  function pollRefresh() {
+    var base = refreshBase();
+    var t = setInterval(function () {
+      fetch(apiUrl('/api/status')).then(function (r) { return r.json(); }).then(function (j) {
+          if (j && !j.running) {
+            clearInterval(t);
+            var isHsUrl = (base || '').indexOf('vicp.fun') >= 0;
+            if ((location.hostname || '').indexOf('github.io') >= 0 || isHsUrl) {
+              // GitHub Pages / 花生壳：刷新完成后自动发布到 GitHub Pages，实现两站同步
+              publishAndReload(base, location.pathname + '?t=' + Date.now());
+            } else if (location.protocol === 'http:' || location.protocol === 'https:') {
+              // 同源（局域网/云端页面）：带时间戳重载当前页
+              location.href = location.pathname + '?t=' + Date.now();
+            } else {
+              // file:// 或跨源：跳到服务端最新日报
+              var html = (j.result && j.result.html) ? j.result.html : ('report_' + (j.date || '') + '.html');
+              location.href = base + '/' + html.replace(/^.*[\/]/, '');
+            }
+          }
+        }).catch(function () { clearInterval(t); resetRefreshBtns(); });
+    }, 2500);
+  }
+  function publishAndReload(base, reloadUrl) {
+    var st = document.getElementById('serve-status');
+    if (st) { st.textContent = '日报已刷新，正在同步到 GitHub Pages…'; st.style.color = '#9a6b1f'; }
+    fetch(apiUrl('/api/publish'), { method: 'POST' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) {
+          var msg = (j && j.message) ? j.message : '未知错误';
+          if (st) { st.textContent = '刷新完成，但发布未启动：' + msg; st.style.color = '#c0392b'; }
+          resetRefreshBtns();
+          return;
+        }
+        var t = setInterval(function () {
+          fetch(apiUrl('/api/publish-status'))
+            .then(function (r) { return r.json(); })
+            .then(function (p) {
+              if (p && !p.running) {
+                clearInterval(t);
+                var err = p && p.error;
+                if (st) {
+                  st.textContent = err
+                    ? ('发布失败：' + err + '，请稍后在电脑上手动运行 bash deploy/gh_pages_push.sh')
+                    : '已刷新并发布，GitHub Pages 约 1 分钟后更新';
+                  st.style.color = err ? '#c0392b' : '#1a9d57';
+                }
+                setTimeout(function () { location.href = reloadUrl; }, err ? 6000 : 3500);
+              }
+            })
+            .catch(function () { clearInterval(t); resetRefreshBtns(); });
+        }, 3000);
+      })
+      .catch(function () {
+        if (st) { st.textContent = '刷新完成，但发布请求失败（请确认服务在线）'; st.style.color = '#c0392b'; }
+        resetRefreshBtns();
+      });
+  }
+  function resetRefreshBtns() {
+    var btn = document.getElementById('refresh-btn');
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 立即刷新'; }
+    var links = document.querySelectorAll('.refresh-link');
+    for (var i = 0; i < links.length; i++) { links[i].style.pointerEvents = ''; links[i].textContent = '🔄 立即刷新'; }
+  }
+  (function () {
+    if ((location.search || '').indexOf('refresh=1') >= 0) {
+      refreshData('all');
+    }
+  })();
+  </script>
+</div>
+</body>
+</html>
